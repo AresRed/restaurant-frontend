@@ -1,0 +1,297 @@
+ * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background-color: #ffffff;
+        }
+
+        /* Banner Section */
+        .banner {
+            background-image: url(../../../img/banner.avif);
+            background-position: top ;
+            background-size: cover;
+            background-position-y:50% ;
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .banner-content {
+            transform: translateY(-50px);
+            text-align: center;
+            z-index: 2;
+            position: relative;
+            max-width: 600px;
+            padding: 0 20px;
+        }
+
+        .banner h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        .banner p {
+            font-size: 1.2rem;
+            color: #ecf0f1;
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+        }
+
+        .button {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: inherit;
+        }
+
+        .primary-btn {
+            background: #ffffff;
+            color: #2c3e50;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .primary-btn:hover {
+            background: #f8f9fa;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Location Section */
+        .us {
+            background: #f8f9fa;
+            padding: 80px 0;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .location-content h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .location-content p {
+            font-size: 1.1rem;
+            color: #6c757d;
+            max-width: 500px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+
+        /* Products Section */
+        .prom {
+            background: #ffffff;
+            padding: 100px 20px;
+        }
+
+        .fav {
+            max-width: 1100px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .fav h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .fav > p {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin-bottom: 60px;
+            font-weight: 300;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .product-card {
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 30px;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .product-card:hover {
+            border-color: #dee2e6;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .product-image {
+            height: 180px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .product-card h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .product-card p {
+            color: #6c757d;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .secondary-btn {
+            background: #2c3e50;
+            color: #ffffff;
+            margin-top: 40px;
+        }
+
+        .secondary-btn:hover {
+            background: #34495e;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(44, 62, 80, 0.2);
+        }
+
+        /* Delivery Section */
+        .shipment {
+            background: #2c3e50;
+            padding: 80px 20px;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .content {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .content h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .content h2 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: #bdc3c7;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .content h3 {
+            font-size: 1rem;
+            font-weight: 300;
+            color: #95a5a6;
+            margin-bottom: 40px;
+        }
+
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 50px;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .banner h1 {
+                font-size: 2.5rem;
+            }
+            
+            .banner p {
+                font-size: 1.1rem;
+            }
+
+            .location-content h1,
+            .fav h1,
+            .content h1 {
+                font-size: 2rem;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .features {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .feature {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .banner {
+                min-height: 70vh;
+            }
+
+            .banner h1 {
+                font-size: 2rem;
+                letter-spacing: 1px;
+            }
+
+            .button {
+                padding: 14px 28px;
+                font-size: 0.9rem;
+            }
+
+            .location-content h1,
+            .fav h1,
+            .content h1 {
+                font-size: 1.8rem;
+            }
+
+            .prom,
+            .shipment {
+                padding: 60px 20px;
+            }
+        }

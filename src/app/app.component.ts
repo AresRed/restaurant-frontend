@@ -5,7 +5,7 @@ import { HeaderComponent } from './shared/header/header.component';
 import { HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './auth/login/login.component';
 import { HomeComponent } from './features/home/home.component';
-
+import { OAuthModule } from 'angular-oauth2-oidc';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +15,8 @@ import { HomeComponent } from './features/home/home.component';
     HeaderComponent,
     HomeComponent,
     HttpClientModule,
-    LoginComponent
+    LoginComponent,
+    OAuthModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

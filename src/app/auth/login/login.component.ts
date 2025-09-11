@@ -1,15 +1,16 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DrawerModule } from 'primeng/drawer';
+import { HttpClientModule } from '@angular/common/http';
+import { Component } from '@angular/core';
+import { FormsModule, NgForm } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { UiService } from '../../services/ui.service';
+import { DrawerModule } from 'primeng/drawer';
+import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
-import { FormsModule } from '@angular/forms';
-import { FloatLabelModule } from "primeng/floatlabel"
 import { AuthService } from '../../services/auth.service';
-import { NgForm } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { UiService } from '../../services/ui.service';
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -21,87 +22,135 @@ import { HttpClientModule } from '@angular/common/http';
     FormsModule,
     CommonModule,
     HttpClientModule,
-    FloatLabelModule
-
+    FloatLabelModule,
   ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-
-  //variables para la tab de login/register
   visible: boolean = false;
   activeTab: 'login' | 'register' = 'login';
 
-  //variables para login
   loginEmail: string = '';
   loginPassword: string = '';
 
-  //variables para register
   nombre: string = '';
   regEmail: string = '';
   regPassword = '';
   regPasswordConfirm: string = '';
 
+  currentUser: any | null = null;
 
-  //constructor 
   constructor(
-
-    // variable para el uso de metodos del servicio uiservice del servicio de despliegue
     private uiService: UiService,
-
-    // variable para el uso de metodos del servicio authservice para el consumo de api's
     private authService: AuthService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
-  ) { }
-  //metodo para la asignacion de la funcion de despliegue del login/observer
   ngOnInit() {
-    this.uiService.loginDrawerState$.subscribe(state => {
-      this.visible = state
-    })
+    this.uiService.loginDrawerState$.subscribe(
+      (state) => (this.visible = state)
+    );
+
+    // Mantener sesión si hay token
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      this.authService.getCurrentUser().subscribe({
+        next: (res) => (this.currentUser = res.data),
+        error: () => {
+          localStorage.removeItem('accessToken');
+          this.currentUser = null;
+        },
+      });
+    }
   }
 
-  // Método de login
   onLogin(form: NgForm) {
     if (!form.valid) return;
 
-    this.authService.login({
-      usernameOrEmail: this.loginEmail,
-      password: this.loginPassword
-    }).subscribe({
-      next: res => {
-        console.log('Login exitoso', res);
-        // Guardar token en localStorage si quieres
-        localStorage.setItem('accessToken', res.accessToken);
-        this.visible = false; // cerrar drawer al iniciar sesión
-      },
-      error: err => {
-        console.error('Error al iniciar sesión', err);
-      }
-    });
+    this.authService
+      .login({ usernameOrEmail: this.loginEmail, password: this.loginPassword })
+      .subscribe({
+        next: (res) => {
+          if (res.data?.refreshToken) {
+            localStorage.setItem('refreshToken', res.data.refreshToken);
+          }
+          localStorage.setItem('accessToken', res.data.accessToken);
+
+          this.authService.getCurrentUser().subscribe({
+            next: (userRes) => (this.currentUser = userRes.data),
+            error: () =>
+              (this.currentUser = this.parseJwt(res.data.accessToken)),
+          });
+
+          this.visible = false; // cerrar drawer
+        },
+        error: (err) => console.error('Error al iniciar sesión', err),
+      });
   }
 
-  // Método de registro
   onRegister(form: NgForm) {
     if (!form.valid) return;
-
     if (this.regPassword !== this.regPasswordConfirm) {
       console.error('Las contraseñas no coinciden');
       return;
     }
 
-    this.authService.register({
-      username: this.nombre,
-      email: this.regEmail,
-      password: this.regPassword
-    }).subscribe({
-      next: res => {
-        console.log('Registro exitoso', res);
-        this.activeTab = 'login'; // cambiar al login tras registrarse
+    this.authService
+      .register({
+        username: this.nombre,
+        email: this.regEmail,
+        password: this.regPassword,
+      })
+      .subscribe({
+        next: () => (this.activeTab = 'login'),
+        error: (err) => console.error('Error al registrar', err),
+      });
+  }
+
+  loginGoogle() {
+    this.authService.loginWithGoogle().subscribe({
+      next: (res) => {
+        localStorage.setItem('accessToken', res.accessToken);
+
+        this.authService.getCurrentUser().subscribe({
+          next: (userRes) => {
+            this.currentUser = userRes.data;
+            this.visible = false; // cerrar drawer
+          },
+          error: () => {
+            this.currentUser = this.parseJwt(res.accessToken); // fallback
+          },
+        });
       },
-      error: err => {
-        console.error('Error al registrar', err);
-      }
+      error: (err) => console.error(err),
     });
+  }
+
+  parseJwt(token: string): any {
+    try {
+      const payload = token.split('.')[1];
+      return JSON.parse(atob(payload));
+    } catch {
+      return null;
+    }
+  }
+
+  logout() {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (refreshToken) {
+      this.authService.logout(refreshToken).subscribe({
+        next: () => {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          this.currentUser = null;
+        },
+        error: (err) => console.error('Error al cerrar sesión', err),
+      });
+    } else {
+      localStorage.removeItem('accessToken');
+      this.currentUser = null;
+    }
   }
 }

@@ -113,18 +113,24 @@ export class LoginComponent {
     this.authService.loginWithGoogle().subscribe({
       next: (res) => {
         localStorage.setItem('accessToken', res.accessToken);
+        if (res.refreshToken) {
+          localStorage.setItem('refreshToken', res.refreshToken);
+        }
 
         this.authService.getCurrentUser().subscribe({
           next: (userRes) => {
             this.currentUser = userRes.data;
-            this.visible = false; // cerrar drawer
+            this.visible = false;
           },
           error: () => {
-            this.currentUser = this.parseJwt(res.accessToken); // fallback
+            this.currentUser = this.parseJwt(res.accessToken);
           },
         });
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        console.error('❌ Error en login con Google:', err.message);
+        alert('Error al iniciar sesión con Google: ' + err.message);
+      },
     });
   }
 

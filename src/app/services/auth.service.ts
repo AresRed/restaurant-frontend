@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 export interface LoginRequest {
@@ -97,9 +97,27 @@ export class AuthService {
 
     return new Observable<AuthResponse>((observer) => {
       const messageHandler = (event: MessageEvent) => {
+        // aceptar solo mensajes de tu backend
         if (event.origin !== 'http://localhost:8080') return;
-        if (event.data?.accessToken) {
-          observer.next(event.data);
+
+        const data = event.data;
+
+        if (data?.success === false) {
+          // ❌ error enviado desde FailureHandler
+          observer.error(
+            new Error(data.message || 'Error en login con Google')
+          );
+          popup?.close();
+          window.removeEventListener('message', messageHandler);
+          return;
+        }
+
+        if (data?.accessToken) {
+          // ✅ éxito
+          observer.next({
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken || '',
+          });
           observer.complete();
           popup?.close();
           window.removeEventListener('message', messageHandler);

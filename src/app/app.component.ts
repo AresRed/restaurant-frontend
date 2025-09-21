@@ -4,7 +4,7 @@ import { EnProcesoComponent } from './en-proceso/en-proceso.component';
 import { HeaderComponent } from './shared/header/header.component';
 import { HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './auth/login/login.component';
-import { HomeComponent } from './features/home/home.component';
+import { HomeComponent } from './shared/page/home/home.component'; 
 
 
 @Component({
@@ -15,7 +15,8 @@ import { HomeComponent } from './features/home/home.component';
     HeaderComponent,
     HomeComponent,
     HttpClientModule,
-    LoginComponent
+    LoginComponent,
+    RouterOutlet,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

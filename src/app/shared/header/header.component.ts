@@ -22,7 +22,7 @@ export class HeaderComponent {
       },
       {
         label: 'Menú',
-        routerLink: '/',
+        routerLink: '/menu',
       },
       {
         label: 'Nosotros',
@@ -30,7 +30,7 @@ export class HeaderComponent {
       },
       {
         label: 'Trabaja con Nosotros',
-        routerLink: '',
+        routerLink: '/workus',
       },
       {
         label: 'Iniciar Sesion',

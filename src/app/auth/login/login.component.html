@@ -4,192 +4,250 @@
   position="right"
   styleClass="!w-full md:!w-96"
 >
-  <!-- Barra de tabs -->
-  <div class="flex mb-6 border-b border-gray-300">
+  <!-- Si hay usuario logueado -->
+  <div *ngIf="currentUser; else authTabs" class="p-4">
+    <h3 class="text-lg font-semibold">Bienvenido, {{ currentUser.username || currentUser.email }}</h3>
+    <p class="text-sm text-gray-600">Email: {{ currentUser.email }}</p>
     <button
-      class="flex-1 py-2 font-semibold text-center transition-colors"
-      [class.text-blue-600]="activeTab === 'login'"
-      (click)="activeTab = 'login'"
-    >
-      Iniciar Sesión
-    </button>
-    <button
-      class="flex-1 py-2 font-semibold text-center transition-colors"
-      [class.text-blue-600]="activeTab === 'register'"
-      (click)="activeTab = 'register'"
-    >
-      Registrarse
-    </button>
+      pButton
+      type="button"
+      label="Cerrar sesión"
+      class="w-full mt-4"
+      (click)="logout()"
+    ></button>
   </div>
 
-  <!-- Contenedor deslizante -->
-  <div class="relative w-full h-screen overflow-hidden">
-    <div
-      class="flex transition-transform duration-500 ease-in-out"
-      [style.transform]="
-        activeTab === 'login' ? 'translateX(0%)' : 'translateX(-100%)'
-      "
-    >
-      <!-- LOGIN -->
-      <div class="flex-shrink-0 w-full px-4">
-        <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)">
-          <!-- Email -->
-          <p-floatLabel class="block mt-6 mb-4">
-            <input
-              pInputText
-              id="login-email"
-              name="loginEmail"
-              type="email"
-              [(ngModel)]="loginEmail"
-              required
-              email
-              #loginEmailCtrl="ngModel"
-              class="w-full"
-            />
-            <label for="login-email">Correo electrónico</label>
-          </p-floatLabel>
-          <div
-            *ngIf="loginEmailCtrl.invalid && (loginEmailCtrl.dirty || loginEmailCtrl.touched)"
-            class="ml-2 -mt-3 text-xs text-red-500"
-          >
-            Ingresa un correo válido
-          </div>
+  <!-- Tabs de login/registro -->
+  <ng-template #authTabs>
+    <!-- Barra de tabs -->
+    <div class="flex mb-6 border-b border-gray-300">
+      <button
+        class="flex-1 py-2 font-semibold text-center transition-colors"
+        [class.text-blue-600]="activeTab === 'login'"
+        (click)="activeTab = 'login'"
+      >
+        Iniciar Sesión
+      </button>
+      <button
+        class="flex-1 py-2 font-semibold text-center transition-colors"
+        [class.text-blue-600]="activeTab === 'register'"
+        (click)="activeTab = 'register'"
+      >
+        Registrarse
+      </button>
+    </div>
 
-          <!-- Password - CORREGIDO -->
-          <p-floatLabel class="block mt-8 mb-4">
-            <p-password
-              id="login-password"
-              name="loginPassword"
-              [(ngModel)]="loginPassword"
-              [toggleMask]="true"
-              size="large"              
-              required
-              feedback="false"
-              #loginPasswordCtrl="ngModel"
-              class="w-full"
-              styleClass="w-full"
-              inputStyleClass="w-full"
-            />
-            <label for="login-password">Contraseña</label>
-          </p-floatLabel>
-          <div
-            *ngIf="loginPasswordCtrl.invalid && (loginPasswordCtrl.dirty || loginPasswordCtrl.touched)"
-            class="ml-2 -mt-3 text-xs text-red-500"
-          >
-            La contraseña es inválida 
-          </div>
+    <!-- Contenedor deslizante -->
+    <div class="relative w-full h-screen overflow-hidden">
+      <div
+        class="flex transition-transform duration-500 ease-in-out"
+        [style.transform]="
+          activeTab === 'login' ? 'translateX(0%)' : 'translateX(-100%)'
+        "
+      >
+        <!-- LOGIN -->
+        <div class="flex-shrink-0 w-full px-4">
+          <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)">
+            <p-floatLabel class="block mt-6 mb-4">
+              <input
+                pInputText
+                id="login-email"
+                name="loginEmail"
+                type="email"
+                [(ngModel)]="loginEmail"
+                required
+                email
+                #loginEmailCtrl="ngModel"
+                class="w-full"
+              />
+              <label for="login-email">Correo electrónico</label>
+            </p-floatLabel>
+            <div
+              *ngIf="
+                loginEmailCtrl.invalid &&
+                (loginEmailCtrl.dirty || loginEmailCtrl.touched)
+              "
+              class="ml-2 -mt-3 text-xs text-red-500"
+            >
+              Ingresa un correo válido
+            </div>
 
-          <button
-            pButton
-            type="submit"
-            label="Iniciar Sesión"
-            class="w-full mt-4"
-          ></button>
-        </form>
-      </div>
+            <p-floatLabel class="block mt-8 mb-4">
+              <p-password
+                id="login-password"
+                name="loginPassword"
+                [(ngModel)]="loginPassword"
+                [toggleMask]="true"
+                size="large"
+                required
+                feedback="false"
+                #loginPasswordCtrl="ngModel"
+                class="w-full"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+              />
+              <label for="login-password">Contraseña</label>
+            </p-floatLabel>
+            <div
+              *ngIf="
+                loginPasswordCtrl.invalid &&
+                (loginPasswordCtrl.dirty || loginPasswordCtrl.touched)
+              "
+              class="ml-2 -mt-3 text-xs text-red-500"
+            >
+              La contraseña es inválida
+            </div>
 
-      <!-- REGISTER -->
-      <div class="flex-shrink-0 w-full h-screen px-2">
-        <form #registerForm="ngForm" (ngSubmit)="onRegister(registerForm)">
-          <!-- Nombre -->
-          <p-floatLabel class="block mt-6 mb-4">
-            <input
-              pInputText
-              id="reg-username"
-              name="regUserName"
-              type="text"
-              [(ngModel)]="nombre"
-              required
-              #regUserNameCtrl="ngModel"
-              class="w-full"
-            />
-            <label for="reg-username">Nombre Completo</label>
-          </p-floatLabel>
-          <div
-            *ngIf="regUserNameCtrl.invalid && (regUserNameCtrl.dirty || regUserNameCtrl.touched)"
-            class="ml-2 -mt-3 text-xs text-red-500"
-          >
-            Ingresa tu nombre
-          </div>
+            <button
+              pButton
+              type="submit"
+              label="Iniciar Sesión"
+              class="w-full mt-4"
+            ></button>
 
-          <!-- Email -->
-          <p-floatLabel class="block mt-8 mb-4">
-            <input
-              pInputText
-              id="reg-email"
-              name="regEmail"
-              type="email"
-              [(ngModel)]="regEmail"
-              required
-              email
-              #regEmailCtrl="ngModel"
-              class="w-full"
-            />
-            <label for="reg-email">Correo electrónico</label>
-          </p-floatLabel>
-          <div
-            *ngIf="regEmailCtrl.invalid && (regEmailCtrl.dirty || regEmailCtrl.touched)"
-            class="ml-2 -mt-3 text-xs text-red-500"
-          >
-            Ingresa un correo válido
-          </div>
+            <div class="mt-6 flex justify-center">
+              <button
+                type="button"
+                class="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded flex items-center justify-center"
+                (click)="loginGoogle()"
+              >
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png"
+                  alt="Google"
+                  class="w-5 h-5 mr-2"
+                />
+                Iniciar sesión con Google
+              </button>
+            </div>
+          </form>
+        </div>
 
-          <!-- Contraseña - CORREGIDO -->
-          <p-floatLabel class="block mt-8 mb-4">
-            <p-password
-              id="reg-password"
-              name="regPassword"
-              [(ngModel)]="regPassword"
-              [toggleMask]="true"
-              size="large"   
-              required
-              feedback="false"
-              #regPasswordCtrl="ngModel"
-              class="w-full"
-              styleClass="w-full"
-              inputStyleClass="w-full"
-            ></p-password>
-            <label for="reg-password">Contraseña</label>
-          </p-floatLabel>
-          <div
-            *ngIf="regPasswordCtrl.invalid && (regPasswordCtrl.dirty || regPasswordCtrl.touched)"
-            class="ml-2 -mt-3 text-xs text-red-500"
-          >
-            La contraseña es inválida 
-          </div>
+        <!-- REGISTER -->
+        <div class="flex-shrink-0 w-full h-screen px-2">
+          <form #registerForm="ngForm" (ngSubmit)="onRegister(registerForm)">
+            <p-floatLabel class="block mt-6 mb-4">
+              <input
+                pInputText
+                id="reg-username"
+                name="regUserName"
+                type="text"
+                [(ngModel)]="nombre"
+                required
+                #regUserNameCtrl="ngModel"
+                class="w-full"
+              />
+              <label for="reg-username">Nombre Completo</label>
+            </p-floatLabel>
+            <div
+              *ngIf="
+                regUserNameCtrl.invalid &&
+                (regUserNameCtrl.dirty || regUserNameCtrl.touched)
+              "
+              class="ml-2 -mt-3 text-xs text-red-500"
+            >
+              Ingresa tu nombre
+            </div>
 
-          <!-- Confirmar Contraseña - CORREGIDO -->
-          <p-floatLabel class="block mt-8 mb-4">
-            <p-password
-              id="reg-password-confirm"
-              name="regPasswordConfirm"
-              [(ngModel)]="regPasswordConfirm"
-              [toggleMask]="true"
-              required
-              size="large"   
-              feedback="false"
-              #regPasswordConfirmCtrl="ngModel"
-              class="w-full"
-              styleClass="w-full"
-              inputStyleClass="w-full"
-            ></p-password>
-            <label for="reg-password-confirm">Confirmar Contraseña</label>
-          </p-floatLabel>
-          <div
-            *ngIf="regPasswordConfirm !== regPassword && (regPasswordConfirmCtrl.dirty || regPasswordConfirmCtrl.touched)"
-            class="ml-2 -mt-3 text-xs text-red-500"
-          >
-            Las contraseñas no coinciden
-          </div>
+            <p-floatLabel class="block mt-8 mb-4">
+              <input
+                pInputText
+                id="reg-email"
+                name="regEmail"
+                type="email"
+                [(ngModel)]="regEmail"
+                required
+                email
+                #regEmailCtrl="ngModel"
+                class="w-full"
+              />
+              <label for="reg-email">Correo electrónico</label>
+            </p-floatLabel>
+            <div
+              *ngIf="
+                regEmailCtrl.invalid &&
+                (regEmailCtrl.dirty || regEmailCtrl.touched)
+              "
+              class="ml-2 -mt-3 text-xs text-red-500"
+            >
+              Ingresa un correo válido
+            </div>
 
-          <button
-            pButton
-            type="submit"
-            label="Registrarse"
-            class="w-full mt-4"
-          ></button>
-        </form>
+            <p-floatLabel class="block mt-8 mb-4">
+              <p-password
+                id="reg-password"
+                name="regPassword"
+                [(ngModel)]="regPassword"
+                [toggleMask]="true"
+                size="large"
+                required
+                feedback="false"
+                #regPasswordCtrl="ngModel"
+                class="w-full"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+              ></p-password>
+              <label for="reg-password">Contraseña</label>
+            </p-floatLabel>
+            <div
+              *ngIf="
+                regPasswordCtrl.invalid &&
+                (regPasswordCtrl.dirty || regPasswordCtrl.touched)
+              "
+              class="ml-2 -mt-3 text-xs text-red-500"
+            >
+              La contraseña es inválida
+            </div>
+
+            <p-floatLabel class="block mt-8 mb-4">
+              <p-password
+                id="reg-password-confirm"
+                name="regPasswordConfirm"
+                [(ngModel)]="regPasswordConfirm"
+                [toggleMask]="true"
+                required
+                size="large"
+                feedback="false"
+                #regPasswordConfirmCtrl="ngModel"
+                class="w-full"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+              ></p-password>
+              <label for="reg-password-confirm">Confirmar Contraseña</label>
+            </p-floatLabel>
+            <div
+              *ngIf="
+                regPasswordConfirm !== regPassword &&
+                (regPasswordConfirmCtrl.dirty || regPasswordConfirmCtrl.touched)
+              "
+              class="ml-2 -mt-3 text-xs text-red-500"
+            >
+              Las contraseñas no coinciden
+            </div>
+
+            <button
+              pButton
+              type="submit"
+              label="Registrarse"
+              class="w-full mt-4"
+            ></button>
+
+            <div class="mt-6 flex justify-center">
+              <button
+                type="button"
+                class="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded flex items-center justify-center"
+                (click)="loginGoogle()"
+              >
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png"
+                  alt="Google"
+                  class="w-5 h-5 mr-2"
+                />
+                Iniciar sesión con Google
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
+  </ng-template>
 </p-drawer>

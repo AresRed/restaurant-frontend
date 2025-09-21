@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './auth/login/login.component';
 import { HomeComponent } from './shared/page/home/home.component'; 
 
+import { OAuthModule } from 'angular-oauth2-oidc';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,8 @@ import { HomeComponent } from './shared/page/home/home.component';
     HttpClientModule,
     LoginComponent,
     RouterOutlet,
+    LoginComponent,
+    OAuthModule,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

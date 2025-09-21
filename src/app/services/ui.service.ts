@@ -2,18 +2,17 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UiService {
-private loginDrawerState = new BehaviorSubject<boolean>(false);
-loginDrawerState$=this.loginDrawerState.asObservable();
+  private loginDrawerState = new BehaviorSubject<boolean>(false);
+  loginDrawerState$ = this.loginDrawerState.asObservable();
 
+  openLoginDrawer() {
+    this.loginDrawerState.next(true);
+  }
 
-openLoginDrawer(){
-  this.loginDrawerState.next(true);
-}
-
-closeLoginDrawe(){
-  this.loginDrawerState.next(false);
-}
+  closeLoginDrawe() {
+    this.loginDrawerState.next(false);
+  }
 }

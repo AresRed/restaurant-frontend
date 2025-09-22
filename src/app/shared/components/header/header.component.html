@@ -43,6 +43,20 @@
 
       <!-- Botones escritorio -->
       <div class="hidden md:flex items-center space-x-4">
+        <!-- Carrito -->
+        <button
+          (click)="openCart()"
+          class="relative text-gray-300 hover:text-white transition duration-300"
+        >
+          <i class="pi pi-shopping-cart text-2xl"></i>
+          <!-- Badge contador -->
+          <span
+            class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full px-1.5 py-0.5"
+          >
+            3
+          </span>
+        </button>
+
         <button
           (click)="openLogin()"
           class="px-5 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition duration-300"
@@ -57,10 +71,26 @@
         </button>
       </div>
 
-      <!-- Botón menú móvil -->
-      <div class="md:hidden">
-        <button (click)="toggleMenu()" class="text-gray-300 focus:outline-none">
-          <i class="pi pi-bars text-3xl"></i>
+      <!-- Botones móvil -->
+      <div class="flex flex-col space-y-2 md:hidden">
+        <button
+          (click)="openCart()"
+          class="flex items-center px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 transition"
+        >
+          <i class="pi pi-shopping-cart mr-2"></i> Carrito
+        </button>
+
+        <button
+          (click)="openLogin()"
+          class="px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 transition"
+        >
+          Login
+        </button>
+        <button
+          (click)="openSignup()"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        >
+          Sign Up
         </button>
       </div>
     </div>
@@ -115,4 +145,7 @@
       </div>
     </nav>
   </div>
+
+  <app-login-drawer></app-login-drawer>
+  <app-cart-drawer></app-cart-drawer>
 </header>

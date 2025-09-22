@@ -1,0 +1,89 @@
+<p-drawer
+  header="Tu Carrito"
+  [(visible)]="visible"
+  position="right"
+  styleClass="!w-full md:!w-96"
+  (onHide)="closeDrawer()"
+>
+  <div class="flex flex-col h-full text-gray-200">
+    <div class="flex-1 overflow-y-auto p-4 space-y-4">
+      <div
+        *ngIf="items.length === 0"
+        class="flex flex-col items-center justify-center h-full text-center"
+      >
+        <i class="pi pi-shopping-cart text-5xl text-gray-500 mb-3"></i>
+        <p class="text-gray-400">Tu carrito está vacío</p>
+      </div>
+
+      <div
+        *ngFor="let item of items; trackBy: trackById"
+        class="flex items-center justify-between bg-gray-800 rounded-lg p-3 shadow-sm"
+      >
+        <div class="flex items-center space-x-3">
+          <img
+            [src]="item.image"
+            [alt]="item.name"
+            class="w-12 h-12 rounded-lg object-cover"
+          />
+          <div>
+            <p class="font-semibold">{{ item.name }}</p>
+            <p class="text-sm text-gray-400">
+              S/{{ item.price | number : "1.2-2" }}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-end space-y-1">
+          <div class="flex items-center space-x-2">
+            <button
+              (click)="decreaseQty(item)"
+              class="px-2 py-1 bg-gray-700 rounded text-sm"
+            >
+              -
+            </button>
+            <input
+              type="number"
+              min="1"
+              [ngModel]="item.quantity"
+              (ngModelChange)="onQuantityChange(item, $event)"
+              class="w-16 text-center bg-gray-800 border border-gray-700 rounded px-2 py-1"
+            />
+            <button
+              (click)="increaseQty(item)"
+              class="px-2 py-1 bg-gray-700 rounded text-sm"
+            >
+              +
+            </button>
+          </div>
+
+          <div class="flex items-center space-x-3">
+            <span class="font-semibold text-white"
+              >S/{{ item.price * item.quantity | number : "1.2-2" }}</span
+            >
+            <button
+              (click)="removeItem(item.id)"
+              class="text-xs text-red-500 hover:text-red-400"
+            >
+              Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-700 p-4 sticky bottom-0 bg-gray-900">
+      <div class="flex justify-between text-lg font-semibold text-gray-100">
+        <span>Total:</span>
+        <span class="text-white">S/{{ total | number : "1.2-2" }}</span>
+      </div>
+
+      <button
+        (click)="checkout()"
+        pButton
+        type="button"
+        label="Finalizar Pedido"
+        class="w-full mt-4 bg-blue-600 hover:bg-blue-700"
+      ></button>
+    </div>
+  </div>
+</p-drawer>

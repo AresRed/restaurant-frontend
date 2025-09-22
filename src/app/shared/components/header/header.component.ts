@@ -1,41 +1,28 @@
-import { Component, OnInit } from '@angular/core';
-import { Menubar } from 'primeng/menubar';
-import { MenuItem, PrimeTemplate } from 'primeng/api';
-import { UiService } from '../../services/ui.service';
-import { RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { UiService } from '../../../core/services/ui.service';
+
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [Menubar, PrimeTemplate,RouterOutlet],
+  imports: [CommonModule, RouterModule],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
+  constructor(public uiService: UiService) {}
 
-  items: MenuItem[] | undefined;
-  constructor(private uiService : UiService){}
-  ngOnInit() {
-    this.items = [
-      {
-        label: 'Home',
-        routerLink: '/home',
-      },
-      {
-        label: 'Menú',
-        routerLink: '/menu',
-      },
-      {
-        label: 'Nosotros',
-        routerLink: '',
-      },
-      {
-        label: 'Trabaja con Nosotros',
-        routerLink: '/workUs',
-      },
-      {
-        label: 'Iniciar Sesion',
-        command: ()=> this.uiService.openLoginDrawer()
-      }
-    ]
+  isMenuOpen = false;
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  openLogin() {
+    this.uiService.openLogin();
+  }
+
+  openSignup() {
+    this.uiService.openSignup();
   }
 }

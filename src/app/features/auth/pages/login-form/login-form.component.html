@@ -1,0 +1,54 @@
+<form
+  #loginForm="ngForm"
+  (ngSubmit)="onLogin(loginForm)"
+  class="space-y-6 w-full"
+>
+  <div class="p-float-label w-full">
+    <label for="loginEmail">Correo o Usuario</label>
+    <input
+      id="loginEmail"
+      type="text"
+      pInputText
+      class="w-full"
+      name="email"
+      [(ngModel)]="loginEmail"
+      required
+    />
+  </div>
+
+  <div class="p-float-label w-full">
+    <label for="loginPassword">Contraseña</label>
+    <p-password
+      id="loginPassword"
+      name="password"
+      [(ngModel)]="loginPassword"
+      required
+      [feedback]="false"
+      toggleMask="true"
+      [style]="{ width: '100%' }"
+      inputStyleClass="w-full"
+    ></p-password>
+  </div>
+
+  <button
+    pButton
+    type="submit"
+    label="Iniciar Sesión"
+    class="w-full bg-blue-600 hover:bg-blue-700"
+  ></button>
+
+  <div class="flex items-center my-4">
+    <hr class="flex-grow border-gray-600" />
+    <span class="px-2 text-gray-400 text-sm">o</span>
+    <hr class="flex-grow border-gray-600" />
+  </div>
+
+  <button
+    type="button"
+    (click)="onGoogleLogin()"
+    class="w-full flex items-center justify-center gap-2 bg-white text-gray-800 font-medium py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition"
+  >
+    <img src="google_icon.webp" alt="Google" class="w-5 h-5" />
+    Continuar con Google
+  </button>
+</form>

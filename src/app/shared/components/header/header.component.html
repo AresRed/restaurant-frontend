@@ -1,2 +1,118 @@
-<p-menubar [model]="items" class="custom-menubar"></p-menubar>
-<router-outlet></router-outlet>
+<header class="bg-gray-900 shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex justify-between items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-3">
+        <img
+          src="san_isidro_logo.png"
+          alt="Logo"
+          class="h-10 w-10 rounded-full shadow-md"
+        />
+        <span class="text-2xl font-extrabold text-white tracking-wide">
+          San Isidro
+        </span>
+      </div>
+
+      <!-- Navegación -->
+      <nav class="hidden md:flex space-x-8 text-gray-300 font-medium">
+        <a
+          routerLink="/home"
+          routerLinkActive="text-blue-400"
+          class="hover:text-blue-400 transition duration-300"
+          >Inicio</a
+        >
+        <a
+          routerLink="/menu"
+          routerLinkActive="text-blue-400"
+          class="hover:text-blue-400 transition duration-300"
+          >Menú</a
+        >
+        <a
+          routerLink="/reservas"
+          routerLinkActive="text-blue-400"
+          class="hover:text-blue-400 transition duration-300"
+          >Reservas</a
+        >
+        <a
+          routerLink="/contacto"
+          routerLinkActive="text-blue-400"
+          class="hover:text-blue-400 transition duration-300"
+          >Contacto</a
+        >
+      </nav>
+
+      <!-- Botones escritorio -->
+      <div class="hidden md:flex items-center space-x-4">
+        <button
+          (click)="openLogin()"
+          class="px-5 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition duration-300"
+        >
+          Login
+        </button>
+        <button
+          (click)="openSignup()"
+          class="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
+        >
+          Sign Up
+        </button>
+      </div>
+
+      <!-- Botón menú móvil -->
+      <div class="md:hidden">
+        <button (click)="toggleMenu()" class="text-gray-300 focus:outline-none">
+          <i class="pi pi-bars text-3xl"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menú móvil desplegable -->
+  <div
+    *ngIf="isMenuOpen"
+    class="md:hidden bg-gray-800 border-t border-gray-700 shadow-md"
+  >
+    <nav class="flex flex-col p-4 space-y-4 text-gray-300 font-medium">
+      <a
+        routerLink="/home"
+        routerLinkActive="text-blue-400"
+        class="hover:text-blue-400 transition"
+        >Inicio</a
+      >
+      <a
+        routerLink="/menu"
+        routerLinkActive="text-blue-400"
+        class="hover:text-blue-400 transition"
+        >Menú</a
+      >
+      <a
+        routerLink="/reservas"
+        routerLinkActive="text-blue-400"
+        class="hover:text-blue-400 transition"
+        >Reservas</a
+      >
+      <a
+        routerLink="/contacto"
+        routerLinkActive="text-blue-400"
+        class="hover:text-blue-400 transition"
+        >Contacto</a
+      >
+      <hr class="border-gray-600" />
+
+      <!-- Botones móvil -->
+      <div class="flex flex-col space-y-2">
+        <button
+          (click)="openLogin()"
+          class="px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 transition"
+        >
+          Login
+        </button>
+        <button
+          (click)="openSignup()"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        >
+          Sign Up
+        </button>
+      </div>
+    </nav>
+  </div>
+</header>

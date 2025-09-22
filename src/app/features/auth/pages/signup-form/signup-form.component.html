@@ -1,0 +1,84 @@
+<form
+  #signupForm="ngForm"
+  (ngSubmit)="onRegister(signupForm)"
+  class="space-y-6 w-full"
+>
+  <div class="p-float-label w-full">
+    <label for="nombre">Nombre de usuario</label>
+    <input
+      id="nombre"
+      type="text"
+      pInputText
+      class="w-full"
+      name="nombre"
+      [(ngModel)]="nombre"
+      required
+    />
+  </div>
+
+  <div class="p-float-label w-full">
+    <label for="regEmail">Correo</label>
+    <input
+      id="regEmail"
+      type="email"
+      pInputText
+      class="w-full"
+      name="email"
+      [(ngModel)]="regEmail"
+      required
+    />
+  </div>
+
+  <div class="p-float-label w-full flex flex-col">
+    <label for="regPassword">Contraseña</label>
+    <p-password
+      id="regPassword"
+      name="password"
+      [(ngModel)]="regPassword"
+      required
+      [feedback]="false"
+      toggleMask="true"
+      [style]="{ width: '100%' }"
+      inputStyleClass="w-full"
+    ></p-password>
+  </div>
+
+  <div class="p-float-label w-full flex flex-col">
+    <label for="regPasswordConfirm">Confrmar Contraseña</label>
+    <p-password
+      id="regPasswordConfirm"
+      name="confirmPassword"
+      [(ngModel)]="regPasswordConfirm"
+      required
+      [feedback]="false"
+      toggleMask="true"
+      [style]="{ width: '100%' }"
+      inputStyleClass="w-full"
+    ></p-password>
+  </div>
+
+  <!-- Botón registrar -->
+  <button
+    pButton
+    type="submit"
+    label="Registrarse"
+    class="w-full bg-blue-600 hover:bg-blue-700"
+  ></button>
+
+  <!-- Divider -->
+  <div class="flex items-center my-4">
+    <hr class="flex-grow border-gray-600" />
+    <span class="px-2 text-gray-400 text-sm">o</span>
+    <hr class="flex-grow border-gray-600" />
+  </div>
+
+  <!-- Botón signup con Google -->
+  <button
+    type="button"
+    (click)="onGoogleSignup()"
+    class="w-full flex items-center justify-center gap-2 bg-white text-gray-800 font-medium py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition"
+  >
+    <img src="google_icon.webp" alt="Google" class="w-5 h-5" />
+    Registrarse con Google
+  </button>
+</form>

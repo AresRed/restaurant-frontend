@@ -1,28 +1,23 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { EnProcesoComponent } from './en-proceso/en-proceso.component';
-import { HeaderComponent } from './shared/header/header.component';
-import { HttpClientModule } from '@angular/common/http';
-import { LoginComponent } from './auth/login/login.component';
-import { HomeComponent } from './shared/page/home/home.component'; 
 
 import { OAuthModule } from 'angular-oauth2-oidc';
+import { LoginDrawerComponent } from './features/auth/components/login-drawer/login-drawer.component';
+import { FooterComponent } from './shared/components/footer/footer.component';
+import { HeaderComponent } from './shared/components/header/header.component';
 
 @Component({
   selector: 'app-root',
-  standalone:true,
+  standalone: true,
   imports: [
-    EnProcesoComponent,
-    HeaderComponent,
-    HomeComponent,
-    HttpClientModule,
-    LoginComponent,
     RouterOutlet,
-    LoginComponent,
     OAuthModule,
+    FooterComponent,
+    HeaderComponent,
+    LoginDrawerComponent,
   ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
 })
 export class AppComponent {
   title = 'FrondRestaurant';

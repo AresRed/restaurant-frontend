@@ -1,39 +1,8 @@
 /* Banner general */
 .banner {
-  @apply relative h-screen bg-cover bg-center;
-}
-
-/* Overlay black */
-.banner-overlay {
-  @apply absolute inset-0 bg-black bg-opacity-50;
-}
-
-/* Content central */
-.banner-container {
-  @apply relative flex items-center justify-center h-full;
-}
-
-/* Box white */
-.banner-box {
-  @apply bg-white bg-opacity-85 text-center w-3/4 h-72
+ @apply relative h-screen bg-cover bg-center ;
 }
 
 
-/* Box white*/
-.custom-icon {
-  font-size: 1.7rem;
-}
 
-/* Box white */
-.contact-container {
-  background: #0d47a1;
-  /* azul de fondo */
-  color: white;
-  border-radius: 8px;
-}
-/* CEfect*/
-:host ::ng-deep .p-button-danger {
-  background-color: #e53935 !important;
-  /* botón rojo */
-  border: none;
-}
+

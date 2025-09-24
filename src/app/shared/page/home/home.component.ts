@@ -4,35 +4,48 @@ import { FooterComponent } from '../footer/footer.component';
 import { FormsModule } from '@angular/forms';
 /* PrimeNG */
 import { DropdownModule } from 'primeng/dropdown';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { CalendarModule } from 'primeng/calendar';
 import { ButtonModule } from 'primeng/button';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 
 
 @Component({
   selector: 'app-home',
-  standalone:true,
+  standalone: true,
   imports: [
     FloatLabel,
     FooterComponent,
     FormsModule,
-   
-
-    /* PrimeNG */
     DropdownModule,
     CalendarModule,
-    ButtonModule
+    ButtonModule,
+    InputNumberModule,
+    MultiSelectModule
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
 
+
+
+
+
+
   guests = [
-    { label: '1 guest', value: 1 },
-    { label: '2 guests', value: 2 },
-    { label: '3 guests', value: 3 },
-    { label: '4 guests', value: 4 },
+    { label: '3 ', value: 1 },
+    { label: '4 ', value: 2 },
+    { label: '5 ', value: 3 },
+    { label: '6 ', value: 4 },
+    { label: '7 ', value: 2 },
+    { label: '8 ', value: 3 },
+    { label: '9 ', value: 4 },
+    { label: '10 ', value: 2 },
+    { label: '11 ', value: 3 },
+    { label: '12 ', value: 4 },
+
   ];
 
   times = [

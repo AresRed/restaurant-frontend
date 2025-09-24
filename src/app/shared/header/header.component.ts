@@ -26,11 +26,13 @@ export class HeaderComponent {
       },
       {
         label: 'Nosotros',
-        routerLink: '',
+        routerLink: '/home',
+        fragment:'us',
       },
       {
-        label: 'Trabaja con Nosotros',
-        routerLink: '/workus',
+        label: 'Reservas',
+        routerLink: '/home',
+        fragment:'resevation'
       },
       {
         label: 'Iniciar Sesion',

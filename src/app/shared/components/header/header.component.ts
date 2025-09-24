@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { UiService } from '../../../core/services/ui.service';
 import { LoginDrawerComponent } from '../../../features/auth/components/login-drawer/login-drawer.component';
 import { CartDrawerComponent } from '../../../features/customer/components/cart-drawer/cart-drawer.component';
+import { Button, ButtonDirective } from "primeng/button";
 
 @Component({
   selector: 'app-header',
@@ -13,7 +14,9 @@ import { CartDrawerComponent } from '../../../features/customer/components/cart-
     RouterModule,
     LoginDrawerComponent,
     CartDrawerComponent,
-  ],
+    Button,
+    ButtonDirective
+],
   templateUrl: './header.component.html',
 })
 export class HeaderComponent {

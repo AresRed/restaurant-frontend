@@ -1,4 +1,4 @@
-<header class="bg-gray-900 shadow-md sticky top-0 z-50">
+<header class="bg-neutral-900 shadow-md sticky top-0 z-50">
   <div class="max-w-7xl mx-auto px-6">
     <div class="flex justify-between items-center h-16">
       <!-- Logo -->
@@ -13,139 +13,45 @@
         </span>
       </div>
 
-      <!-- Navegación -->
       <nav class="hidden md:flex space-x-8 text-gray-300 font-medium">
-        <a
-          routerLink="/home"
-          routerLinkActive="text-blue-400"
-          class="hover:text-blue-400 transition duration-300"
-          >Inicio</a
-        >
-        <a
-          routerLink="/menu"
-          routerLinkActive="text-blue-400"
-          class="hover:text-blue-400 transition duration-300"
-          >Menú</a
-        >
-        <a
-          routerLink="/reservas"
-          routerLinkActive="text-blue-400"
-          class="hover:text-blue-400 transition duration-300"
-          >Reservas</a
-        >
-        <a
-          routerLink="/contacto"
-          routerLinkActive="text-blue-400"
-          class="hover:text-blue-400 transition duration-300"
-          >Contacto</a
-        >
+        <a routerLink="/home" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition duration-300">Inicio</a>
+        <a routerLink="/menu" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition duration-300">Menú</a>
+        <a routerLink="/reservations" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition duration-300">Reservas</a>
+        <a routerLink="/contact" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition duration-300">Contacto</a>
       </nav>
 
-      <!-- Botones escritorio -->
       <div class="hidden md:flex items-center space-x-4">
-        <!-- Carrito -->
-        <button
-          (click)="openCart()"
-          class="relative text-gray-300 hover:text-white transition duration-300"
-        >
-          <i class="pi pi-shopping-cart text-2xl"></i>
-          <!-- Badge contador -->
-          <span
-            class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full px-1.5 py-0.5"
-          >
-            3
-          </span>
-        </button>
-
-        <button
-          (click)="openLogin()"
-          class="px-5 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition duration-300"
-        >
-          Login
-        </button>
-        <button
-          (click)="openSignup()"
-          class="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
-        >
-          Sign Up
-        </button>
+        <p-button icon="pi pi-shopping-cart" variant="text" [rounded]="true" severity="info" (onClick)="openCart()" />
+        <p-button label="Iniciar Sesion" (onClick)="openLogin()" icon="pi pi-sign-in" severity="secondary" />
+        <p-button label="Registrarse" (onClick)="openLogin()" severity="secondary" />
       </div>
 
-      <!-- Botones móvil -->
-      <div class="flex flex-col space-y-2 md:hidden">
-        <button
-          (click)="openCart()"
-          class="flex items-center px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 transition"
-        >
-          <i class="pi pi-shopping-cart mr-2"></i> Carrito
-        </button>
+      <div class="flex items-center space-x-2 md:hidden">
+        <p-button icon="pi pi-shopping-cart" variant="text" [rounded]="true" severity="info" (onClick)="openCart()" />
 
-        <button
-          (click)="openLogin()"
-          class="px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 transition"
-        >
-          Login
-        </button>
-        <button
-          (click)="openSignup()"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-        >
-          Sign Up
-        </button>
+        <p-button icon="pi pi-bars" severity="secondary" (onClick)="isMenuOpen = !isMenuOpen" />
+
       </div>
     </div>
   </div>
 
-  <!-- Menú móvil desplegable -->
-  <div
-    *ngIf="isMenuOpen"
-    class="md:hidden bg-gray-800 border-t border-gray-700 shadow-md"
-  >
+  <div *ngIf="isMenuOpen" class="md:hidden bg-gray-800 border-t border-gray-700 shadow-md">
     <nav class="flex flex-col p-4 space-y-4 text-gray-300 font-medium">
-      <a
-        routerLink="/home"
-        routerLinkActive="text-blue-400"
-        class="hover:text-blue-400 transition"
-        >Inicio</a
-      >
-      <a
-        routerLink="/menu"
-        routerLinkActive="text-blue-400"
-        class="hover:text-blue-400 transition"
-        >Menú</a
-      >
-      <a
-        routerLink="/reservas"
-        routerLinkActive="text-blue-400"
-        class="hover:text-blue-400 transition"
-        >Reservas</a
-      >
-      <a
-        routerLink="/contacto"
-        routerLinkActive="text-blue-400"
-        class="hover:text-blue-400 transition"
-        >Contacto</a
-      >
+      <a routerLink="/home" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition">Inicio</a>
+      <a routerLink="/menu" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition">Menú</a>
+      <a routerLink="/reservations" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition">Reservas</a>
+      <a routerLink="/contact" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition">Contacto</a>
+
       <hr class="border-gray-600" />
 
-      <!-- Botones móvil -->
       <div class="flex flex-col space-y-2">
-        <button
-          (click)="openLogin()"
-          class="px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 transition"
-        >
-          Login
-        </button>
-        <button
-          (click)="openSignup()"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-        >
-          Sign Up
-        </button>
+        <p-button label="Iniciar Sesion" (onClick)="openLogin()" icon="pi pi-sign-in" severity="secondary" />
+        <p-button label="Registrarse" (onClick)="openLogin()" severity="secondary" />
       </div>
     </nav>
   </div>
 
+  <!-- Drawers -->
   <app-login-drawer></app-login-drawer>
   <app-cart-drawer></app-cart-drawer>
 </header>

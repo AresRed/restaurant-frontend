@@ -1,0 +1,141 @@
+<div
+  class="bg_principal_contact relative min-h-screen flex items-center justify-center p-6 bg-cover bg-no-repeat"
+  style="background-image: url('ingredientes_en_mesa.jpg')"
+>
+  <!-- Overlay oscuro -->
+  <div class="absolute inset-0 bg-black/50"></div>
+
+  <div
+    class="relative z-10 w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8 bg-gray-950/80 rounded-xl shadow-lg overflow-hidden p-8"
+  >
+    <!-- Título general -->
+    <div class="md:col-span-2 flex flex-col items-center justify-center text-center">
+      <h1 class="text-3xl font-bold text-white mb-4">Contáctanos</h1>
+      <p class="text-gray-300 mb-6">
+        Completa el formulario y nos pondremos en contacto contigo lo antes posible.
+      </p>
+    </div>
+
+    <!-- Información de contacto -->
+    <div class="text-white flex flex-col justify-center space-y-6">
+      <div class="flex items-center gap-3">
+        <i class="pi pi-map-marker text-blue-400 text-xl"></i>
+        <div class="flex flex-col">
+          <span class="font-semibold text-lg">Dirección</span>
+          <span class="text-gray-300">Av San Martin 1149, Ica, Peru</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <i class="pi pi-phone text-green-400 text-xl"></i>
+        <div class="flex flex-col">
+          <span class="font-semibold text-lg">Teléfono</span>
+          <span class="text-gray-300">+51 930 532 846</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <i class="pi pi-envelope text-red-400 text-xl"></i>
+        <div class="flex flex-col">
+          <span class="font-semibold text-lg">Email</span>
+          <span class="text-gray-300">contacto&#64;gmail.com</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <i class="pi pi-globe text-yellow-400 text-xl"></i>
+        <div class="flex flex-col">
+          <span class="font-semibold text-lg">Web</span>
+          <a
+            href="https://www.restaurantesanisidro.com"
+            target="_blank"
+            class="text-gray-300 hover:text-white underline"
+          >
+            www.restaurantesanisidro.com
+          </a>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <i class="pi pi-users text-purple-400 text-xl"></i>
+        <div class="flex flex-col">
+          <span class="font-semibold text-lg">Redes</span>
+          <div class="flex space-x-3 mt-1">
+            <a
+              pButton
+              icon="pi pi-facebook"
+              [rounded]="true"
+              [text]="true"
+              target="_blank"
+              severity="info"
+              href="https://www.facebook.com/RestauranteSanIsidroIca/?locale=es_LA"
+            ></a>
+            <a
+              pButton
+              icon="pi pi-whatsapp"
+              [rounded]="true"
+              [text]="true"
+              target="_blank"
+              href="https://wa.me/51930532846"
+            ></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <div class="p-4 md:p-0">
+      <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="space-y-4">
+        <p-floatlabel class="w-full">
+          <input
+            id="name"
+            type="text"
+            pInputText
+            formControlName="name"
+            class="w-full py-3 px-4 rounded-lg"
+          />
+          <label for="name">Nombre</label>
+        </p-floatlabel>
+
+        <p-floatlabel class="w-full">
+          <input
+            id="email"
+            type="email"
+            pInputText
+            formControlName="email"
+            class="w-full py-3 px-4 rounded-lg"
+          />
+          <label for="email">Correo electrónico</label>
+        </p-floatlabel>
+
+        <p-floatlabel class="w-full">
+          <input
+            id="subject"
+            type="text"
+            pInputText
+            formControlName="subject"
+            class="w-full py-3 px-4 rounded-lg"
+          />
+          <label for="subject">Asunto</label>
+        </p-floatlabel>
+
+        <p-floatlabel class="w-full">
+          <textarea
+            rows="5"
+            pTextarea
+            formControlName="message"
+            class="w-full py-3 px-4 rounded-lg resize-none"
+          ></textarea>
+          <label for="message">Mensaje</label>
+        </p-floatlabel>
+
+        <button
+          pButton
+          type="submit"
+          label="Enviar Mensaje"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition py-3 mt-2"
+        ></button>
+      </form>
+    </div>
+  </div>
+</div>

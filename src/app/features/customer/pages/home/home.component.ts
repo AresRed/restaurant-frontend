@@ -31,7 +31,6 @@ export class HomeComponent {
     { label: '10 ', value: 2 },
     { label: '11 ', value: 3 },
     { label: '12 ', value: 4 },
-
   ];
 
   times = [

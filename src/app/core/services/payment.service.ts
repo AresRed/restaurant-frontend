@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-// import { environment } from '../../../environments/environment';
+import { Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 declare var MercadoPago: any;
 
@@ -8,7 +8,7 @@ declare var MercadoPago: any;
   providedIn: 'root',
 })
 export class PaymentService {
-  // private publicKey = environment.mercadoPagoPublicKey;
+  private publicKey = environment.mercadoPagoPublicKey;
 
   constructor(private http: HttpClient) {}
 
@@ -20,10 +20,10 @@ export class PaymentService {
   }
 
   checkout(preferenceId: string) {
-    // const mp = new MercadoPago(this.publicKey, { locale: 'es-PE' });
-    // mp.checkout({
-    //   preference: { id: preferenceId },
-    //   autoOpen: true,
-    // });
+    const mp = new MercadoPago(this.publicKey, { locale: 'es-PE' });
+    mp.checkout({
+      preference: { id: preferenceId },
+      autoOpen: true,
+    });
   }
 }

@@ -2,7 +2,7 @@
   header="Tu Carrito"
   [(visible)]="visible"
   position="right"
-  styleClass="!w-full md:!w-96"
+  styleClass="!w-full md:!w-96 rounded-l-xl bg-gray-900 shadow-xl"
   (onHide)="closeDrawer()"
 >
   <div class="flex flex-col h-full text-gray-200">
@@ -17,27 +17,27 @@
 
       <div
         *ngFor="let item of items; trackBy: trackById"
-        class="flex items-center justify-between bg-gray-800 rounded-lg p-3 shadow-sm"
+        class="flex items-center justify-between bg-gray-800 rounded-xl p-4 shadow-md hover:shadow-lg transition"
       >
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-4">
           <img
             [src]="item.image"
             [alt]="item.name"
-            class="w-12 h-12 rounded-lg object-cover"
+            class="w-14 h-14 rounded-lg object-cover border border-gray-700"
           />
           <div>
-            <p class="font-semibold">{{ item.name }}</p>
+            <p class="font-semibold text-white">{{ item.name }}</p>
             <p class="text-sm text-gray-400">
-              S/{{ item.price | number : "1.2-2" }}
+              S/{{ item.price | number : '1.2-2' }}
             </p>
           </div>
         </div>
 
-        <div class="flex flex-col items-end space-y-1">
+        <div class="flex flex-col items-end space-y-2">
           <div class="flex items-center space-x-2">
             <button
               (click)="decreaseQty(item)"
-              class="px-2 py-1 bg-gray-700 rounded text-sm"
+              class="px-2 py-1 bg-gray-700 rounded text-sm hover:bg-gray-600 transition"
             >
               -
             </button>
@@ -50,7 +50,7 @@
             />
             <button
               (click)="increaseQty(item)"
-              class="px-2 py-1 bg-gray-700 rounded text-sm"
+              class="px-2 py-1 bg-gray-700 rounded text-sm hover:bg-gray-600 transition"
             >
               +
             </button>
@@ -58,7 +58,7 @@
 
           <div class="flex items-center space-x-3">
             <span class="font-semibold text-white"
-              >S/{{ item.price * item.quantity | number : "1.2-2" }}</span
+              >S/{{ item.price * item.quantity | number : '1.2-2' }}</span
             >
             <button
               (click)="removeItem(item.id)"
@@ -71,18 +71,19 @@
       </div>
     </div>
 
+    <!-- Footer -->
     <div class="border-t border-gray-700 p-4 sticky bottom-0 bg-gray-900">
-      <div class="flex justify-between text-lg font-semibold text-gray-100">
+      <div class="flex justify-between text-lg font-semibold text-gray-100 mb-3">
         <span>Total:</span>
-        <span class="text-white">S/{{ total | number : "1.2-2" }}</span>
+        <span class="text-white">S/{{ total | number : '1.2-2' }}</span>
       </div>
 
       <button
         (click)="checkout()"
         pButton
         type="button"
-        label="Finalizar Pedido"
-        class="w-full mt-4 bg-blue-600 hover:bg-blue-700"
+        label="Ir al Carrito"
+        class="w-full bg-blue-600 hover:bg-blue-700 rounded-lg transition"
       ></button>
     </div>
   </div>

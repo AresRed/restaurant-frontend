@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DrawerModule } from 'primeng/drawer';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 import { CartItem } from '../../../../core/models/cart.model';
+import { CartService } from '../../../../core/services/cart.service';
 import { UiService } from '../../../../core/services/ui.service';
 
 @Component({
@@ -16,35 +18,28 @@ import { UiService } from '../../../../core/services/ui.service';
 })
 export class CartDrawerComponent implements OnInit, OnDestroy {
   visible = false;
-  private sub: Subscription | null = null;
+  items: CartItem[] = [];
+  private sub: Subscription = new Subscription();
 
-  items: CartItem[] = [
-    {
-      id: 1,
-      name: 'Pizza Margarita',
-      price: 20,
-      quantity: 1,
-      image: 'item1.jpg',
-    },
-    {
-      id: 2,
-      name: 'Bebida',
-      price: 5,
-      quantity: 2,
-      image: 'items2.jpg',
-    },
-  ];
-
-  constructor(private uiService: UiService) {}
+  constructor(
+    private uiService: UiService,
+    private cartService: CartService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    this.sub = this.uiService.cartDrawerState$.subscribe(
-      (state) => (this.visible = state)
+    this.sub.add(
+      this.uiService.cartDrawerState$.subscribe(
+        (state) => (this.visible = state)
+      )
+    );
+    this.sub.add(
+      this.cartService.items$.subscribe((items) => (this.items = items))
     );
   }
 
   ngOnDestroy() {
-    this.sub?.unsubscribe();
+    this.sub.unsubscribe();
   }
 
   closeDrawer() {
@@ -52,45 +47,36 @@ export class CartDrawerComponent implements OnInit, OnDestroy {
   }
 
   removeItem(id: number) {
-    this.items = this.items.filter((it) => it.id !== id);
+    this.cartService.removeItem(id);
   }
 
   increaseQty(item: CartItem) {
-    item.quantity = (item.quantity || 0) + 1;
-    this.items = [...this.items];
+    this.cartService.updateQuantity(item.id, (item.quantity || 0) + 1);
   }
 
   decreaseQty(item: CartItem) {
-    if ((item.quantity || 0) > 1) {
-      item.quantity = item.quantity - 1;
-      this.items = [...this.items];
-    } else {
-      this.removeItem(item.id);
-    }
+    this.cartService.updateQuantity(item.id, (item.quantity || 0) - 1);
   }
 
   onQuantityChange(item: CartItem, value: any) {
     const q = Number(value);
     if (!q || q <= 0) {
-      this.removeItem(item.id);
+      this.cartService.removeItem(item.id);
       return;
     }
-    item.quantity = Math.floor(q);
-    this.items = [...this.items];
+    this.cartService.updateQuantity(item.id, Math.floor(q));
   }
 
-  get total(): number {
-    return this.items.reduce(
-      (acc, it) => acc + (it.price || 0) * (it.quantity || 0),
-      0
-    );
+  get total() {
+    return this.cartService.getTotal();
+  }
+
+  checkout() {
+    this.closeDrawer();
+    this.router.navigate(['/cart']);
   }
 
   trackById(index: number, item: CartItem) {
     return item.id;
-  }
-
-  checkout() {
-    console.log('Checkout: items', this.items);
   }
 }

@@ -32,4 +32,9 @@ export const customerRoutes: Routes = [
         (m) => m.WorkUsComponent
       ),
   },
+  {
+    path: 'cart',
+    loadComponent: () =>
+      import('./pages/cart/cart.component').then((m) => m.CartComponent),
+  },
 ];

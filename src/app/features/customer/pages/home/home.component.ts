@@ -1,36 +1,25 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 /* PrimeNG */
-
-import { DropdownModule } from 'primeng/dropdown';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { CalendarModule } from 'primeng/calendar';
 import { ButtonModule } from 'primeng/button';
-import { InputNumberModule } from 'primeng/inputnumber';
-
-
+import { CalendarModule } from 'primeng/calendar';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
     FormsModule,
+
+    /* PrimeNG */
     DropdownModule,
     CalendarModule,
     ButtonModule,
-    InputNumberModule,
-    MultiSelectModule
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
 export class HomeComponent {
-
-
-
-
-
-
   guests = [
     { label: '3 ', value: 1 },
     { label: '4 ', value: 2 },
@@ -42,7 +31,6 @@ export class HomeComponent {
     { label: '10 ', value: 2 },
     { label: '11 ', value: 3 },
     { label: '12 ', value: 4 },
-
   ];
 
   times = [

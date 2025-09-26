@@ -3,32 +3,31 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @import "primeicons/primeicons.css";
 
 @font-face {
-    font-family: 'tipo1';
-    src: url('app/assets/fonts/Bad_Script/BadScript-Regular.ttf');
+  font-family: "tipo1";
+  src: url("app/assets/fonts/Bad_Script/BadScript-Regular.ttf");
 }
 @font-face {
-    font-family: 'tipo2';
-    src: url('app/assets/fonts/Bebas_Neue/BebasNeue-Regular.ttf');
+  font-family: "tipo2";
+  src: url("app/assets/fonts/Bebas_Neue/BebasNeue-Regular.ttf");
 }
 @font-face {
-    font-family: 'tipo3';
-    src: url('app/assets/fonts/Story_Script/StoryScript-Regular.ttf');
+  font-family: "tipo3";
+  src: url("app/assets/fonts/Story_Script/StoryScript-Regular.ttf");
 }
 @font-face {
-    font-family: 'tipo4';
-    src: url('app/assets/fonts/Truculenta/Truculenta-VariableFont_opsz\,wdth\,wght.ttf');
-}
-
-@font-face {
-    font-family:'tipo5';
-    src: url('app/assets/fonts/Tangerine/Tangerine-Bold.ttf');
+  font-family: "tipo4";
+  src: url("app/assets/fonts/Truculenta/Truculenta-VariableFont_opsz\,wdth\,wght.ttf");
 }
 
 @font-face {
-    font-family: 'tipo6';
-    src: url('app/assets/fonts/Oswald/static/Oswald-Light.ttf');
+  font-family: "tipo5";
+  src: url("app/assets/fonts/Tangerine/Tangerine-Bold.ttf");
+}
+
+@font-face {
+  font-family: "tipo6";
+  src: url("app/assets/fonts/Oswald/static/Oswald-Light.ttf");
 }

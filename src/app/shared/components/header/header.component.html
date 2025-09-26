@@ -1,7 +1,6 @@
 <header class="bg-neutral-900 shadow-md sticky top-0 z-50">
   <div class="max-w-7xl mx-auto px-6">
     <div class="flex justify-between items-center h-16">
-      <!-- Logo -->
       <div class="flex items-center space-x-3">
         <img
           src="san_isidro_logo.png"
@@ -14,44 +13,179 @@
       </div>
 
       <nav class="hidden md:flex space-x-8 text-gray-300 font-medium">
-        <a routerLink="/home" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition duration-300">Inicio</a>
-        <a routerLink="/menu" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition duration-300">Menú</a>
-        <a routerLink="/reservations" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition duration-300">Reservas</a>
-        <a routerLink="/contact" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition duration-300">Contacto</a>
+        <a
+          routerLink="/home"
+          routerLinkActive="text-blue-400"
+          class="hover:text-blue-400 transition duration-300"
+          >Inicio</a
+        >
+        <a
+          routerLink="/menu"
+          routerLinkActive="text-blue-400"
+          class="hover:text-blue-400 transition duration-300"
+          >Menú</a
+        >
+        <a
+          routerLink="/reservations"
+          routerLinkActive="text-blue-400"
+          class="hover:text-blue-400 transition duration-300"
+          >Reservas</a
+        >
+        <a
+          routerLink="/contact"
+          routerLinkActive="text-blue-400"
+          class="hover:text-blue-400 transition duration-300"
+          >Contacto</a
+        >
       </nav>
 
       <div class="hidden md:flex items-center space-x-4">
-        <p-button icon="pi pi-shopping-cart" variant="text" [rounded]="true" severity="info" (onClick)="openCart()" />
-        <p-button label="Iniciar Sesion" (onClick)="openLogin()" icon="pi pi-sign-in" severity="secondary" />
-        <p-button label="Registrarse" (onClick)="openLogin()" severity="secondary" />
+        <p-button
+          icon="pi pi-shopping-cart"
+          variant="text"
+          [rounded]="true"
+          severity="info"
+          (onClick)="openCart()"
+        />
+
+        <ng-container
+          *ngIf="currentUser$ | async as currentUser; else guestButtons"
+        >
+          <div class="flex items-center space-x-2">
+            <span
+              class="text-gray-200 font-medium hover:text-blue-400 transition"
+            >
+              {{ currentUser.username || currentUser.email }}
+            </span>
+
+            <p-avatar
+              icon="pi pi-user"
+              shape="circle"
+              styleClass="bg-blue-500 text-white cursor-pointer"
+              (click)="menu.toggle($event)"
+            />
+          </div>
+
+          <p-menu
+            #menu
+            [model]="itemsUserMenu"
+            [popup]="true"
+            appendTo="body"
+            styleClass="shadow-lg rounded-md"
+          />
+        </ng-container>
+
+        <ng-template #guestButtons>
+          <p-button
+            label="Iniciar Sesión"
+            (onClick)="openLogin()"
+            icon="pi pi-sign-in"
+            severity="secondary"
+          />
+          <p-button
+            label="Registrarse"
+            (onClick)="openSignup()"
+            severity="secondary"
+          />
+        </ng-template>
       </div>
 
       <div class="flex items-center space-x-2 md:hidden">
-        <p-button icon="pi pi-shopping-cart" variant="text" [rounded]="true" severity="info" (onClick)="openCart()" />
-
-        <p-button icon="pi pi-bars" severity="secondary" (onClick)="isMenuOpen = !isMenuOpen" />
-
+        <p-button
+          icon="pi pi-shopping-cart"
+          variant="text"
+          [rounded]="true"
+          severity="info"
+          (onClick)="openCart()"
+        />
+        <p-button
+          icon="pi pi-bars"
+          severity="secondary"
+          (onClick)="isMenuOpen = !isMenuOpen"
+        />
       </div>
     </div>
   </div>
 
-  <div *ngIf="isMenuOpen" class="md:hidden bg-gray-800 border-t border-gray-700 shadow-md">
+  <div
+    *ngIf="isMenuOpen"
+    class="md:hidden bg-gray-800 border-t border-gray-700 shadow-md"
+  >
     <nav class="flex flex-col p-4 space-y-4 text-gray-300 font-medium">
-      <a routerLink="/home" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition">Inicio</a>
-      <a routerLink="/menu" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition">Menú</a>
-      <a routerLink="/reservations" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition">Reservas</a>
-      <a routerLink="/contact" routerLinkActive="text-blue-400" class="hover:text-blue-400 transition">Contacto</a>
+      <a
+        routerLink="/home"
+        routerLinkActive="text-blue-400"
+        class="hover:text-blue-400 transition"
+        >Inicio</a
+      >
+      <a
+        routerLink="/menu"
+        routerLinkActive="text-blue-400"
+        class="hover:text-blue-400 transition"
+        >Menú</a
+      >
+      <a
+        routerLink="/reservations"
+        routerLinkActive="text-blue-400"
+        class="hover:text-blue-400 transition"
+        >Reservas</a
+      >
+      <a
+        routerLink="/contact"
+        routerLinkActive="text-blue-400"
+        class="hover:text-blue-400 transition"
+        >Contacto</a
+      >
 
       <hr class="border-gray-600" />
 
       <div class="flex flex-col space-y-2">
-        <p-button label="Iniciar Sesion" (onClick)="openLogin()" icon="pi pi-sign-in" severity="secondary" />
-        <p-button label="Registrarse" (onClick)="openLogin()" severity="secondary" />
+        <ng-container
+          *ngIf="currentUser$ | async as currentUser; else mobileGuest"
+        >
+          <div
+            class="flex items-center space-x-2 px-2 py-2 bg-gray-700 rounded"
+          >
+            <p-avatar
+              icon="pi pi-user"
+              shape="circle"
+              styleClass="bg-blue-500 text-white"
+            />
+            <span>{{ currentUser.username || currentUser.email }}</span>
+          </div>
+          <button
+            class="w-full text-left px-3 py-2 text-gray-300 hover:bg-gray-600 rounded"
+            (click)="goToProfile()"
+          >
+            Perfil
+          </button>
+          <button
+            class="w-full text-left px-3 py-2 text-gray-300 hover:bg-gray-600 rounded"
+            (click)="logout()"
+          >
+            Cerrar sesión
+          </button>
+        </ng-container>
+
+        <ng-template #mobileGuest>
+          <p-button
+            label="Iniciar Sesión"
+            (onClick)="openLogin()"
+            icon="pi pi-sign-in"
+            severity="secondary"
+            styleClass="w-full"
+          />
+          <p-button
+            label="Registrarse"
+            (onClick)="openSignup()"
+            severity="secondary"
+            styleClass="w-full"
+          />
+        </ng-template>
       </div>
     </nav>
   </div>
 
-  <!-- Drawers -->
   <app-login-drawer></app-login-drawer>
   <app-cart-drawer></app-cart-drawer>
 </header>

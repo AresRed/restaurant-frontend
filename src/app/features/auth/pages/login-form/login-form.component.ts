@@ -1,11 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { AuthService } from '../../../../core/services/auth.service';
+import { NotificationService } from '../../../../core/services/notification.service';
 import { UiService } from '../../../../core/services/ui.service';
 
 @Component({
@@ -13,7 +19,7 @@ import { UiService } from '../../../../core/services/ui.service';
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
+    ReactiveFormsModule,
     InputTextModule,
     PasswordModule,
     ButtonModule,
@@ -22,38 +28,73 @@ import { UiService } from '../../../../core/services/ui.service';
   templateUrl: './login-form.component.html',
 })
 export class LoginFormComponent {
-  loginEmail = '';
-  loginPassword = '';
+  loginForm: FormGroup;
+  loading = false;
 
-  constructor(private authService: AuthService, private uiService: UiService) {}
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private uiService: UiService,
+    private notifyService: NotificationService
+  ) {
+    this.loginForm = this.fb.group({
+      usernameOrEmail: ['', Validators.required],
+      password: ['', Validators.required],
+    });
 
-  onLogin(form: NgForm) {
-    if (!form.valid) return;
+    this.uiService.loginDrawerState$.subscribe((opened) => {
+      if (opened) this.loginForm.reset();
+    });
+  }
 
-    this.authService
-      .login({ usernameOrEmail: this.loginEmail, password: this.loginPassword })
-      .subscribe({
-        next: (res) => {
+  onLogin() {
+    if (this.loginForm.invalid) return;
+
+    this.loading = true;
+    const { usernameOrEmail, password } = this.loginForm.value;
+
+    this.authService.login({ usernameOrEmail, password }).subscribe({
+      next: (res) => {
+        this.loading = false;
+
+        if (res.success && res.data.accessToken) {
           localStorage.setItem('accessToken', res.data.accessToken);
-          if (res.data.refreshToken) {
-            localStorage.setItem('refreshToken', res.data.refreshToken);
-          }
-        },
-        error: (err) => console.error('Error al iniciar sesión', err),
-      });
+          localStorage.setItem('refreshToken', res.data.refreshToken || '');
+          localStorage.setItem('currentUser', JSON.stringify(res.data.user));
+
+          this.authService.setCurrentUser(res.data.user);
+          this.uiService.closeLogin();
+
+          this.notifyService.success(res.message, 'Se ha iniciado sesión');
+
+          this.loginForm.reset();
+        } else {
+          this.notifyService.error('Login fallido', res.message);
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        this.notifyService.error(
+          'Error al iniciar sesión',
+          'Credenciales inválidas'
+        );
+      },
+    });
   }
 
   onGoogleLogin() {
     this.authService.loginWithGoogle().subscribe({
       next: (res) => {
         localStorage.setItem('accessToken', res.accessToken);
-        if (res.refreshToken) {
-          localStorage.setItem('refreshToken', res.refreshToken);
-        }
-        console.log('✅ Login con Google exitoso');
+        localStorage.setItem('refreshToken', res.refreshToken || '');
+        this.uiService.closeLogin();
+        this.notifyService.success('Login con Google exitoso');
+
+        this.loginForm.reset();
       },
-      error: (err) => console.error('❌ Error en login con Google', err),
+      error: (err) => {
+        this.notifyService.error('Error en login con Google', err);
+      },
     });
   }
-  
 }

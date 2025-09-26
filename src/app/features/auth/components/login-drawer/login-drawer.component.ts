@@ -34,37 +34,16 @@ export class LoginDrawerComponent implements OnInit, OnDestroy {
       this.activeTab = state.tab;
     });
 
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      this.authService.getCurrentUser().subscribe({
-        next: (res) => (this.currentUser = res.data),
-        error: () => {
-          localStorage.removeItem('accessToken');
-          this.currentUser = null;
-        },
-      });
-    }
+    this.authService.currentUser$.subscribe((user) => {
+      this.currentUser = user;
+      if (user) {
+        this.closeDrawer();
+      }
+    });
   }
 
   closeDrawer() {
     this.uiService.closeLogin();
-  }
-
-  logout() {
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (refreshToken) {
-      this.authService.logout(refreshToken).subscribe({
-        next: () => {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          this.currentUser = null;
-        },
-        error: (err) => console.error('Error al cerrar sesión', err),
-      });
-    } else {
-      localStorage.removeItem('accessToken');
-      this.currentUser = null;
-    }
   }
 
   ngOnDestroy(): void {

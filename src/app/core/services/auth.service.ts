@@ -1,27 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { ApiResponse } from '../models/api-response.model';
+import { RegisterRequest } from '../models/auth/register/register.model';
 
 export interface LoginRequest {
   usernameOrEmail: string;
   password: string;
 }
 
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  username: string;
-}
-
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
-}
-
-export interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
 }
 
 @Injectable({
@@ -31,14 +21,35 @@ export class AuthService {
   private baseUrl = 'http://localhost:8080/api/v1/auth';
   private usersUrl = 'http://localhost:8080/api/v1/users';
 
-  constructor(private http: HttpClient) {}
+  private currentUserSubject = new BehaviorSubject<any | null>(null);
+  currentUser$ = this.currentUserSubject.asObservable();
 
-  login(data: LoginRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(
-      `${this.baseUrl}/login`,
-      data,
-      { withCredentials: true }
-    );
+  constructor(private http: HttpClient) {
+    const token = localStorage.getItem('accessToken');
+    const user = localStorage.getItem('currentUser');
+    if (token && user) {
+      this.currentUserSubject.next(JSON.parse(user));
+    }
+  }
+
+  login(
+    data: LoginRequest
+  ): Observable<ApiResponse<AuthResponse & { user: any }>> {
+    return this.http
+      .post<ApiResponse<AuthResponse & { user: any }>>(
+        `${this.baseUrl}/login`,
+        data
+      )
+      .pipe(
+        tap((res) => {
+          if (res.success && res.data.accessToken) {
+            localStorage.setItem('accessToken', res.data.accessToken);
+            localStorage.setItem('refreshToken', res.data.refreshToken);
+
+            this.currentUserSubject.next(res.data.user);
+          }
+        })
+      );
   }
 
   register(data: RegisterRequest): Observable<ApiResponse<Object>> {
@@ -58,29 +69,20 @@ export class AuthService {
   }
 
   logout(refreshToken?: string): Observable<ApiResponse<Object>> {
-    if (refreshToken) {
-      return this.http.post<ApiResponse<Object>>(
+    return this.http
+      .post<ApiResponse<Object>>(
         `${this.baseUrl}/logout`,
         { refreshToken },
         { withCredentials: true }
+      )
+      .pipe(
+        tap(() => {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('currentUser');
+          this.currentUserSubject.next(null);
+        })
       );
-    } else {
-      // Logout de cookie HttpOnly (Google login)
-      return this.http.post<ApiResponse<Object>>(
-        `${this.baseUrl}/logout`,
-        {},
-        { withCredentials: true }
-      );
-    }
-  }
-
-  getCurrentUser(): Observable<ApiResponse<any>> {
-    const token = localStorage.getItem('accessToken');
-    return this.http.get<ApiResponse<any>>(`${this.usersUrl}/me`, {
-      headers: {
-        Authorization: token ? `Bearer ${token}` : '',
-      },
-    });
   }
 
   loginWithGoogle(): Observable<AuthResponse> {
@@ -97,13 +99,11 @@ export class AuthService {
 
     return new Observable<AuthResponse>((observer) => {
       const messageHandler = (event: MessageEvent) => {
-        // aceptar solo mensajes de tu backend
         if (event.origin !== 'http://localhost:8080') return;
 
         const data = event.data;
 
         if (data?.success === false) {
-          // ❌ error enviado desde FailureHandler
           observer.error(
             new Error(data.message || 'Error en login con Google')
           );
@@ -113,7 +113,6 @@ export class AuthService {
         }
 
         if (data?.accessToken) {
-          // ✅ éxito
           observer.next({
             accessToken: data.accessToken,
             refreshToken: data.refreshToken || '',
@@ -128,11 +127,11 @@ export class AuthService {
     });
   }
 
-  getUserInfo() {
-    var data = this.http.get('http://localhost:8080/loginSuccess', {
-      withCredentials: true,
-    });
-    console.log(data);
-    return data;
+  getCurrentUser(): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.usersUrl}/me`);
+  }
+
+  setCurrentUser(user: any) {
+    this.currentUserSubject.next(user);
   }
 }

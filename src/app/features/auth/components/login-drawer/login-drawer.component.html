@@ -5,43 +5,30 @@
   styleClass="!w-full md:!w-96"
   (onHide)="closeDrawer()"
 >
-  <!-- Si hay usuario logueado -->
-  <div *ngIf="currentUser; else authTabs" class="p-4">
-    <h3 class="text-lg font-semibold">
-      Bienvenido, {{ currentUser.username || currentUser.email }}
-    </h3>
-    <p class="text-sm text-gray-400">Email: {{ currentUser.email }}</p>
+  <!-- Tabs login/registro -->
+  <div class="flex mb-6 border-b border-gray-200">
     <button
-      pButton
-      type="button"
-      label="Cerrar sesión"
-      class="w-full mt-4"
-      (click)="logout()"
-    ></button>
+      class="flex-1 py-2 font-semibold text-center transition-colors"
+      [class.text-blue-600]="activeTab === 'login'"
+      [class.border-b-2]="activeTab === 'login'"
+      [class.border-blue-600]="activeTab === 'login'"
+      (click)="activeTab = 'login'"
+    >
+      Iniciar Sesión
+    </button>
+    <button
+      class="flex-1 py-2 font-semibold text-center transition-colors"
+      [class.text-blue-600]="activeTab === 'register'"
+      [class.border-b-2]="activeTab === 'register'"
+      [class.border-blue-600]="activeTab === 'register'"
+      (click)="activeTab = 'register'"
+    >
+      Registrarse
+    </button>
   </div>
 
-  <!-- Tabs login/registro -->
-  <ng-template #authTabs>
-    <div class="flex mb-6 border-b border-gray-700">
-      <button
-        class="flex-1 py-2 font-semibold text-center"
-        [class.text-blue-400]="activeTab === 'login'"
-        (click)="activeTab = 'login'"
-      >
-        Iniciar Sesión
-      </button>
-      <button
-        class="flex-1 py-2 font-semibold text-center"
-        [class.text-blue-400]="activeTab === 'register'"
-        (click)="activeTab = 'register'"
-      >
-        Registrarse
-      </button>
-    </div>
-
-    <div class="p-4">
-      <app-login-form *ngIf="activeTab === 'login'"></app-login-form>
-      <app-signup-form *ngIf="activeTab === 'register'"></app-signup-form>
-    </div>
-  </ng-template>
+  <div class="p-4">
+    <app-login-form *ngIf="activeTab === 'login'"></app-login-form>
+    <app-signup-form *ngIf="activeTab === 'register'"></app-signup-form>
+  </div>
 </p-drawer>

@@ -1,84 +1,97 @@
 <form
-  #signupForm="ngForm"
-  (ngSubmit)="onRegister(signupForm)"
+  [formGroup]="signupForm"
+  (ngSubmit)="onRegister()"
   class="space-y-6 w-full"
 >
-  <div class="p-float-label w-full">
-    <label for="nombre">Nombre de usuario</label>
+  <p-float-label>
+    <label for="firstName">Nombres</label>
     <input
-      id="nombre"
+      id="firstName"
       type="text"
       pInputText
+      formControlName="firstName"
       class="w-full"
-      name="nombre"
-      [(ngModel)]="nombre"
-      required
     />
-  </div>
+  </p-float-label>
 
-  <div class="p-float-label w-full">
-    <label for="regEmail">Correo</label>
+  <p-float-label>
+    <label for="lastName">Apellidos</label>
     <input
-      id="regEmail"
+      id="lastName"
+      type="text"
+      pInputText
+      formControlName="lastName"
+      class="w-full"
+    />
+  </p-float-label>
+
+  <p-float-label>
+    <label for="username">Nombre de usuario</label>
+    <input
+      id="username"
+      type="text"
+      pInputText
+      formControlName="username"
+      class="w-full"
+    />
+  </p-float-label>
+
+  <p-float-label>
+    <label for="email">Email</label>
+    <input
+      id="email"
       type="email"
       pInputText
+      formControlName="email"
       class="w-full"
-      name="email"
-      [(ngModel)]="regEmail"
-      required
     />
-  </div>
+  </p-float-label>
 
-  <div class="p-float-label w-full flex flex-col">
-    <label for="regPassword">Contraseña</label>
+  <p-float-label>
+    <label for="password">Password</label>
     <p-password
-      id="regPassword"
-      name="password"
-      [(ngModel)]="regPassword"
-      required
-      [feedback]="false"
+      formControlName="password"
+      placeholder="Password"
       toggleMask="true"
-      [style]="{ width: '100%' }"
       inputStyleClass="w-full"
+      styleClass="w-full"
     ></p-password>
-  </div>
+  </p-float-label>
 
-  <div class="p-float-label w-full flex flex-col">
-    <label for="regPasswordConfirm">Confrmar Contraseña</label>
+  <p-float-label>
+    <label for="confirmPassword">Confrmar Contraseña</label>
     <p-password
-      id="regPasswordConfirm"
-      name="confirmPassword"
-      [(ngModel)]="regPasswordConfirm"
-      required
-      [feedback]="false"
+      formControlName="confirmPassword"
+      placeholder="confirmPassword"
       toggleMask="true"
-      [style]="{ width: '100%' }"
       inputStyleClass="w-full"
+      styleClass="w-full"
     ></p-password>
-  </div>
+  </p-float-label>
 
-  <!-- Botón registrar -->
-  <button
-    pButton
+  <p-button
     type="submit"
     label="Registrarse"
-    class="w-full bg-blue-600 hover:bg-blue-700"
-  ></button>
+    severity="secondary"
+    styleClass="w-full mt-8"
+    [loading]="loading"
+    [disabled]="loading || signupForm.invalid"
+  />
 
-  <!-- Divider -->
   <div class="flex items-center my-4">
     <hr class="flex-grow border-gray-600" />
     <span class="px-2 text-gray-400 text-sm">o</span>
     <hr class="flex-grow border-gray-600" />
   </div>
 
-  <!-- Botón signup con Google -->
-  <button
+  <p-button
     type="button"
     (click)="onGoogleSignup()"
-    class="w-full flex items-center justify-center gap-2 bg-white text-gray-800 font-medium py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition"
+    label="Registrarse con Google"
+    class="w-full"
+    severity="secondary"
+    styleClass="w-full flex items-center justify-center gap-2 mt-2"
   >
     <img src="google_icon.webp" alt="Google" class="w-5 h-5" />
-    Registrarse con Google
-  </button>
+  </p-button>
 </form>

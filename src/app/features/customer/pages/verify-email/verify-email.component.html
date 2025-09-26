@@ -1,0 +1,72 @@
+<div
+  class="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-200 via-white to-blue-100 relative overflow-hidden"
+>
+  <!-- Fondo decorativo -->
+  <div class="absolute -top-20 -right-20 w-72 h-72 bg-green-400 rounded-full blur-3xl opacity-30"></div>
+  <div class="absolute -bottom-20 -left-20 w-72 h-72 bg-blue-400 rounded-full blur-3xl opacity-30"></div>
+
+  <ng-container [ngSwitch]="status">
+    <!-- Loading -->
+    <div
+      *ngSwitchCase="'loading'"
+      class="relative z-10 backdrop-blur-lg bg-white/80 shadow-2xl rounded-3xl p-10 w-full max-w-md text-center border border-gray-200 animate-fade-in"
+    >
+      <div class="flex justify-center mb-6">
+        <i class="pi pi-spin pi-spinner text-green-600 text-6xl"></i>
+      </div>
+      <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+        Verificando tu correo...
+      </h2>
+      <p class="text-gray-600 text-sm">
+        Estamos validando tu cuenta. Este proceso solo tardará unos segundos.
+      </p>
+    </div>
+
+    <!-- Success -->
+    <div
+      *ngSwitchCase="'success'"
+      class="relative z-10 backdrop-blur-lg bg-white/80 shadow-2xl rounded-3xl p-10 w-full max-w-md text-center border border-gray-200 animate-fade-in"
+    >
+      <div class="flex justify-center mb-6">
+        <i class="pi pi-check-circle text-green-500 text-6xl drop-shadow-md"></i>
+      </div>
+      <h2 class="text-3xl font-bold text-gray-900 mb-3">
+        ¡Correo verificado con éxito!
+      </h2>
+      <p class="text-gray-700 mb-8 leading-relaxed">
+        {{ message }} <br />
+        Ya puedes acceder a tu cuenta y disfrutar de todas las funcionalidades 🎉
+      </p>
+
+      <button
+        pButton
+        type="button"
+        label="Ir a iniciar sesión"
+        icon="pi pi-sign-in"
+        class="w-full p-button-success font-medium shadow-md hover:shadow-green-400/60 hover:scale-105 transition-all duration-300"
+        (click)="openLogin()"
+      ></button>
+    </div>
+
+    <!-- Error -->
+    <div
+      *ngSwitchCase="'error'"
+      class="relative z-10 backdrop-blur-lg bg-white/80 shadow-2xl rounded-3xl p-10 w-full max-w-md text-center border border-gray-200 animate-fade-in"
+    >
+      <div class="flex justify-center mb-6">
+        <i class="pi pi-times-circle text-red-500 text-6xl drop-shadow-md"></i>
+      </div>
+      <h2 class="text-3xl font-bold text-gray-900 mb-3">
+        No pudimos verificar tu correo
+      </h2>
+      <p class="text-gray-700 mb-6 leading-relaxed">
+        {{ message }}
+      </p>
+
+      <p class="text-sm text-gray-500">
+        Si el enlace expiró o es inválido, solicita uno nuevo desde la página de
+        registro.
+      </p>
+    </div>
+  </ng-container>
+</div>

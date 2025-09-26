@@ -1,7 +1,11 @@
-
 //es la unica forma de pode dezplazar los items del header
 //::ng-deep .p-menubar .p-menubar-root-list {
-//  transform: translateX(145%);  
+//  transform: translateX(145%);
 //}
-// no se puede aplicar este style debido a que corrompe el responsive 
+// no se puede aplicar este style debido a que corrompe el responsive
 // y no se puede desplegar el menu oculto.
+
+// .p-tieredmenu .p-submenu-list {
+//   left: auto !important;
+//   right: 100% !important;
+// }

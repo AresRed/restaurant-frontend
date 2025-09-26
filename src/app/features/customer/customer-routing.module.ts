@@ -37,4 +37,11 @@ export const customerRoutes: Routes = [
     loadComponent: () =>
       import('./pages/cart/cart.component').then((m) => m.CartComponent),
   },
+  {
+    path: 'verify-email',
+    loadComponent: () =>
+      import('./pages/verify-email/verify-email.component').then(
+        (m) => m.VerifyEmailComponent
+      ),
+  },
 ];

@@ -83,18 +83,23 @@ export class LoginFormComponent {
   }
 
   onGoogleLogin() {
+    this.loading = true;
+
     this.authService.loginWithGoogle().subscribe({
-      next: (res) => {
-        localStorage.setItem('accessToken', res.accessToken);
-        localStorage.setItem('refreshToken', res.refreshToken || '');
+      next: (user) => {
         this.uiService.closeLogin();
         this.notifyService.success('Login con Google exitoso');
-
         this.loginForm.reset();
+        this.loading = false;
       },
       error: (err) => {
-        this.notifyService.error('Error en login con Google', err);
+        this.notifyService.error(
+          'Error en login con Google',
+          err.message || err
+        );
+        this.loading = false;
       },
     });
   }
+
 }

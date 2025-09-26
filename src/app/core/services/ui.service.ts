@@ -24,6 +24,10 @@ export class UiService {
     this.loginDrawerState.next({ visible: false, tab: 'login' });
   }
 
+  closeSignup() {
+    this.loginDrawerState.next({ visible: false, tab: 'register' });
+  }
+
   private cartDrawerState = new BehaviorSubject<boolean>(false);
   cartDrawerState$ = this.cartDrawerState.asObservable();
 

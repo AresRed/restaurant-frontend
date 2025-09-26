@@ -85,7 +85,7 @@ export class AuthService {
       );
   }
 
-  loginWithGoogle(): Observable<AuthResponse> {
+  loginWithGoogle(): Observable<any> {
     const width = 500;
     const height = 600;
     const left = window.screen.width / 2 - width / 2;
@@ -97,29 +97,58 @@ export class AuthService {
       `width=${width},height=${height},top=${top},left=${left}`
     );
 
-    return new Observable<AuthResponse>((observer) => {
+    return new Observable<any>((observer) => {
+      if (!popup) {
+        observer.error(new Error('No se pudo abrir el popup de Google'));
+        return;
+      }
+
+      const cleanup = () => {
+        window.removeEventListener('message', messageHandler);
+      };
+
       const messageHandler = (event: MessageEvent) => {
         if (event.origin !== 'http://localhost:8080') return;
 
         const data = event.data;
+        console.log('Mensaje recibido desde Google OAuth:', data); // TODO: Eliminar en prod
 
         if (data?.success === false) {
-          observer.error(
-            new Error(data.message || 'Error en login con Google')
-          );
-          popup?.close();
-          window.removeEventListener('message', messageHandler);
+          observer.error(new Error(data.message || 'Error en Google OAuth'));
+          popup.close();
+          cleanup();
           return;
         }
 
         if (data?.accessToken) {
-          observer.next({
-            accessToken: data.accessToken,
-            refreshToken: data.refreshToken || '',
+          localStorage.setItem('accessToken', data.accessToken);
+          if (data.refreshToken)
+            localStorage.setItem('refreshToken', data.refreshToken);
+
+          this.getCurrentUser().subscribe({
+            next: (userRes) => {
+              if (userRes.success && userRes.data) {
+                localStorage.setItem(
+                  'currentUser',
+                  JSON.stringify(userRes.data)
+                );
+                this.currentUserSubject.next(userRes.data);
+                observer.next(userRes.data);
+                observer.complete();
+              } else {
+                observer.error(
+                  new Error('No se pudo obtener la información del usuario')
+                );
+              }
+              popup.close();
+              cleanup();
+            },
+            error: (err) => {
+              observer.error(err);
+              popup.close();
+              cleanup();
+            },
           });
-          observer.complete();
-          popup?.close();
-          window.removeEventListener('message', messageHandler);
         }
       };
 

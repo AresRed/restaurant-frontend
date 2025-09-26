@@ -1,6 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, NgForm, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
@@ -19,8 +25,8 @@ import { UiService } from '../../../../core/services/ui.service';
     PasswordModule,
     ButtonModule,
     FloatLabelModule,
-    ReactiveFormsModule
-],
+    ReactiveFormsModule,
+  ],
   templateUrl: './signup-form.component.html',
 })
 export class SignupFormComponent {
@@ -76,17 +82,24 @@ export class SignupFormComponent {
     });
   }
 
+  
   onGoogleSignup() {
+    this.loading = true;
+
     this.authService.loginWithGoogle().subscribe({
-      next: (res) => {
-        localStorage.setItem('accessToken', res.accessToken);
-        if (res.refreshToken) {
-          localStorage.setItem('refreshToken', res.refreshToken);
-        }
+      next: (user) => {
+        this.uiService.closeSignup();
         this.notificationService.success('Registro con Google exitoso');
+        this.signupForm.reset();
+        this.loading = false;
       },
-      error: (err) =>
-        this.notificationService.error('Error en signup con Google', err),
+      error: (err) => {
+        this.notificationService.error(
+          'Error en signup con Google',
+          err.message || err
+        );
+        this.loading = false;
+      },
     });
   }
 }

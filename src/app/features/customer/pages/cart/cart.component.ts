@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { Subscription } from 'rxjs';
 import { CartItem } from '../../../../core/models/cart.model';
 import { CartService } from '../../../../core/services/cart.service';
-import { PaymentService } from '../../../../core/services/payment.service';
-
-declare var MercadoPago: any;
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-cart',
+  standalone: true,
   imports: [CommonModule, FormsModule, ButtonModule],
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.scss'],
@@ -21,7 +21,8 @@ export class CartComponent implements OnInit, OnDestroy {
 
   constructor(
     private cartService: CartService,
-    private paymentService: PaymentService
+    private notificationService: NotificationService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -39,12 +40,12 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   decreaseQty(item: CartItem) {
-    this.cartService.updateQuantity(item.id, (item.quantity || 0) - 1);
-  }
-
-  onQuantityChange(item: CartItem, value: any) {
-    const q = Number(value);
-    this.cartService.updateQuantity(item.id, Math.floor(q));
+    const newQty = (item.quantity || 0) - 1;
+    if (newQty <= 0) {
+      this.removeItem(item);
+    } else {
+      this.cartService.updateQuantity(item.id, newQty);
+    }
   }
 
   removeItem(item: CartItem) {
@@ -55,18 +56,18 @@ export class CartComponent implements OnInit, OnDestroy {
     return this.cartService.getTotal();
   }
 
-  checkout() {
-    if (this.items.length === 0) {
-      alert('Tu carrito está vacío');
+  // Abre el modal del checkout
+  finalizeOrder() {
+    if (!this.items.length) {
+      this.notificationService.error('Tu carrito está vacío');
       return;
     }
 
-    this.paymentService.createPreference(this.items).subscribe({
-      next: (preference) => {
-        this.paymentService.checkout(preference.id);
-      },
-      error: (err) => console.error(err),
-    });
+    this.router.navigate(['/checkout']);
+  }
+
+  onCheckoutComplete() {
+    this.cartService.clear();
   }
 
   trackById(index: number, item: CartItem) {

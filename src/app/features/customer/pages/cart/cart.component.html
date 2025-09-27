@@ -23,10 +23,14 @@
           class="w-24 h-24 rounded-lg object-cover mb-3 md:mb-0 md:mr-6 border border-gray-200"
         />
 
-        <div class="flex-1 flex flex-col md:flex-row md:justify-between items-center w-full">
+        <div
+          class="flex-1 flex flex-col md:flex-row md:justify-between items-center w-full"
+        >
           <div class="flex-1 text-center md:text-left mb-4 md:mb-0">
             <p class="font-semibold text-gray-800 text-lg">{{ item.name }}</p>
-            <p class="text-gray-500 mt-1">S/{{ item.price | number : "1.2-2" }}</p>
+            <p class="text-gray-500 mt-1">
+              S/{{ item.price | number : "1.2-2" }}
+            </p>
           </div>
 
           <div class="flex items-center space-x-2 mb-3 md:mb-0">
@@ -40,7 +44,7 @@
               type="number"
               min="1"
               [ngModel]="item.quantity"
-              (ngModelChange)="onQuantityChange(item, $event)"
+              (ngModelChange)="increaseQty(item)"
               class="w-16 text-center border border-gray-300 rounded-lg px-2 py-1"
             />
             <button
@@ -52,9 +56,9 @@
           </div>
 
           <div class="flex flex-col items-center md:items-end space-y-1">
-            <span class="font-bold text-gray-800 text-lg">
-              S/{{ item.price * item.quantity | number : "1.2-2" }}
-            </span>
+            <span class="font-bold text-gray-800 text-lg"
+              >S/{{ item.price * item.quantity | number : "1.2-2" }}</span
+            >
             <button
               pButton
               icon="pi pi-trash"
@@ -66,30 +70,33 @@
       </div>
     </div>
 
-    <!-- Derecha: resumen -->
-    <div class="bg-white rounded-xl shadow-md p-6 flex flex-col space-y-4 h-fit sticky top-6">
+    <div
+      class="bg-white rounded-xl shadow-md p-6 flex flex-col space-y-4 h-fit sticky top-6"
+    >
       <h2 class="text-xl font-bold text-gray-800 mb-4">Resumen del Pedido</h2>
 
       <div class="flex justify-between text-gray-600">
         <span>Subtotal</span>
-        <span>S/{{ (total / 1.18) | number : "1.2-2" }}</span>
+        <span>S/{{ total / 1.18 | number : "1.2-2" }}</span>
       </div>
 
       <div class="flex justify-between text-gray-600">
         <span>IGV (18%)</span>
-        <span>S/{{ (total * 0.18 / 1.18) | number : "1.2-2" }}</span>
+        <span>S/{{ (total * 0.18) / 1.18 | number : "1.2-2" }}</span>
       </div>
 
-      <div class="flex justify-between font-bold text-gray-800 text-lg border-t border-gray-200 pt-3">
+      <div
+        class="flex justify-between font-bold text-gray-800 text-lg border-t border-gray-200 pt-3"
+      >
         <span>Total</span>
         <span>S/{{ total | number : "1.2-2" }}</span>
       </div>
 
       <button
         pButton
-        label="Finalizar Pedido"
+        label="Continuar Compra"
         class="w-full mt-4"
-        (click)="checkout()"
+        (click)="finalizeOrder()"
         [disabled]="items.length === 0"
       ></button>
     </div>

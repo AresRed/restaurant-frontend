@@ -38,6 +38,13 @@ export const customerRoutes: Routes = [
       import('./pages/cart/cart.component').then((m) => m.CartComponent),
   },
   {
+    path: 'checkout',
+    loadComponent: () =>
+      import('./pages/checkout/checkout.component').then(
+        (m) => m.CheckoutComponent
+      ),
+  },
+  {
     path: 'verify-email',
     loadComponent: () =>
       import('./pages/verify-email/verify-email.component').then(

@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { loadMercadoPago } from '@mercadopago/sdk-js';
 import {
   AutoCompleteCompleteEvent,
   AutoCompleteModule,
@@ -10,10 +9,20 @@ import { ButtonModule } from 'primeng/button';
 import { InputText } from 'primeng/inputtext';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { StepperModule } from 'primeng/stepper';
+import {
+  AddressCustomerRequest,
+  AddressResponse,
+} from '../../../../core/models/address.model';
 import { CartItem } from '../../../../core/models/cart.model';
+import { OrderTypeResponse } from '../../../../core/models/order-type.model';
 import { CartService } from '../../../../core/services/cart.service';
+import { AddressService } from '../../../../core/services/customer/address/address.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { OrderTypeService } from '../../../../core/services/orders/order-type.service';
+import { OrderService } from '../../../../core/services/orders/order.service';
 import { PaymentService } from '../../../../core/services/payment.service';
+import { AddressFormComponent } from './components/address-form/address-form.component';
+import { PaymentBrickComponent } from './components/payment-brick/payment-brick.component';
 
 @Component({
   selector: 'app-checkout',
@@ -26,12 +35,23 @@ import { PaymentService } from '../../../../core/services/payment.service';
     RadioButtonModule,
     AutoCompleteModule,
     InputText,
+    AddressFormComponent,
+    PaymentBrickComponent,
   ],
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.scss'],
 })
 export class CheckoutComponent implements OnInit {
   items: CartItem[] = [];
+
+  orderTypes: OrderTypeResponse[] = [];
+  selectedOrderType: OrderTypeResponse | null = null;
+
+  addresses: AddressResponse[] = [];
+  selectedAddressId: number | null = null;
+
+  showAddressForm = false;
+
   total = 0;
   storeSelected: any;
   stores = [
@@ -58,32 +78,25 @@ export class CheckoutComponent implements OnInit {
     holder: '',
     doc: '',
   };
-  address = {
-    store: '',
-    agency: '',
-    street: '',
-    city: '',
-    province: '',
-    zip: '',
-    reference: '',
-    receiver: '',
-    phone: '',
-    document: '',
-  };
 
   constructor(
     private cartService: CartService,
     private paymentService: PaymentService,
+    private orderService: OrderService,
+    private orderTypeService: OrderTypeService,
+    private addressService: AddressService,
     private notificationService: NotificationService
   ) {}
 
-  async ngOnInit() {
-    await loadMercadoPago();
-
+  ngOnInit(): void {
     this.cartService.items$.subscribe((items) => {
       this.items = items;
       this.total = this.cartService.getTotal();
     });
+
+    this.loadOrderTypes();
+
+    this.loadAddresses();
   }
 
   nextStep() {
@@ -98,24 +111,128 @@ export class CheckoutComponent implements OnInit {
     this.activeStepIndex = step;
   }
 
+  loadOrderTypes() {
+    this.orderTypeService.getAllOrderTypes().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.orderTypes = res.data;
+          if (this.orderTypes.length > 0) {
+            this.selectedOrderType = this.orderTypes[0];
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Error cargando tipos de orden', err);
+        this.notificationService.error(
+          'Error',
+          'No se pudieron cargar los tipos de orden'
+        );
+      },
+    });
+  }
+
+  loadAddresses() {
+    this.addressService.getAllAddressAuth().subscribe({
+      next: (res) => {
+        this.addresses = res.data.content;
+      },
+      error: () => {
+        this.notificationService.error(
+          'Error',
+          'No se pudieron cargar las direcciones'
+        );
+      },
+    });
+  }
+
+  saveAddress(addr: AddressCustomerRequest) {
+    this.addressService.addAddressAuth(addr).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.notificationService.success('Dirección guardada');
+          this.addresses.push(res.data);
+          this.selectedAddressId = res.data.id;
+          this.showAddressForm = false;
+        }
+      },
+      error: () => {
+        this.notificationService.error(
+          'Error',
+          'No se pudo guardar la dirección'
+        );
+      },
+    });
+  }
+
+  addNewAddress() {
+    this.showAddressForm = true;
+  }
+
+  deleteAddress(addressId: number) {
+    this.addressService.deleteAddress(addressId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.notificationService.success('Dirección eliminada');
+          this.addresses = this.addresses.filter(
+            (address) => address.id !== addressId
+          );
+        }
+      },
+      error: (err) => {
+        this.notificationService.error('No se pudo eliminar la dirección');
+      },
+    });
+  }
+
   async pay() {
     try {
-      const orderId = 123; // TODO: obtener dinámicamente de tu backend
+      const order = await this.orderService.createOrderAsync({
+        statusId: 1,
+        typeId: this.selectedOrderType?.id!,
+        addressId: 1,
+        details: this.items.map((i) => ({
+          productId: i.id,
+          quantity: i.quantity,
+        })),
+      });
 
-      const response = await this.paymentService.payWithCard(
-        orderId,
-        this.card
-      );
+      console.log('Orden creada:', order);
 
-      console.log('Pago exitoso:', response);
-      this.notificationService.success('Pago exitoso');
+      // await this.paymentService.payWithCard(order.id, this.card);
+
+      this.notificationService.success('Orden creada y pagada exitosamente');
       this.cartService.clear();
       this.goToStep(0);
     } catch (error: any) {
       console.error('Error al pagar:', error);
       this.notificationService.error(
-        error?.cause?.[0]?.description || 'Error al procesar el pago'
+        error?.error?.message || 'Error al procesar el pago'
       );
+    }
+  }
+
+  isDelivery(): boolean {
+    return this.selectedOrderType?.code === 'DELIVERY';
+  }
+
+  isTakeAway(): boolean {
+    return this.selectedOrderType?.code === 'TAKE_AWAY';
+  }
+
+  isDineIn(): boolean {
+    return this.selectedOrderType?.code === 'DINE_IN';
+  }
+
+  getOrderTypeIcon(code: string): { icon: string; color: string } {
+    switch (code.toUpperCase()) {
+      case 'DINE_IN':
+        return { icon: 'pi pi-shop', color: 'text-blue-500' };
+      case 'TAKE_AWAY':
+        return { icon: 'pi pi-shopping-bag', color: 'text-green-500' };
+      case 'DELIVERY':
+        return { icon: 'pi pi-truck', color: 'text-red-500' };
+      default:
+        return { icon: 'pi pi-question', color: 'text-gray-500' };
     }
   }
 

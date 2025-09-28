@@ -1,18 +1,12 @@
-import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface PowerItem {
-  name: string;
-  description: string;
-  price: number;
-  emoji: string;
-  isNew?: boolean;
-}
+import { CategoryResponse } from '../../../../core/models/category.model';
+import { ProductResponse } from '../../../../core/models/product.model';
+import { CartService } from '../../../../core/services/cart.service';
+import { CategoryService } from '../../../../core/services/category.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { ProductService } from '../../../../core/services/product.service';
 
 @Component({
   selector: 'app-menu',
@@ -21,83 +15,81 @@ interface PowerItem {
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss'],
 })
-export class MenuComponent implements AfterViewInit {
-  categories = [
-    'Categoria 1',
-    'Categoria 2',
-    'Categoria 3',
-    'Categoria 4',
-    'Categoria 5',
-    'Categoria 6',
-  ];
+export class MenuComponent implements OnInit {
+  categories: CategoryResponse[] = [];
+  products: ProductResponse[] = [];
+  allProducts: ProductResponse[] = [];
+  selectedCategoryId: number | null = null;
 
-  powerItems: PowerItem[] = [
-    {
-      name: 'Power Chuleta Criolla',
-      description:
-        '1 Chuleta Criolla + 2 lonjas de Plátano Frito + 1 Porción de Arroz + 1 Porción de Papas Perejileras',
-      price: 24.5,
-      emoji: '🍖',
-      isNew: true,
-    },
-    {
-      name: 'Power Hamburguesa',
-      description: 'Hamburguesa doble + papas fritas + bebida refrescante',
-      price: 22,
-      emoji: '🍔',
-    },
-    {
-      name: 'Power Pizza',
-      description: 'Pizza familiar + 2 bebidas + aderezo especial',
-      price: 35,
-      emoji: '🍕',
-    },
-    {
-      name: 'Power Tacos',
-      description: '3 Tacos de carne + guarnición de arroz + salsa especial',
-      price: 28,
-      emoji: '🌮',
-    },
-    {
-      name: 'Power Ensalada',
-      description: 'Ensalada grande + aderezo + semillas + bebida natural',
-      price: 20,
-      emoji: '🥗',
-    },
-    {
-      name: 'Power Camarones',
-      description: 'Camarones al ajillo + arroz + ensalada + bebida',
-      price: 40,
-      emoji: '🍤',
-    },
-  ];
+  constructor(
+    private productService: ProductService,
+    private categoryService: CategoryService,
+    private cartService: CartService,
+    private notificationService: NotificationService
+  ) {}
 
-  ngAfterViewInit(): void {
-    gsap.from('.hero-title', {
-      y: 50,
-      opacity: 0,
-      duration: 0.2,
-      ease: 'power3.out',
-    });
+  ngOnInit(): void {
+    this.loadCategories();
+    this.loadProducts();
+  }
 
-    setTimeout(() => {
-      gsap.utils.toArray('.power-card').forEach((card: any, i) => {
-        gsap.fromTo(
-          card,
-          { y: 50, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.2,
-            delay: i * 0.2,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top 80%',
+  loadCategories() {
+    this.categoryService.getAllCategories().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.categories = [
+            {
+              id: 0,
+              name: 'Todos',
+              createdAt: new Date(),
+              updatedAt: new Date(),
             },
-          }
-        );
-      });
-    }, 0);
+            ...res.data,
+          ];
+        }
+      },
+      error: (err) => console.error('Error cargando categorías', err),
+    });
+  }
+
+  loadProducts() {
+    this.productService.getAllProducts().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.allProducts = res.data;
+          this.products = [...this.allProducts];
+          this.selectedCategoryId = 0;
+        }
+      },
+      error: (err) => console.error('Error cargando productos', err),
+    });
+  }
+
+  filterByCategory(categoryId: number) {
+    this.selectedCategoryId = categoryId;
+    if (categoryId === 0) {
+      this.products = [...this.allProducts];
+    } else {
+      this.products = this.allProducts.filter(
+        (p) => p.categoryId === categoryId
+      );
+    }
+  }
+
+  addToCart(product: ProductResponse) {
+    const existing = this.cartService.items.find((i) => i.id === product.id);
+    this.cartService.addItem(product);
+
+    if (existing) {
+      this.notificationService.info(
+        'Cantidad actualizada',
+        `Ahora tienes ${existing.quantity} de ${product.name} en el carrito.`
+      );
+    } else {
+      this.notificationService.success(
+        'Producto agregado',
+        `${product.name} ha sido agregado al carrito.`
+      );
+    }
   }
 }

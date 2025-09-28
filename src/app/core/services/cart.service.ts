@@ -1,37 +1,47 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { CartItem } from '../models/cart.model';
+import { ProductResponse } from '../models/product.model';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  private itemsSubject = new BehaviorSubject<CartItem[]>([
-    {
-      id: 1,
-      name: 'Comida',
-      price: 2,
-      quantity: 2,
-      image:
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkGTV9ptpoJ1nv8SE8QJ_A4-pCjnd46axWiA&s',
-    },
-  ]);
+  private itemsSubject = new BehaviorSubject<CartItem[]>(this.loadCart());
   items$ = this.itemsSubject.asObservable();
 
   get items(): CartItem[] {
     return this.itemsSubject.value;
   }
 
-  addItem(item: CartItem) {
-    const existing = this.items.find((i) => i.id === item.id);
+  private saveCart() {
+    localStorage.setItem('cart', JSON.stringify(this.items));
+  }
+
+  private loadCart(): CartItem[] {
+    const data = localStorage.getItem('cart');
+    return data ? JSON.parse(data) : [];
+  }
+
+  addItem(product: ProductResponse) {
+    const existing = this.items.find((i) => i.id === product.id);
     if (existing) {
       existing.quantity += 1;
-      this.itemsSubject.next([...this.items]);
     } else {
-      this.itemsSubject.next([...this.items, { ...item, quantity: 1 }]);
+      const newItem: CartItem = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        image: product.imageUrl || '',
+      };
+      this.items.push(newItem);
     }
+    this.itemsSubject.next([...this.items]);
+    this.saveCart();
   }
 
   removeItem(id: number) {
     this.itemsSubject.next(this.items.filter((i) => i.id !== id));
+    this.saveCart();
   }
 
   updateQuantity(id: number, quantity: number) {
@@ -41,6 +51,7 @@ export class CartService {
     else {
       item.quantity = quantity;
       this.itemsSubject.next([...this.items]);
+      this.saveCart();
     }
   }
 
@@ -50,5 +61,6 @@ export class CartService {
 
   clear() {
     this.itemsSubject.next([]);
+    localStorage.removeItem('cart');
   }
 }

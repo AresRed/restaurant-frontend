@@ -1,18 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { ApiResponse } from '../models/api-response.model';
+import {
+  LoginRequest,
+  UserLoginResponse,
+} from '../models/auth/login/login.model';
 import { RegisterRequest } from '../models/auth/register/register.model';
-
-export interface LoginRequest {
-  usernameOrEmail: string;
-  password: string;
-}
-
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-}
+import { ApiResponse } from '../models/base/api-response.model';
+import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +16,7 @@ export class AuthService {
   private baseUrl = 'http://localhost:8080/api/v1/auth';
   private usersUrl = 'http://localhost:8080/api/v1/users';
 
-  private currentUserSubject = new BehaviorSubject<any | null>(null);
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {
@@ -32,20 +27,15 @@ export class AuthService {
     }
   }
 
-  login(
-    data: LoginRequest
-  ): Observable<ApiResponse<AuthResponse & { user: any }>> {
+  login(data: LoginRequest): Observable<ApiResponse<UserLoginResponse>> {
     return this.http
-      .post<ApiResponse<AuthResponse & { user: any }>>(
-        `${this.baseUrl}/login`,
-        data
-      )
+      .post<ApiResponse<UserLoginResponse>>(`${this.baseUrl}/login`, data)
       .pipe(
         tap((res) => {
           if (res.success && res.data.accessToken) {
             localStorage.setItem('accessToken', res.data.accessToken);
             localStorage.setItem('refreshToken', res.data.refreshToken);
-
+            localStorage.setItem('currentUser', JSON.stringify(res.data.user));
             this.currentUserSubject.next(res.data.user);
           }
         })
@@ -60,8 +50,10 @@ export class AuthService {
     );
   }
 
-  refreshToken(refreshToken: string): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(
+  refreshToken(
+    refreshToken: string
+  ): Observable<ApiResponse<UserLoginResponse>> {
+    return this.http.post<ApiResponse<UserLoginResponse>>(
       `${this.baseUrl}/refresh`,
       { refreshToken },
       { withCredentials: true }
@@ -156,11 +148,18 @@ export class AuthService {
     });
   }
 
-  getCurrentUser(): Observable<ApiResponse<any>> {
-    return this.http.get<ApiResponse<any>>(`${this.usersUrl}/me`);
+  getCurrentUser(): Observable<ApiResponse<User>> {
+    return this.http.get<ApiResponse<User>>(`${this.usersUrl}/me`).pipe(
+      tap((res) => {
+        if (res.success && res.data) {
+          localStorage.setItem('currentUser', JSON.stringify(res.data));
+          this.currentUserSubject.next(res.data);
+        }
+      })
+    );
   }
 
-  setCurrentUser(user: any) {
+  setCurrentUser(user: User) {
     this.currentUserSubject.next(user);
   }
 }

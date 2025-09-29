@@ -37,19 +37,22 @@
         >
       </nav>
 
-      <div class="hidden md:flex items-center space-x-2 font-[tipo6] text-xl font-medium">
+      <div class="hidden md:flex items-center space-x-2 font-[tipo6] text-xl font-medium7
+        
+      ">
         <ng-container
           *ngIf="currentUser$ | async as currentUser; else guestButtons"
         >
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-2 text-white">
             <span
               class=" font-medium transition"
             >
-              {{ currentUser.username || currentUser.email }}
+              {{ currentUser.email||currentUser.username   }}
             </span>
 
             <p-avatar
               icon="pi pi-user"
+              
               shape="circle"
               styleClass="bg-blue-500 text-white cursor-pointer"
               (click)="menu.toggle($event)"
@@ -60,8 +63,8 @@
             #menu
             [model]="itemsUserMenu"
             [popup]="true"
-            appendTo="body"
-            styleClass="shadow-lg rounded-xl"
+            
+            styleClass="!bg-rojo-fondo-claro"
           />
         </ng-container>
 
@@ -85,7 +88,7 @@
         <p-button
         label="REGISTRARSE"
         (onClick)="openSignup()"
-        icon="pi pi-sign-in"
+        icon="pi pi-user-plus"
         severity="secondary"                            
 
       />

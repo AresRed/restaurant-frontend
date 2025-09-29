@@ -17,39 +17,22 @@
           <ng-template #content let-activateCallback="activateCallback">
             <div class="flex flex-col space-y-4">
               <label
+                *ngFor="let type of orderTypes"
                 class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition"
               >
                 <p-radiobutton
-                  name="shipping"
-                  value="pickup-delivery"
-                  [(ngModel)]="shippingOption"
-                />
-                <i class="pi pi-truck text-blue-500 text-lg"></i>
-                <span class="text-gray-800">Delivery a domicilio</span>
-              </label>
+                  name="orderType"
+                  [value]="type"
+                  [(ngModel)]="selectedOrderType"
+                ></p-radiobutton>
 
-              <label
-                class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition"
-              >
-                <p-radiobutton
-                  name="shipping"
-                  value="pickup-store"
-                  [(ngModel)]="shippingOption"
-                />
-                <i class="pi pi-shop text-green-500 text-lg"></i>
-                <span class="text-gray-800">Recojo en tienda/local</span>
-              </label>
+                <i
+                  class="{{ getOrderTypeIcon(type.code).icon }} {{
+                    getOrderTypeIcon(type.code).color
+                  }} text-lg"
+                ></i>
 
-              <label
-                class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition"
-              >
-                <p-radiobutton
-                  name="shipping"
-                  value="pickup-agency"
-                  [(ngModel)]="shippingOption"
-                />
-                <i class="pi pi-map-marker text-red-500 text-lg"></i>
-                <span class="text-gray-800">Recojo en agencia o locker</span>
+                <span class="text-gray-800">{{ type.name }}</span>
               </label>
             </div>
             <div class="flex justify-end mt-6">
@@ -66,124 +49,72 @@
         <p-step-panel [value]="2">
           <ng-template #content let-activateCallback="activateCallback">
             <div class="space-y-6">
-              <div
-                *ngIf="shippingOption === 'pickup-delivery'"
-                class="grid grid-cols-1 md:grid-cols-2 gap-4"
-              >
-                <input
-                  type="text"
-                  placeholder="Calle y número"
-                  class="p-inputtext p-component w-full"
-                  [(ngModel)]="address.street"
-                />
-                <input
-                  type="text"
-                  placeholder="Ciudad"
-                  class="p-inputtext p-component w-full"
-                  [(ngModel)]="address.city"
-                />
-                <input
-                  type="text"
-                  placeholder="Provincia"
-                  class="p-inputtext p-component w-full"
-                  [(ngModel)]="address.province"
-                />
-                <input
-                  type="text"
-                  placeholder="Código postal"
-                  class="p-inputtext p-component w-full"
-                  [(ngModel)]="address.zip"
-                />
-                <input
-                  type="text"
-                  placeholder="Referencia (opcional)"
-                  class="p-inputtext p-component w-full col-span-2"
-                  [(ngModel)]="address.reference"
-                />
-                <input
-                  type="text"
-                  placeholder="Nombre de quien recibe"
-                  class="p-inputtext p-component w-full"
-                  [(ngModel)]="address.receiver"
-                />
-                <input
-                  type="tel"
-                  placeholder="Teléfono de contacto"
-                  class="p-inputtext p-component w-full"
-                  [(ngModel)]="address.phone"
-                />
+              <div *ngIf="isDelivery()" class="space-y-6">
+                <div *ngIf="addresses.length > 0" class="space-y-2">
+                  <div
+                    *ngFor="let addr of addresses"
+                    class="flex items-center justify-between border p-3 rounded-lg"
+                  >
+                    <label class="flex items-center gap-3 cursor-pointer">
+                      <p-radiobutton
+                        name="savedAddress"
+                        [value]="addr.id"
+                        [(ngModel)]="selectedAddressId"
+                      ></p-radiobutton>
+                      <div>
+                        <div class="font-medium">
+                          {{ addr.street }}, {{ addr.city }}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                          {{ addr.province }} - {{ addr.reference }}
+                        </div>
+                      </div>
+                    </label>
+
+                    <button
+                      pButton
+                      type="button"
+                      icon="pi pi-trash"
+                      class="p-button-rounded p-button-text p-button-danger"
+                      (click)="deleteAddress(addr.id)"
+                    ></button>
+                  </div>
+
+                  <div class="mt-4">
+                    <p-button
+                      label="Agregar nueva dirección"
+                      icon="pi pi-plus"
+                      (click)="addNewAddress()"
+                      *ngIf="!showAddressForm"
+                    ></p-button>
+                  </div>
+                </div>
+
+                <app-address-form
+                  *ngIf="addresses.length === 0 || showAddressForm"
+                  (save)="saveAddress($event)"
+                  (cancel)="showAddressForm = false"
+                >
+                </app-address-form>
               </div>
 
-              <div
-                *ngIf="shippingOption === 'pickup-store'"
-                class="flex flex-col space-y-4"
-              >
+              <div *ngIf="isTakeAway()" class="space-y-4">
                 <p-autoComplete
                   [(ngModel)]="storeSelected"
                   [suggestions]="filteredStores"
                   (completeMethod)="searchStores($event)"
                   optionLabel="name"
-                  [readonly]="true"
                   [dropdown]="true"
-                  styleClass="w-full"
                   placeholder="Buscar tienda..."
-                />
-                <input
-                  type="text"
-                  pInputText
-                  placeholder="Nombre de quien retira"
-                  class="p-component w-full"
-                  [(ngModel)]="address.receiver"
-                />
-                <input
-                  type="tel"
-                  placeholder="Teléfono de contacto"
-                  class="p-inputtext p-component w-full"
-                  [(ngModel)]="address.phone"
-                />
-                <input
-                  type="text"
-                  placeholder="Documento de identidad"
-                  class="p-inputtext p-component w-full"
-                  [(ngModel)]="address.document"
                 />
               </div>
 
-              <div
-                *ngIf="shippingOption === 'pickup-agency'"
-                class="flex flex-col space-y-4"
-              >
-                <p-autoComplete
-                  [(ngModel)]="agencySelected"
-                  [suggestions]="filteredAgencies"
-                  (completeMethod)="searchAgencies($event)"
-                  optionLabel="name"
-                  [readonly]="true"
-                  [dropdown]="true"
-                  styleClass="w-full"
-                  placeholder="Buscar agencia..."
-                  class="w-full"
-                />
-                <input
-                  type="text"
-                  placeholder="Nombre de quien retira"
-                  class="p-inputtext p-component w-full"
-                  [(ngModel)]="address.receiver"
-                />
-                <input
-                  type="tel"
-                  placeholder="Teléfono de contacto"
-                  class="p-inputtext p-component w-full"
-                  [(ngModel)]="address.phone"
-                />
-                <input
-                  type="text"
-                  placeholder="Documento de identidad"
-                  class="p-inputtext p-component w-full"
-                  [(ngModel)]="address.document"
-                />
+              <!-- DINE IN -->
+              <div *ngIf="isDineIn()" class="text-center text-gray-600">
+                No se requiere dirección para pedidos en restaurante.
               </div>
             </div>
+
             <div class="flex pt-6 justify-between">
               <p-button
                 label="Volver"
@@ -195,12 +126,18 @@
                 label="Siguiente"
                 icon="pi pi-arrow-right"
                 iconPos="right"
+                [disabled]="isDelivery() && !selectedAddressId"
                 (onClick)="activateCallback(3)"
               />
             </div>
+            <div
+              *ngIf="isDelivery() && !selectedAddressId"
+              class="text-red-500 mt-2 text-sm flex items-end justify-end"
+            >
+              Debes seleccionar una dirección para continuar con el pago.
+            </div>
           </ng-template>
         </p-step-panel>
-
         <p-step-panel [value]="3">
           <ng-template #content let-activateCallback="activateCallback">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -247,69 +184,23 @@
               </label>
             </div>
 
-            <div
-              *ngIf="paymentMethod === 'card'"
-              class="mt-6 space-y-4 border rounded-xl p-4 bg-gray-50"
-            >
-              <h3 class="font-semibold text-gray-700 mb-2">
-                Datos de la tarjeta
-              </h3>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  pInputText
-                  placeholder="Número de tarjeta"
-                  [(ngModel)]="card.number"
-                  name="cardNumber"
-                  class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-                />
-                <input
-                  type="text"
-                  pInputText
-                  placeholder="MM/AA"
-                  [(ngModel)]="card.expiration"
-                  name="expiration"
-                  class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-                />
-                <input
-                  type="text"
-                  pInputText
-                  placeholder="CVV"
-                  [(ngModel)]="card.cvv"
-                  name="cvv"
-                  class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-                />
-                <input
-                  type="text"
-                  pInputText
-                  placeholder="Nombre del titular"
-                  [(ngModel)]="card.holder"
-                  name="holder"
-                  class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-                />
-                <input
-                  type="text"
-                  pInputText
-                  placeholder="Documento (DNI)"
-                  [(ngModel)]="card.doc"
-                  name="doc"
-                  class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
+            <div *ngIf="paymentMethod === 'card'" class="mt-6">
+              <app-payment-brick
+                [amount]="total"
+                [publicKey]="mercadoPagoPublicKey"
+                (token)="handleBrickToken($event)"
+                (ready)="onPaymentBrickReady()"
+                (brickError)="onPaymentBrickError($event)"
+              ></app-payment-brick>
             </div>
-            <div class="flex pt-6 justify-between">
+
+            <!-- Botón volver -->
+            <div class="flex pt-6 justify-start">
               <p-button
                 label="Volver"
                 severity="secondary"
                 icon="pi pi-arrow-left"
                 (onClick)="activateCallback(2)"
-              />
-              <p-button
-                label="Confirmar y Pagar"
-                severity="success"
-                icon="pi pi-check-circle"
-                (onClick)="pay()"
               />
             </div>
           </ng-template>

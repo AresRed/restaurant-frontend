@@ -45,6 +45,18 @@ export const customerRoutes: Routes = [
       ),
   },
   {
+    path: 'orders',
+    loadComponent: () =>
+      import('./pages/orders/orders.component').then((m) => m.OrdersComponent),
+  },
+  {
+    path: 'orders/:id',
+    loadComponent: () =>
+      import('./pages/orders/order-detail/order-detail.component').then(
+        (m) => m.OrderDetailComponent
+      ),
+  },
+  {
     path: 'verify-email',
     loadComponent: () =>
       import('./pages/verify-email/verify-email.component').then(

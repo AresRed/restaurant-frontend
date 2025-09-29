@@ -49,6 +49,11 @@ export class HeaderComponent implements OnInit {
         command: () => this.goToProfile(),
       },
       {
+        label: 'Mis compras',
+        icon: 'pi pi-shopping-cart',
+        command: () => this.goToOrders(),
+      },
+      {
         label: 'Cerrar sesión',
         icon: 'pi pi-sign-out',
         command: () => this.logout(),
@@ -90,5 +95,9 @@ export class HeaderComponent implements OnInit {
 
   goToProfile() {
     this.router.navigate(['/profile']);
+  }
+
+  goToOrders() {
+    this.router.navigate(['/orders']);
   }
 }

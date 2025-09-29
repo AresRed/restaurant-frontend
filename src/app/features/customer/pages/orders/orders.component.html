@@ -1,0 +1,85 @@
+<div class="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">Mis Órdenes</h2>
+
+  <div *ngIf="loading" class="text-center py-10 text-gray-500">
+    <p-progressSpinner></p-progressSpinner>
+    <p>Cargando órdenes...</p>
+  </div>
+
+  <div
+    *ngIf="!loading && orders.length === 0"
+    class="text-center py-10 text-gray-500"
+  >
+    No tienes órdenes aún.
+  </div>
+
+  <div
+    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+    *ngIf="orders.length > 0"
+  >
+    <p-card
+      *ngFor="let order of orders"
+      class="shadow-lg hover:shadow-2xl transition-shadow duration-300 rounded-3xl border border-gray-100"
+    >
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h3 class="text-xl font-bold text-gray-800 mb-1">
+            Orden #{{ order.id }}
+          </h3>
+          <p-tag
+            value="{{ order.typeName }}"
+            severity="info"
+            class="uppercase text-xs"
+          ></p-tag>
+        </div>
+        <div class="flex items-center gap-2">
+          <i [ngClass]="getStatusIcon(order.statusName)" class="text-2xl"></i>
+          <p-badge
+            [value]="order.statusName"
+            [severity]="getStatusColor(order.statusName)"
+            [styleClass]="'px-3 py-1 text-sm'"
+          ></p-badge>
+        </div>
+      </div>
+
+      <hr class="border-gray-200 mb-3" />
+
+      <div class="space-y-1 text-gray-700 mb-3">
+        <div
+          *ngFor="let item of order.details | slice : 0 : 2"
+          class="flex justify-between"
+        >
+          <span>{{ item.productName }} x{{ item.quantity }}</span>
+          <span>S/{{ item.unitPrice * item.quantity | number : "1.2-2" }}</span>
+        </div>
+        <div
+          *ngIf="order.details.length > 2"
+          class="text-gray-500 text-xs italic"
+        >
+          +{{ order.details.length - 2 }} más…
+        </div>
+      </div>
+
+      <hr class="border-gray-200 mb-3" />
+
+      <div class="flex justify-between items-center mb-3">
+        <div class="text-gray-500 text-sm">
+          {{ order.date | date : "mediumDate" : "" : "es-PE" }}
+        </div>
+        <div class="font-bold text-gray-800 text-lg">
+          Total: S/{{ order.total | number : "1.2-2" }}
+        </div>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="flex justify-between items-center">
+        <p-button
+          label="Ver detalles"
+          icon="pi pi-eye"
+          (onClick)="viewOrderDetail(order.id)"
+        ></p-button>
+        <p-button label="Reordenar" icon="pi pi-refresh"></p-button>
+      </div>
+    </p-card>
+  </div>
+</div>

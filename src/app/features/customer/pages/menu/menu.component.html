@@ -34,8 +34,9 @@
       >
         <p-button
           *ngFor="let cat of categories"
-          label="{{ cat }}"
-          [outlined]="true"
+          label="{{ cat.name }}"
+          (click)="filterByCategory(cat.id)"
+          [outlined]="selectedCategoryId !== cat.id ? true : false"
           [rounded]="true"
           severity="warn"
           styleClass="!px-4 !pt-1 !pb-0 "
@@ -56,34 +57,44 @@
       <h1
         class="hero-title text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg scale-100 md:scale-105 transition-transform duration-500"
       >
-        Nuestros Power
+        Nuestros Platos
       </h1>
     </div>
   </div>
 
   <section class="py-12 bg-gray-900">
     <div class="container mx-auto px-4">
-      <h2 class="text-4xl font-bold text-center mb-12 text-white">Los Power</h2>
+      <h2 class="text-4xl font-bold text-center mb-12 text-white">
+        Los Platos
+      </h2>
 
       <div
         class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
       >
         <div
-          *ngFor="let item of powerItems"
-          class="power-card bg-gray-800 rounded-3xl shadow-2xl overflow-hidden hover:scale-105 transform transition duration-300 flex flex-col relative group"
+          *ngFor="let item of products"
+          class="power-card bg-gray-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col group hover:scale-105 transform transition duration-300"
         >
+          <!-- Imagen del producto -->
+          <div class="relative h-64 w-full overflow-hidden rounded-t-3xl">
+            <img
+              [src]="item.imageUrl"
+              [alt]="item.name"
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
           <span
-            *ngIf="item.isNew"
+            
             class="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg z-10"
             >Nuevo</span
           >
 
-          <div class="relative h-40 flex items-center justify-center mt-6">
+      <!--    <div class="relative h-40 flex items-center justify-center mt-6">
             <div
             class="w-24 h-24 rounded-2xl  flex items-center
                   justify-center text-5xl shadow-xl 
                   group-hover:rotate-2 group-hover:scale-150 transition-transform duration-500">
               {{ item.iconContent}}
+              --> 
             </div>
             <p-button
               class="absolute top-3 right-3"
@@ -91,33 +102,32 @@
               [text]="true"
               severity="warn"
               icon="pi pi-plus"
+              (onClick)="addToCart(item)"
             ></p-button>
           </div>
 
+          <!-- Información del producto -->
           <div class="p-6 flex-1 flex flex-col justify-between">
             <h3
               class="font-bold text-lg text-white mb-2 transition-colors group-hover:text-red-500"
             >
-              {{ item.name }}
+      
             </h3>
-            <p class="text-gray-300 text-sm leading-relaxed mb-4">
-              {{ item.description }}
-            </p>
             <div class="flex justify-between items-center mt-auto">
               <span
-                class="text-xl font-bold text-white bg-gray-700 px-3 py-1 rounded-lg shadow-sm "
-                >S/ {{ item.price }}</span
+                class="text-xl font-bold text-white bg-gray-700 px-3 py-1 rounded-lg shadow-sm"
               >
+               
+              </span>
               <p-button
                 icon="pi pi-cart-plus"
                 label="Añadir"
                 severity="contrast"
                 class="hover:scale-110 transition-transform"
+          
               ></p-button>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
-</div>
+

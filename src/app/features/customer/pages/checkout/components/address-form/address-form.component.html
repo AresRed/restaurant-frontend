@@ -1,0 +1,78 @@
+<form
+  [formGroup]="form"
+  (ngSubmit)="onSave()"
+  class="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-xl p-4 mt-4 bg-gray-50"
+>
+  <!-- Calle -->
+  <div class="col-span-2">
+    <input
+      type="text"
+      formControlName="street"
+      placeholder="Calle y número"
+      class="p-inputtext p-component w-full"
+    />
+    <div *ngIf="f.street.touched && f.street.invalid" class="text-red-500 text-sm">
+      La calle es obligatoria
+    </div>
+  </div>
+
+  <!-- Ciudad -->
+  <div>
+    <input
+      type="text"
+      formControlName="city"
+      placeholder="Ciudad"
+      class="p-inputtext p-component w-full"
+    />
+    <div *ngIf="f.city.touched && f.city.invalid" class="text-red-500 text-sm">
+      La ciudad es obligatoria
+    </div>
+  </div>
+
+  <!-- Provincia -->
+  <div>
+    <input
+      type="text"
+      formControlName="province"
+      placeholder="Provincia"
+      class="p-inputtext p-component w-full"
+    />
+    <div *ngIf="f.province.touched && f.province.invalid" class="text-red-500 text-sm">
+      La provincia es obligatoria
+    </div>
+  </div>
+
+  <!-- Código postal -->
+  <div>
+    <input
+      type="text"
+      formControlName="zipCode"
+      placeholder="Código postal"
+      class="p-inputtext p-component w-full"
+    />
+    <div *ngIf="f.zipCode.touched && f.zipCode.invalid" class="text-red-500 text-sm">
+      Debe ser un código postal válido (5 dígitos)
+    </div>
+  </div>
+
+  <!-- Referencia -->
+  <div class="col-span-2">
+    <input
+      type="text"
+      formControlName="reference"
+      placeholder="Referencia (opcional)"
+      class="p-inputtext p-component w-full"
+    />
+  </div>
+
+  <!-- Botones -->
+  <div class="flex gap-2 col-span-2">
+    <p-button label="Guardar" icon="pi pi-check" type="submit"></p-button>
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      type="button"
+      (click)="onCancel()"
+    ></p-button>
+  </div>
+</form>

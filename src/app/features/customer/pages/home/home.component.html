@@ -1,14 +1,16 @@
 <!-- REDES THE PAGE-->
 <!-- REDES THE PAGE -->
-<div class="fixed z-10 top-20 right-0 text-white flex flex-col items-center p-2 space-y-3 bg-rojo-Redes ">
+<div class="fixed z-10 top-20 right-0 flex flex-col items-center p-2 space-y-3 bg-rojo-Redes  rounded-l-xl">
   <!-- Icono de Ubicación -->
-  <a href="https://share.google/CKH3DLtV6U43A9DKu" target="_blank" class="hover:scale-110 transition">
-    <i class="pi pi-map-marker text-xl"></i>
+  <a href="https://share.google/CKH3DLtV6U43A9DKu" target="_blank" 
+     class="p-3 bg-rojo-Redes  rounded-xl hover:bg-rojo-Redes-Hover transition hover:scale-110   ">
+    <i class="pi pi-map-marker text-8xl text-white"></i>
   </a>
 
   <!-- Icono de Facebook -->
-  <a href="https://www.facebook.com/RestauranteSanIsidroIca/?locale=es_LA" target="_blank" class="hover:scale-110 transition">
-    <i class="pi pi-facebook text-xl"></i>
+  <a href="https://www.facebook.com/RestauranteSanIsidroIca/?locale=es_LA" target="_blank" 
+     class="p-3 bg-rojo-Redes rounded-xl hover:bg-rojo-Redes-Hover transition hover:scale-110  ">
+    <i class="pi pi-facebook text-8xl text-white"></i>
   </a>
 </div>
 
@@ -24,15 +26,15 @@
     
     <!-- Columna 1 -->
     <div class="flex items-center justify-center flex-1 p-4">
-      <p class="text-right text-rojo-Logo border-t border-b border-rojo-Logo py-2 text-base font-bold scale-y-105 font-[tipo6]">
+      <p class="text-right text-rojo-principal border-t border-b border-rojo-principal py-2 text-base font-bold scale-y-105 font-[tipo6]">
         EL VERDADERO SABOR IQUEÑO, ¡AHORA MÁS RÁPIDO QUE NUNCA!
       </p>
     </div>
 
     <!-- Columna 2 -->
     <div class="flex flex-col items-center justify-center flex-1 p-2">
-      <span class="text-rojo-Logo text-7xl md:text-9xl font-[tipo5]">SAN</span>
-      <div class="flex items-center justify-center w-full bg-rojo-Logo text-white -mt-6 md:-mt-9 
+      <span class="text-rojo-principal text-7xl md:text-9xl font-[tipo5]">SAN</span>
+      <div class="flex items-center justify-center w-full bg-rojo-principal text-white -mt-6 md:-mt-9 
         [clip-path:polygon(0%_0%,100%_0%,90%_50%,100%_100%,0%_100%,10%_50%)]">
         <h1 class="tracking-[1rem] md:tracking-[1.7rem] text-xl md:text-3xl font-bold font-[tipo6]">ISIDRO</h1>
       </div>
@@ -40,7 +42,7 @@
 
     <!-- Columna 3 -->
     <div class="flex items-center justify-center flex-1 p-4">
-      <p class="text-left text-rojo-Logo border-t border-b font-bold border-rojo-Logo py-2 font-[tipo6]">
+      <p class="text-left text-rojo-principal border-t border-b font-bold border-rojo-principal py-2 font-[tipo6]">
         AV SAN MARTIN 1149, CIUDAD DE ICA 11001, TF:056237012
       </p>
     </div>
@@ -53,7 +55,7 @@
 <!-- Us -->
 
 <div id="us" class="h-36 bg-verde-titulo flex items-center justify-center">
-  <h1 class="text-5xl font-extrabold text-center font-[tipo6]">NUESTRA COCINA</h1>
+  <h1 class="text-5xl font-extrabold text-center font-[tipo6] text-white">NUESTRA COCINA</h1>
 </div>
 
 <!-- SELLOS -->
@@ -127,11 +129,11 @@
 
 
 <div class="h-36 bg-verde-titulo flex items-center justify-center">
-  <h1 class="text-center text-5xl font-bold font-[tipo6]">NUEVOS PLATOS</h1>
+  <h1 class="text-center text-5xl font-bold font-[tipo6] text-white">NUEVOS PLATOS</h1>
 </div>
 
-<div class="w-full bg-white flex justify-center p-4">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 max-w-screen-xl mx-auto">
+<div class="w-full bg-rojo-fondo-claro flex justify-center ">
+  <div class="grid grid-cols-1 md:grid-cols-2  max-w-screen-xl mx-auto">
 
     <div class="relative w-full md:w-[480px] h-full md:h-[480px] text-rojo-Logo flex items-center justify-center text-center p-8 md:p-20">
       <div>
@@ -188,100 +190,27 @@
 
 
 <!--Contancto-->
-
-<div class="h-auto bg-verde-titulo flex flex-col items-center justify-center p-5">
-  <h1 id="resevation" class="text-center text-5xl font-bold font-[tipo6] text-white my-9 ">
+<div class="h-auto bg-fondo-oscuro flex flex-col items-center justify-center p-5 space-y-6">
+  <h1 id="resevation" class="text-center text-5xl font-bold font-[tipo6] text-white">
     CONTÁCTANOS Y RESERVAS
   </h1>
 
-  <div class="w-9/12 max-w-6xl flex flex-col md:flex-row  p-6">
-    <!-- Formulario -->
-    <div class="flex-1  p-10">
-      <h4 class="text-lg font-semibold mb-4 text-white  text-center">
-        Reserva una mesa aquí 
-      </h4>
-
-      <form class="flex flex-col gap-4">
-        <!-- Número de personas -->
-        <div>
-          <label for="party" class="block text-sm font-medium text-white mb-1">
-            Número de personas
-          </label>
-          <p-dropdown
-            inputId="party"
-            name="party"
-            [options]="guests"
-            [(ngModel)]="selectedGuest"
-            optionLabel="label"
-            placeholder="Selecciona invitados"
-            class="w-full"
-          ></p-dropdown>
-        </div>
-
-        <!-- Fecha -->
-        <div>
-          <label for="date" class="block text-sm font-medium text-white mb-1">
-            Fecha
-          </label>
-          <p-calendar
-            inputId="date"
-            name="date"
-            [(ngModel)]="selectedDate"
-            [showIcon]="true"
-            [style]="{'width': '100%'}"
-            dateFormat="dd/mm/yy"
-            placeholder="Selecciona una fecha"
-            class="w-full"
-          ></p-calendar>
-        </div>
-
-        <!-- Hora -->
-        <div>
-          <label for="time" class="block text-sm font-medium text-white mb-1">
-            Hora
-          </label>
-          <p-dropdown
-            inputId="time"
-            name="time"
-            [options]="times"
-            [(ngModel)]="selectedTime"
-            size="large"
-            optionLabel="label"
-            placeholder="Selecciona una hora"
-            class="w-full"
-          ></p-dropdown>
-        </div>
-
-        <!-- Botón -->
-        <div class="flex ">
-          <button
-            pButton
-            type="button"
-            label="Encontrar una mesa"
-            class="p-button-danger mt-2 w-full"
-          ></button>
-        </div>
-      </form>
-    </div>
-
-    <!-- Info + Mapa -->
-    <div class="flex-1  p-6 text-center">
-      <h4 class="text-lg font-semibold mb-2 text-white">
-        Av San Martin 1149, Ica 11001
-      </h4>
-      <p class="text-white mb-4">
-        <b>Horario de apertura:</b> 12:00 PM — 11:00 PM
-      </p>
-      <div class="w-full h-80 rounded-xl overflow-hidden">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.298159981442!2d-122.41941558468165!3d37.77492977975877!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085806c9b32c4a9%3A0x6b04d1c16d516d2!2s500%20Terry%20Francone%20St%2C%20San%20Francisco%2C%20CA%2094158%2C%20USA!5e0!3m2!1sen!2spe!4v1678822248545!5m2!1sen!2spe"
-          width="100%"
-          height="100%"
-          style="border:0;"
-          allowfullscreen
-          loading="lazy"
-        ></iframe>
-      </div>
+  <!-- Info + Mapa -->
+  <div class="w-full text-center">
+    <h4 class="text-lg font-semibold mb-2 text-white">
+      Av San Martin 1149, Ica 11001
+    </h4>
+    <p class="text-white mb-4">
+      <b>Horario de apertura:</b> 12:00 PM — 11:00 PM
+    </p>
+    <div class="w-full h-96 rounded-xl overflow-hidden">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.298159981442!2d-122.41941558468165!3d37.77492977975877!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085806c9b32c4a9%3A0x6b04d1c16d516d2!2s500%20Terry%20Francone%20St%2C%20San%20Francisco%2C%20CA%2094158%2C%20USA!5e0!3m2!1sen!2spe!4v1678822248545!5m2!1sen!2spe"
+        class="w-full h-full border-0 bg-gradient-to-r bg-gradient-to-l to-transparent to-transparent"
+        allowfullscreen
+        loading="lazy">
+      </iframe>
     </div>
   </div>
 </div>
+

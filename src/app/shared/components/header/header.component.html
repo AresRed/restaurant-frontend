@@ -1,59 +1,49 @@
-<header class="bg-neutral-900 shadow-md sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto px-6">
-    <div class="flex justify-between items-center h-16">
-      <div class="flex items-center space-x-3">
+<header class="bg-neutral-900 shadow-md sticky z-11">
+  <div class="max-w-7xl mx-auto ">
+    <div class="flex justify-between  items-center h-16">
+      <div class="flex items-center space-x-3 w-80">
         <img
-          src="san_isidro_logo.png"
+          src="logoF.png"
           alt="Logo"
-          class="h-10 w-10 rounded-full shadow-md"
+          class="h-11 w-11 rounded-full shadow-md"
         />
-        <span class="text-2xl font-extrabold text-white tracking-wide">
-          San Isidro
-        </span>
+      
       </div>
 
-      <nav class="hidden md:flex space-x-8 text-gray-300 font-medium">
+      <nav class="hidden md:flex space-x-8 text-gray-300 font-medium ">
         <a
           routerLink="/home"
-          routerLinkActive="text-blue-400"
-          class="hover:text-blue-400 transition duration-300"
-          >Inicio</a
+          routerLinkActive="text-rojo-principal "
+          class="hover:text-rojo-principal transition duration-300 font-[tipo6] text-xl "
+          >INICIO</a
         >
         <a
           routerLink="/menu"
-          routerLinkActive="text-blue-400"
-          class="hover:text-blue-400 transition duration-300"
-          >Menú</a
+          routerLinkActive="text-rojo-principal "
+          class="hover:text-rojo-principal transition duration-300 font-[tipo6] text-xl"
+          >MENÚ</a
         >
         <a
           routerLink="/reservations"
-          routerLinkActive="text-blue-400"
-          class="hover:text-blue-400 transition duration-300"
-          >Reservas</a
+          routerLinkActive="text-rojo-principal "
+          class="hover:text-rojo-principal transition duration-300 font-[tipo6] text-xl"
+          >RESERVAS</a
         >
         <a
           routerLink="/contact"
-          routerLinkActive="text-blue-400"
-          class="hover:text-blue-400 transition duration-300"
-          >Contacto</a
+          routerLinkActive="text-rojo-principal "
+          class="hover:text-rojo-principal transition duration-300 font-[tipo6] text-xl"
+          >CONTACTO</a
         >
       </nav>
 
-      <div class="hidden md:flex items-center space-x-4">
-        <p-button
-          icon="pi pi-shopping-cart"
-          variant="text"
-          [rounded]="true"
-          severity="info"
-          (onClick)="openCart()"
-        />
-
+      <div class="hidden md:flex items-center space-x-2 font-[tipo6] text-xl font-medium">
         <ng-container
           *ngIf="currentUser$ | async as currentUser; else guestButtons"
         >
           <div class="flex items-center space-x-2">
             <span
-              class="text-gray-200 font-medium hover:text-blue-400 transition"
+              class=" font-medium transition"
             >
               {{ currentUser.username || currentUser.email }}
             </span>
@@ -71,31 +61,45 @@
             [model]="itemsUserMenu"
             [popup]="true"
             appendTo="body"
-            styleClass="shadow-lg rounded-md"
+            styleClass="shadow-lg rounded-xl"
           />
         </ng-container>
 
+        
         <ng-template #guestButtons>
           <p-button
-            label="Iniciar Sesión"
-            (onClick)="openLogin()"
-            icon="pi pi-sign-in"
-            severity="secondary"
-          />
-          <p-button
-            label="Registrarse"
-            (onClick)="openSignup()"
-            severity="secondary"
-          />
-        </ng-template>
-      </div>
-
-      <div class="flex items-center space-x-2 md:hidden">
-        <p-button
           icon="pi pi-shopping-cart"
           variant="text"
           [rounded]="true"
-          severity="info"
+          severity="danger"
+          (onClick)="openCart()"
+        />
+          <p-button
+          label="INICIAR SESIÓN"
+          (onClick)="openLogin()"
+          icon="pi pi-sign-in"
+          severity="danger"
+          variant="text"                   
+        
+        />
+        <p-button
+        label="REGISTRARSE"
+        (onClick)="openSignup()"
+        icon="pi pi-sign-in"
+        severity="secondary"                            
+
+      />
+        </ng-template>
+      
+      </div>
+
+      <div class="flex items-center space-x-2 md:hidden">
+        
+          <p-button
+          icon="pi pi-shopping-cart"
+          variant="text"
+          [rounded]="true"
+          severity="danger"
           (onClick)="openCart()"
         />
         <p-button

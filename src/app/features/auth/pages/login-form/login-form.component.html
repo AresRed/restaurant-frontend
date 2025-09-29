@@ -1,4 +1,4 @@
-<form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-6 w-full">
+<form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-6 w-full b">
   <p-float-label>
     <input
       id="usernameOrEmail"
@@ -12,10 +12,9 @@
 
   <p-float-label>
     <p-password
-      id="password"
+      id="loginPassword"
       inputId="password"
       formControlName="password"
-      placeholder="Password"
       [feedback]="false"
       [style]="{ width: '100%' }"
       inputStyleClass="w-full"

@@ -2,13 +2,13 @@
   header="Cuenta"
   [(visible)]="visible"
   position="right"
-  styleClass="!w-full md:!w-96"
+  styleClass="!w-full md:!w-96 rounded-l-xl !bg-rojo-fondo-claro font-[tipo6]"
   (onHide)="closeDrawer()"
 >
   <!-- Tabs login/registro -->
-  <div class="flex mb-6 border-b border-gray-200">
+  <div class="flex mb-6 border-b border-rojo-principal">
     <button
-      class="flex-1 py-2 font-semibold text-center transition-colors"
+      class="flex-1 py-2 font-semibold text-center transition-colors text-rojo-principal border-rojo-principal"
       [class.text-blue-600]="activeTab === 'login'"
       [class.border-b-2]="activeTab === 'login'"
       [class.border-blue-600]="activeTab === 'login'"
@@ -17,7 +17,7 @@
       Iniciar Sesión
     </button>
     <button
-      class="flex-1 py-2 font-semibold text-center transition-colors"
+      class="flex-1 py-2 font-semibold text-center transition-colors  text-rojo-principal border-rojo-principal"
       [class.text-blue-600]="activeTab === 'register'"
       [class.border-b-2]="activeTab === 'register'"
       [class.border-blue-600]="activeTab === 'register'"

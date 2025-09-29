@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DrawerModule } from 'primeng/drawer';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { Subscription } from 'rxjs';
-import { Router } from '@angular/router';
 import { CartItem } from '../../../../core/models/cart.model';
 import { CartService } from '../../../../core/services/cart.service';
 import { UiService } from '../../../../core/services/ui.service';
@@ -12,7 +13,13 @@ import { UiService } from '../../../../core/services/ui.service';
 @Component({
   selector: 'app-cart-drawer',
   standalone: true,
-  imports: [CommonModule, DrawerModule, ButtonModule, FormsModule],
+  imports: [
+    CommonModule,
+    DrawerModule,
+    ButtonModule,
+    FormsModule,
+    InputNumberModule,
+  ],
   templateUrl: './cart-drawer.component.html',
   styleUrls: ['./cart-drawer.component.scss'],
 })

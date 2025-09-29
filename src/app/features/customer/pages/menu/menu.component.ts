@@ -7,6 +7,7 @@ import { CartService } from '../../../../core/services/cart.service';
 import { CategoryService } from '../../../../core/services/category.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ProductService } from '../../../../core/services/product.service';
+import { UiService } from '../../../../core/services/ui.service';
 
 @Component({
   selector: 'app-menu',
@@ -25,7 +26,8 @@ export class MenuComponent implements OnInit {
     private productService: ProductService,
     private categoryService: CategoryService,
     private cartService: CartService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private uiService: UiService
   ) {}
 
   ngOnInit(): void {
@@ -74,6 +76,10 @@ export class MenuComponent implements OnInit {
         (p) => p.categoryId === categoryId
       );
     }
+  }
+
+  openCart() {
+    this.uiService.openCart();
   }
 
   addToCart(product: ProductResponse) {

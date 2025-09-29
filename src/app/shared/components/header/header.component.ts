@@ -74,6 +74,7 @@ export class HeaderComponent implements OnInit {
   }
 
   openCart() {
+    console.log('Prueba');
     this.uiService.openCart();
   }
 

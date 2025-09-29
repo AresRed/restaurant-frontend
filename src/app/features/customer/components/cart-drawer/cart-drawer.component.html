@@ -5,7 +5,7 @@
   styleClass="!w-full md:!w-96 rounded-l-xl bg-gray-900 shadow-xl"
   (onHide)="closeDrawer()"
 >
-  <div class="flex flex-col h-full text-gray-200">
+  <div class="flex flex-col h-full">
     <div class="flex-1 overflow-y-auto p-4 space-y-4">
       <div
         *ngIf="items.length === 0"
@@ -17,7 +17,7 @@
 
       <div
         *ngFor="let item of items; trackBy: trackById"
-        class="flex items-center justify-between bg-gray-800 rounded-xl p-4 shadow-md hover:shadow-lg transition"
+        class="flex items-center justify-between bg-gray-100 rounded-xl p-4 shadow-md hover:shadow-lg transition"
       >
         <div class="flex items-center space-x-4">
           <img
@@ -26,39 +26,43 @@
             class="w-14 h-14 rounded-lg object-cover border border-gray-700"
           />
           <div>
-            <p class="font-semibold text-white">{{ item.name }}</p>
+            <p class="font-semibold">{{ item.name }}</p>
             <p class="text-sm text-gray-400">
-              S/{{ item.price | number : '1.2-2' }}
+              S/{{ item.price | number : "1.2-2" }}
             </p>
           </div>
         </div>
 
         <div class="flex flex-col items-end space-y-2">
           <div class="flex items-center space-x-2">
-            <button
+            <p-button
               (click)="decreaseQty(item)"
-              class="px-2 py-1 bg-gray-700 rounded text-sm hover:bg-gray-600 transition"
-            >
-              -
-            </button>
-            <input
-              type="number"
-              min="1"
-              [ngModel]="item.quantity"
-              (ngModelChange)="onQuantityChange(item, $event)"
-              class="w-16 text-center bg-gray-800 border border-gray-700 rounded px-2 py-1"
+              icon="pi pi-minus"
+              size="small"
+              variant="text"
+              [rounded]="true"
+              severity="danger"
             />
-            <button
+            <p-inputNumber
+              [(ngModel)]="item.quantity"
+              [min]="0"
+              [max]="10"
+              size="small"
+              [inputStyle]="{ width: '3rem', 'text-align': 'center' }"
+            />
+            <p-button
               (click)="increaseQty(item)"
-              class="px-2 py-1 bg-gray-700 rounded text-sm hover:bg-gray-600 transition"
-            >
-              +
-            </button>
+              icon="pi pi-plus"
+              size="small"
+              variant="text"
+              [rounded]="true"
+              severity="success"
+            />
           </div>
 
           <div class="flex items-center space-x-3">
-            <span class="font-semibold text-white"
-              >S/{{ item.price * item.quantity | number : '1.2-2' }}</span
+            <span class="font-semibold"
+              >S/{{ item.price * item.quantity | number : "1.2-2" }}</span
             >
             <button
               (click)="removeItem(item.id)"
@@ -72,10 +76,10 @@
     </div>
 
     <!-- Footer -->
-    <div class="border-t border-gray-700 p-4 sticky bottom-0 bg-gray-900">
-      <div class="flex justify-between text-lg font-semibold text-gray-100 mb-3">
+    <div class="border-t border-gray-700 p-4 sticky bottom-0">
+      <div class="flex justify-between text-lg font-semibold mb-3">
         <span>Total:</span>
-        <span class="text-white">S/{{ total | number : '1.2-2' }}</span>
+        <span class="">S/{{ total | number : "1.2-2" }}</span>
       </div>
 
       <button
@@ -83,7 +87,7 @@
         pButton
         type="button"
         label="Ir al Carrito"
-        class="w-full bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+        class="w-full"
       ></button>
     </div>
   </div>

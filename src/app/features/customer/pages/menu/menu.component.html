@@ -1,36 +1,34 @@
 <div class="bg-gray-100 font-[tipo2]">
-  <header class=" text-white shadow-lg sticky top-0 z-50">
+  <header class="text-white shadow-lg sticky top-0 z-50">
     <div
       class="bg-azul-claro px-4 py-2 text-sm flex justify-between items-center"
     >
       <div class="flex items-center space-x-2">
         <p-button
           icon="pi pi-map-marker"
-          [raised]="true" 
+          [raised]="true"
           severity="secondary"
-          
           label="¿Dónde quieres pedir?"
         ></p-button>
         <span class="font-medium"></span>
       </div>
-      <div class="flex items-center space-x-2 ">
-        <span class="font-semibold leading-relaxed **inline-flex**" >S/ 0.00</span>
+      <div class="flex items-center space-x-2">
+        <span class="font-semibold leading-relaxed **inline-flex**"
+          >S/ 0.00</span
+        >
         <p-button
           icon="pi pi-shopping-bag"
-          severity="contrast" 
+          severity="contrast"
           [text]="true"
           [rounded]="true"
+          (click)="openCart()"
         ></p-button>
       </div>
     </div>
 
-    <nav class="px-4 py-3 bg-fondo-oscuro ">
+    <nav class="px-4 py-3 bg-fondo-oscuro">
       <div
-        class="container justify-center mx-auto flex space-x-4 
-        overflow-x-auto scrollbar-thin scrollbar-thumb-gray-600
-         scrollbar-track-gray-900 py-2
-         text-center
-         "
+        class="container justify-center mx-auto flex space-x-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-900 py-2 text-center"
       >
         <p-button
           *ngFor="let cat of categories"
@@ -82,52 +80,48 @@
               [alt]="item.name"
               class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
-          <span
-            
-            class="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg z-10"
-            >Nuevo</span
-          >
+            <span
+              class="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg z-10"
+              >Nuevo</span
+            >
 
-      <!--    <div class="relative h-40 flex items-center justify-center mt-6">
+            <!--    <div class="relative h-40 flex items-center justify-center mt-6">
             <div
             class="w-24 h-24 rounded-2xl  flex items-center
                   justify-center text-5xl shadow-xl 
                   group-hover:rotate-2 group-hover:scale-150 transition-transform duration-500">
               {{ item.iconContent}}
-              --> 
-            </div>
-            <p-button
-              class="absolute top-3 right-3"
-              [rounded]="true"
-              [text]="true"
-              severity="warn"
-              icon="pi pi-plus"
-              (onClick)="addToCart(item)"
-            ></p-button>
+              -->
           </div>
+          <p-button
+            class="absolute top-3 right-3"
+            [rounded]="true"
+            [text]="true"
+            severity="warn"
+            icon="pi pi-plus"
+            (onClick)="addToCart(item)"
+          ></p-button>
+        </div>
 
-          <!-- Información del producto -->
-          <div class="p-6 flex-1 flex flex-col justify-between">
-            <h3
-              class="font-bold text-lg text-white mb-2 transition-colors group-hover:text-red-500"
+        <!-- Información del producto -->
+        <div class="p-6 flex-1 flex flex-col justify-between">
+          <h3
+            class="font-bold text-lg text-white mb-2 transition-colors group-hover:text-red-500"
+          ></h3>
+          <div class="flex justify-between items-center mt-auto">
+            <span
+              class="text-xl font-bold text-white bg-gray-700 px-3 py-1 rounded-lg shadow-sm"
             >
-      
-            </h3>
-            <div class="flex justify-between items-center mt-auto">
-              <span
-                class="text-xl font-bold text-white bg-gray-700 px-3 py-1 rounded-lg shadow-sm"
-              >
-               
-              </span>
-              <p-button
-                icon="pi pi-cart-plus"
-                label="Añadir"
-                severity="contrast"
-                class="hover:scale-110 transition-transform"
-          
-              ></p-button>
-            </div>
+            </span>
+            <p-button
+              icon="pi pi-cart-plus"
+              label="Añadir"
+              severity="contrast"
+              class="hover:scale-110 transition-transform"
+            ></p-button>
           </div>
         </div>
       </div>
-
+    </div>
+  </section>
+</div>

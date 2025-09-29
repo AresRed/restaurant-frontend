@@ -5,9 +5,15 @@ import { environment } from '../../../environments/environment';
 
 export interface OnlineCheckoutRequest {
   orderId: number;
+  transactionAmount: number;
+  installments: number;
   token: string;
-  provider: string;
+  email: string;
+  docType: string;
+  docNumber: string;
+  paymentMethodId: string;
 }
+
 
 export interface PaymentResponse {
   id: number;

@@ -9,6 +9,22 @@ import {
   Output,
 } from '@angular/core';
 
+
+export interface MercadoPagoCardToken {
+  token: string;
+  issuer_id: string;
+  payment_method_id: string;
+  transaction_amount: number;
+  installments: number;
+  payer: {
+    email: string;
+    identification: {
+      type: string;
+      number: string;
+    };
+  };
+}
+
 @Component({
   selector: 'app-payment-brick',
   imports: [CommonModule],
@@ -18,7 +34,7 @@ import {
 export class PaymentBrickComponent implements AfterViewInit, OnDestroy {
   @Input() amount = 0;
   @Input() publicKey = ''; // Public key (frontend)
-  @Output() token = new EventEmitter<any>(); // emite cardFormData tokenizado
+  @Output() token = new EventEmitter<MercadoPagoCardToken>(); // emite cardFormData tokenizado
   @Output() ready = new EventEmitter<void>();
   @Output() brickError = new EventEmitter<any>();
 
@@ -40,12 +56,30 @@ export class PaymentBrickComponent implements AfterViewInit, OnDestroy {
         'cardPayment',
         this.containerId,
         {
-          initialization: { amount: this.amount },
+          initialization: {
+            amount: this.amount,
+            installments: 1,
+          },
+          customization: {
+            visual: {
+              style: {
+                theme: 'default',
+              },
+            },
+            paymentMethods: {
+              creditCard: 'all',
+              debitCard: 'all',
+              ticket: 'all',
+              bankTransfer: 'all',
+              wallet_purchase: 'all',
+              maxInstallments: 1,
+            },
+          },
           callbacks: {
             onReady: () => this.zone.run(() => this.ready.emit()),
             onError: (err: any) =>
               this.zone.run(() => this.brickError.emit(err)),
-            onSubmit: (cardFormData: any) => {
+            onSubmit: (cardFormData: MercadoPagoCardToken) => {
               this.zone.run(() => this.token.emit(cardFormData));
             },
           },

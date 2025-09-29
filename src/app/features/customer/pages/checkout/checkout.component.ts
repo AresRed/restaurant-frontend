@@ -1,14 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
   AutoCompleteCompleteEvent,
   AutoCompleteModule,
 } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
-import { InputText } from 'primeng/inputtext';
+import { InputTextModule } from 'primeng/inputtext';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { StepperModule } from 'primeng/stepper';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
 import {
   AddressCustomerRequest,
   AddressResponse,
@@ -22,7 +25,10 @@ import { OrderTypeService } from '../../../../core/services/orders/order-type.se
 import { OrderService } from '../../../../core/services/orders/order.service';
 import { PaymentService } from '../../../../core/services/payment.service';
 import { AddressFormComponent } from './components/address-form/address-form.component';
-import { PaymentBrickComponent } from './components/payment-brick/payment-brick.component';
+import {
+  MercadoPagoCardToken,
+  PaymentBrickComponent,
+} from './components/payment-brick/payment-brick.component';
 
 @Component({
   selector: 'app-checkout',
@@ -34,7 +40,7 @@ import { PaymentBrickComponent } from './components/payment-brick/payment-brick.
     ButtonModule,
     RadioButtonModule,
     AutoCompleteModule,
-    InputText,
+    InputTextModule,
     AddressFormComponent,
     PaymentBrickComponent,
   ],
@@ -43,6 +49,8 @@ import { PaymentBrickComponent } from './components/payment-brick/payment-brick.
 })
 export class CheckoutComponent implements OnInit {
   items: CartItem[] = [];
+  mercadoPagoPublicKey = environment.mercadoPagoPublicKey;
+  cardTokenData: any = null;
 
   orderTypes: OrderTypeResponse[] = [];
   selectedOrderType: OrderTypeResponse | null = null;
@@ -85,7 +93,8 @@ export class CheckoutComponent implements OnInit {
     private orderService: OrderService,
     private orderTypeService: OrderTypeService,
     private addressService: AddressService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -184,27 +193,41 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
-  async pay() {
+  async handleBrickToken(tokenData: MercadoPagoCardToken) {
     try {
+      console.log(tokenData);
+      this.cardTokenData = tokenData;
+
       const order = await this.orderService.createOrderAsync({
         statusId: 1,
         typeId: this.selectedOrderType?.id!,
-        addressId: 1,
+        addressId: this.selectedAddressId || 1,
         details: this.items.map((i) => ({
           productId: i.id,
           quantity: i.quantity,
         })),
       });
 
-      console.log('Orden creada:', order);
-
-      // await this.paymentService.payWithCard(order.id, this.card);
+      const payer = tokenData.payer;
+      await firstValueFrom(
+        this.paymentService.createOnlinePayment({
+          orderId: order.data.id,
+          transactionAmount: tokenData.transaction_amount,
+          installments: tokenData.installments,
+          token: tokenData.token,
+          email: payer.email,
+          docType: payer.identification.type,
+          docNumber: payer.identification.number,
+          paymentMethodId: tokenData.payment_method_id,
+        })
+      );
 
       this.notificationService.success('Orden creada y pagada exitosamente');
       this.cartService.clear();
       this.goToStep(0);
+      this.router.navigate(['/orders', order.data.id]);
     } catch (error: any) {
-      console.error('Error al pagar:', error);
+      console.error('Error al procesar pago con Brick:', error);
       this.notificationService.error(
         error?.error?.message || 'Error al procesar el pago'
       );
@@ -248,5 +271,18 @@ export class CheckoutComponent implements OnInit {
     this.filteredAgencies = this.agencies.filter((agency) =>
       agency.name.toLowerCase().includes(query)
     );
+  }
+
+  onCardToken(cardFormData: any) {
+    this.cardTokenData = cardFormData;
+    console.log('Token recibido del Brick:', cardFormData);
+  }
+
+  onPaymentBrickReady() {
+    console.log('Payment Brick listo');
+  }
+
+  onPaymentBrickError(err: any) {
+    console.error('Error en Payment Brick:', err);
   }
 }

@@ -12,14 +12,26 @@ export interface OrderRequest {
 
 export interface OrderResponse {
   id: number;
-  statusId: number;
-  typeId: number;
+  customerId: number;
+  customerName: string;
+  employeeId: number;
+  employeeName: string;
   addressId: number;
+  addressDescription: string;
+  date: Date;
+  statusId: number;
+  statusName: string;
+  typeId: number;
+  typeName: string;
   total: number;
-  createdAt: string;
-  details: {
-    productId: number;
-    quantity: number;
-    price: number;
-  }[];
+  details: OrderDetailResponse[];
 }
+
+export interface OrderDetailResponse {
+  id: number;
+  productId: number;
+  productName: string;
+  quantity: number;
+  unitPrice: number
+}
+

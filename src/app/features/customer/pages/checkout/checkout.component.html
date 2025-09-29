@@ -126,12 +126,18 @@
                 label="Siguiente"
                 icon="pi pi-arrow-right"
                 iconPos="right"
+                [disabled]="isDelivery() && !selectedAddressId"
                 (onClick)="activateCallback(3)"
               />
             </div>
+            <div
+              *ngIf="isDelivery() && !selectedAddressId"
+              class="text-red-500 mt-2 text-sm flex items-end justify-end"
+            >
+              Debes seleccionar una dirección para continuar con el pago.
+            </div>
           </ng-template>
         </p-step-panel>
-
         <p-step-panel [value]="3">
           <ng-template #content let-activateCallback="activateCallback">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -178,27 +184,23 @@
               </label>
             </div>
 
-            <div *ngIf="paymentMethod === 'card'">
+            <div *ngIf="paymentMethod === 'card'" class="mt-6">
               <app-payment-brick
                 [amount]="total"
                 [publicKey]="mercadoPagoPublicKey"
-                (token)="onCardToken($event)"
+                (token)="handleBrickToken($event)"
                 (ready)="onPaymentBrickReady()"
                 (brickError)="onPaymentBrickError($event)"
               ></app-payment-brick>
             </div>
-            <div class="flex pt-6 justify-between">
+
+            <!-- Botón volver -->
+            <div class="flex pt-6 justify-start">
               <p-button
                 label="Volver"
                 severity="secondary"
                 icon="pi pi-arrow-left"
                 (onClick)="activateCallback(2)"
-              />
-              <p-button
-                label="Confirmar y Pagar"
-                severity="success"
-                icon="pi pi-check-circle"
-                (onClick)="pay()"
               />
             </div>
           </ng-template>

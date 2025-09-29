@@ -11,7 +11,8 @@ module.exports = {
         'rojo-Redes-Hover':'rgb(194, 28, 32)',
         'fondo-oscuro':'rgb(23, 23, 23)',
         'rojo-principal':'rgb(204, 54, 54)',
-        'rojo-fondo-claro':'rgb(254, 242, 242)'
+        'rojo-fondo-claro':'rgb(254, 242, 242)',
+        'azul-claro':'rgb(110, 157, 255)',
       }
     },
   },

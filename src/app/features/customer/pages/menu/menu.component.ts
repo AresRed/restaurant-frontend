@@ -10,7 +10,7 @@ interface PowerItem {
   name: string;
   description: string;
   price: number;
-  emoji: string;
+  iconContent: string; 
   isNew?: boolean;
 }
 
@@ -37,38 +37,38 @@ export class MenuComponent implements AfterViewInit {
       description:
         '1 Chuleta Criolla + 2 lonjas de Plátano Frito + 1 Porción de Arroz + 1 Porción de Papas Perejileras',
       price: 24.5,
-      emoji: '🍖',
+      iconContent: 'chifita.jpg', 
       isNew: true,
     },
     {
       name: 'Power Hamburguesa',
       description: 'Hamburguesa doble + papas fritas + bebida refrescante',
       price: 22,
-      emoji: '🍔',
+      iconContent: 'chifita.jpg', 
     },
     {
       name: 'Power Pizza',
       description: 'Pizza familiar + 2 bebidas + aderezo especial',
       price: 35,
-      emoji: '🍕',
+      iconContent: 'chifita.jpg', 
     },
     {
       name: 'Power Tacos',
       description: '3 Tacos de carne + guarnición de arroz + salsa especial',
       price: 28,
-      emoji: '🌮',
+      iconContent: 'chifita.jpg', 
     },
     {
       name: 'Power Ensalada',
       description: 'Ensalada grande + aderezo + semillas + bebida natural',
       price: 20,
-      emoji: '🥗',
+      iconContent: 'chifita.jpg', 
     },
     {
       name: 'Power Camarones',
       description: 'Camarones al ajillo + arroz + ensalada + bebida',
       price: 40,
-      emoji: '🍤',
+      iconContent: 'chifita.jpg', 
     },
   ];
 

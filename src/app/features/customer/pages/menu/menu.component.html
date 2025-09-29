@@ -1,38 +1,44 @@
-<div class="bg-gray-100">
-  <header class="bg-black text-white shadow-lg sticky top-0 z-50">
+<div class="bg-gray-100 font-[tipo2]">
+  <header class=" text-white shadow-lg sticky top-0 z-50">
     <div
-      class="bg-gray-900 px-4 py-2 text-sm flex justify-between items-center"
+      class="bg-azul-claro px-4 py-2 text-sm flex justify-between items-center"
     >
       <div class="flex items-center space-x-2">
         <p-button
           icon="pi pi-map-marker"
-          [text]="true"
-          [rounded]="true"
-          severity="info"
+          [raised]="true" 
+          severity="secondary"
+          
+          label="¿Dónde quieres pedir?"
         ></p-button>
-        <span class="font-medium">¿Dónde quieres pedir?</span>
+        <span class="font-medium"></span>
       </div>
-      <div class="flex items-center space-x-2">
-        <span class="font-semibold">S/ 0.00</span>
+      <div class="flex items-center space-x-2 ">
+        <span class="font-semibold leading-relaxed **inline-flex**" >S/ 0.00</span>
         <p-button
           icon="pi pi-shopping-bag"
+          severity="contrast" 
           [text]="true"
           [rounded]="true"
         ></p-button>
       </div>
     </div>
 
-    <nav class="px-4 py-3 bg-black">
+    <nav class="px-4 py-3 bg-fondo-oscuro ">
       <div
-        class="container mx-auto flex space-x-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-900 py-2"
+        class="container justify-center mx-auto flex space-x-4 
+        overflow-x-auto scrollbar-thin scrollbar-thumb-gray-600
+         scrollbar-track-gray-900 py-2
+         text-center
+         "
       >
         <p-button
           *ngFor="let cat of categories"
           label="{{ cat }}"
           [outlined]="true"
           [rounded]="true"
-          severity="info"
-          class="whitespace-nowrap px-4 py-2 transition duration-300 shadow-sm transform hover:scale-105"
+          severity="warn"
+          styleClass="!px-4 !pt-1 !pb-0 "
         ></p-button>
       </div>
     </nav>
@@ -74,9 +80,10 @@
 
           <div class="relative h-40 flex items-center justify-center mt-6">
             <div
-              class="w-24 h-24 rounded-full bg-gradient-to-br from-orange-400 via-red-500 to-yellow-400 flex items-center justify-center text-5xl shadow-xl animate-bounce group-hover:animate-none transition-all"
-            >
-              {{ item.emoji }}
+            class="w-24 h-24 rounded-2xl  flex items-center
+                  justify-center text-5xl shadow-xl 
+                  group-hover:rotate-2 group-hover:scale-150 transition-transform duration-500">
+              {{ item.iconContent}}
             </div>
             <p-button
               class="absolute top-3 right-3"
@@ -98,12 +105,13 @@
             </p>
             <div class="flex justify-between items-center mt-auto">
               <span
-                class="text-xl font-bold text-white bg-gray-700 px-3 py-1 rounded-lg shadow-sm"
+                class="text-xl font-bold text-white bg-gray-700 px-3 py-1 rounded-lg shadow-sm "
                 >S/ {{ item.price }}</span
               >
               <p-button
                 icon="pi pi-cart-plus"
                 label="Añadir"
+                severity="contrast"
                 class="hover:scale-110 transition-transform"
               ></p-button>
             </div>

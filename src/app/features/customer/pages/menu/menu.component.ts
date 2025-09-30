@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
+import { PaginatorModule } from 'primeng/paginator';
+import { Observable } from 'rxjs';
 import { CategoryResponse } from '../../../../core/models/category.model';
 import { ProductResponse } from '../../../../core/models/product.model';
 import { CartService } from '../../../../core/services/cart.service';
@@ -12,15 +14,23 @@ import { UiService } from '../../../../core/services/ui.service';
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [CommonModule, ButtonModule],
+  imports: [CommonModule, ButtonModule, PaginatorModule],
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss'],
 })
 export class MenuComponent implements OnInit {
   categories: CategoryResponse[] = [];
-  products: ProductResponse[] = [];
-  allProducts: ProductResponse[] = [];
+
+  products: ProductResponse[] = []; // productos paginados que se muestran
+  filteredProducts: ProductResponse[] = []; // productos filtrados por categoría
+  originalProducts: ProductResponse[] = []; // todos los productos del backend
+
   selectedCategoryId: number | null = null;
+  total$!: Observable<number>;
+  count$!: Observable<number>;
+
+  first: number = 0;
+  rows: number = 12;
 
   constructor(
     private productService: ProductService,
@@ -33,6 +43,8 @@ export class MenuComponent implements OnInit {
   ngOnInit(): void {
     this.loadCategories();
     this.loadProducts();
+    this.total$ = this.cartService.total$;
+    this.count$ = this.cartService.count$;
   }
 
   loadCategories() {
@@ -58,9 +70,8 @@ export class MenuComponent implements OnInit {
     this.productService.getAllProducts().subscribe({
       next: (res) => {
         if (res.success) {
-          this.allProducts = res.data;
-          this.products = [...this.allProducts];
-          this.selectedCategoryId = 0;
+          this.originalProducts = res.data;
+          this.filterByCategory(0);
         }
       },
       error: (err) => console.error('Error cargando productos', err),
@@ -69,13 +80,30 @@ export class MenuComponent implements OnInit {
 
   filterByCategory(categoryId: number) {
     this.selectedCategoryId = categoryId;
+
     if (categoryId === 0) {
-      this.products = [...this.allProducts];
+      this.filteredProducts = [...this.originalProducts];
     } else {
-      this.products = this.allProducts.filter(
+      this.filteredProducts = this.originalProducts.filter(
         (p) => p.categoryId === categoryId
       );
     }
+
+    this.first = 0;
+    this.updatePage();
+  }
+
+  updatePage() {
+    this.products = this.filteredProducts.slice(
+      this.first,
+      this.first + this.rows
+    );
+  }
+
+  onPageChange(event: any) {
+    this.first = event.first;
+    this.rows = event.rows;
+    this.updatePage();
   }
 
   openCart() {

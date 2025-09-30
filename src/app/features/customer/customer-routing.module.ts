@@ -19,6 +19,20 @@ export const customerRoutes: Routes = [
       ),
   },
   {
+    path: 'my-reservations',
+    loadComponent: () =>
+      import('./pages/my-reservations/my-reservations.component').then(
+        (m) => m.MyReservationsComponent
+      ),
+  },
+  {
+    path: 'my-reservations/:id',
+    loadComponent: () =>
+      import(
+        './pages/my-reservations/reservation-detail/reservation-detail.component'
+      ).then((m) => m.ReservationDetailComponent),
+  },
+  {
     path: 'contact',
     loadComponent: () =>
       import('./pages/contact/contact.component').then(

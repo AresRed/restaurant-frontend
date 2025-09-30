@@ -54,6 +54,11 @@ export class HeaderComponent implements OnInit {
         command: () => this.goToOrders(),
       },
       {
+        label: 'Mis Reservas',
+        icon: 'pi pi-calendar',
+        command: () => this.goToReservations(),
+      },
+      {
         label: 'Cerrar sesión',
         icon: 'pi pi-sign-out',
         command: () => this.logout(),
@@ -100,5 +105,9 @@ export class HeaderComponent implements OnInit {
 
   goToOrders() {
     this.router.navigate(['/orders']);
+  }
+
+  goToReservations() {
+    this.router.navigate(['/my-reservations']);
   }
 }

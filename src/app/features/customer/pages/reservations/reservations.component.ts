@@ -1,30 +1,45 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import {
-  FormBuilder,
+  FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { Router } from '@angular/router';
 import { gsap } from 'gsap';
+import {
+  AutoCompleteCompleteEvent,
+  AutoCompleteModule,
+} from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DropdownModule } from 'primeng/dropdown';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
+import { StepperModule } from 'primeng/stepper';
 import { TextareaModule } from 'primeng/textarea';
 import { TooltipModule } from 'primeng/tooltip';
+import { AuthenticatedReservationRequest } from '../../../../core/models/reservation.model';
+import { TableAvailabilityResponse } from '../../../../core/models/table.model';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { ReservationService } from '../../../../core/services/reservation.service';
+import { TableService } from '../../../../core/services/table.service';
 
-interface Times {
-  label: string;
-  value: string;
-}
-
-interface Table {
-  id: number;
-  capacity: number;
+export interface TableUI extends TableAvailabilityResponse {
   selected: boolean;
 }
+
+type ReservationFormControls = {
+  date: FormControl<Date | null>;
+  guests: FormControl<number | null>;
+  table: FormControl<number | null>;
+  time: FormControl<string | { label: string; value: string } | null>;
+  name: FormControl<string>;
+  email: FormControl<string>;
+  phone: FormControl<string>;
+  message: FormControl<string | null>;
+};
 
 @Component({
   selector: 'app-reservations',
@@ -39,50 +54,73 @@ interface Table {
     ButtonModule,
     FloatLabel,
     TooltipModule,
+    StepperModule,
+    AutoCompleteModule,
   ],
   templateUrl: './reservations.component.html',
 })
-export class ReservationsComponent implements AfterViewInit {
-  reservationForm: FormGroup;
+export class ReservationsComponent implements OnInit, AfterViewInit {
+  reservationForm!: FormGroup<ReservationFormControls>;
+  tables: TableUI[] = [];
+  selectedTable: TableUI | null = null;
 
-  guests = [
-    { label: '1 persona', value: 1 },
-    { label: '2 personas', value: 2 },
-    { label: '3 personas', value: 3 },
-    { label: '4 personas', value: 4 },
-    { label: '5 personas', value: 5 },
-  ];
+  guestsOptions: number[] = [];
+  timeSuggestions: { label: string; value: string }[] = [];
 
-  times: Times[] = [
-    { label: '12:00 PM', value: '12:00' },
-    { label: '12:30 PM', value: '12:30' },
-    { label: '1:00 PM', value: '13:00' },
-    { label: '1:30 PM', value: '13:30' },
-    { label: '2:00 PM', value: '14:00' },
-    { label: '6:00 PM', value: '18:00' },
-    { label: '6:30 PM', value: '18:30' },
-    { label: '7:00 PM', value: '19:00' },
-    { label: '7:30 PM', value: '19:30' },
-  ];
+  constructor(
+    private tableService: TableService,
+    private reservationService: ReservationService,
+    private notificationService: NotificationService,
+    private router: Router
+  ) {
+    this.reservationForm = new FormGroup<ReservationFormControls>({
+      date: new FormControl<Date | null>(null, {
+        validators: Validators.required,
+      }),
+      guests: new FormControl<number | null>(null, {
+        validators: Validators.required,
+      }),
+      table: new FormControl<number | null>(null, {
+        validators: Validators.required,
+      }),
+      time: new FormControl<string | { label: string; value: string } | null>(
+        null,
+        {
+          validators: Validators.required,
+        }
+      ),
+      name: new FormControl<string>('', {
+        nonNullable: true,
+        validators: Validators.required,
+      }),
+      email: new FormControl<string>('', {
+        nonNullable: true,
+        validators: [Validators.required, Validators.email],
+      }),
+      phone: new FormControl<string>('', {
+        nonNullable: true,
+        validators: [Validators.required, Validators.pattern(/^[0-9]{9}$/)],
+      }),
+      message: new FormControl<string | null>(null),
+    });
+  }
 
-  tables: Table[] = [
-    { id: 1, capacity: 2, selected: false },
-    { id: 2, capacity: 4, selected: false },
-    { id: 3, capacity: 2, selected: false },
-    { id: 4, capacity: 6, selected: false },
-    { id: 5, capacity: 4, selected: false },
-  ];
+  get fv() {
+    return this.reservationForm.controls;
+  }
 
-  selectedTable: Table | null = null;
+  ngOnInit() {
+    this.tableService.getAllTables().subscribe((res) => {
+      const minCapacities = res.data.map((t) => t.minCapacity ?? t.capacity);
+      const capacities = res.data.map((t) => t.capacity);
 
-  constructor(private fb: FormBuilder) {
-    this.reservationForm = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      date: [null, Validators.required],
-      time: [null, Validators.required],
-      guests: [null, Validators.required],
-      message: [''],
+      const globalMin = Math.min(...minCapacities);
+      const globalMax = Math.max(...capacities);
+
+      this.guestsOptions = Array.from(
+        { length: globalMax - globalMin + 1 },
+        (_, i) => i + globalMin
+      );
     });
   }
 
@@ -97,10 +135,44 @@ export class ReservationsComponent implements AfterViewInit {
     });
   }
 
-  selectTable(table: Table, event?: MouseEvent) {
+  loadAvailableTables() {
+    const date = this.fv.date.value;
+    const guests = this.fv.guests.value;
+
+    if (!date || !guests) return;
+
+    const dateStr =
+      date instanceof Date ? date.toISOString().split('T')[0] : String(date);
+
+    this.tableService
+      .getTablesAvailabilityTimes(guests, dateStr, true)
+      .subscribe({
+        next: (res) => {
+          this.tables = res.data.map((t) => ({ ...t, selected: false }));
+          if (this.tables.length === 0) {
+            this.notificationService.info(
+              'Sin mesas',
+              'No hay mesas disponibles para la fecha/personas seleccionadas'
+            );
+          }
+        },
+        error: (err) => {
+          console.error('Error cargando mesas', err);
+          this.notificationService.error(
+            'Error',
+            'No se pudieron obtener las mesas'
+          );
+        },
+      });
+  }
+
+  selectTable(table: TableUI, event?: MouseEvent) {
     this.tables.forEach((t) => (t.selected = false));
     table.selected = true;
     this.selectedTable = table;
+    this.fv.table.setValue(table.id);
+
+    this.timeSuggestions = this.getAvailableTimesForSelectedTable();
 
     if (event) {
       gsap.fromTo(
@@ -117,24 +189,88 @@ export class ReservationsComponent implements AfterViewInit {
     }
   }
 
+  getAvailableTimesForSelectedTable(): { label: string; value: string }[] {
+    if (!this.selectedTable) return [];
+    return this.selectedTable.availableTimes.map((t) => ({
+      label: t,
+      value: t,
+    }));
+  }
+
+  private normalizeTimeValue(
+    timeVal: string | { label: string; value: string } | null
+  ): string | null {
+    if (!timeVal) return null;
+    if (typeof timeVal === 'string') return timeVal;
+    return timeVal.value ?? timeVal.label;
+  }
+
   onSubmit() {
     if (!this.selectedTable) {
-      alert('Por favor selecciona una mesa.');
+      this.notificationService.info('Por favor', 'Selecciona una mesa');
       return;
     }
 
     if (this.reservationForm.valid) {
-      const reservationData = {
-        ...this.reservationForm.value,
-        table: this.selectedTable.id,
+      const raw = this.reservationForm.getRawValue();
+
+      const reservationDateStr =
+        raw.date instanceof Date
+          ? raw.date.toISOString().split('T')[0]
+          : String(raw.date);
+      const reservationTimeStr = this.normalizeTimeValue(raw.time);
+
+      if (!reservationTimeStr) {
+        this.notificationService.info(
+          'Por favor',
+          'Selecciona una hora válida'
+        );
+        return;
+      }
+
+      const payload: AuthenticatedReservationRequest = {
+        tableId: this.selectedTable.id,
+        contactName: raw.name,
+        contactPhone: raw.phone,
+        reservationDate: reservationDateStr,
+        reservationTime: reservationTimeStr,
+        numberOfPeople: raw.guests!,
       };
-      console.log('Reserva enviada:', reservationData);
-      alert('¡Reserva enviada! Nos pondremos en contacto contigo.');
-      this.reservationForm.reset();
-      this.tables.forEach((t) => (t.selected = false));
-      this.selectedTable = null;
+
+      this.reservationService.addReservationAuth(payload).subscribe({
+        next: (res) => {
+          const newId = res?.data?.id ?? '—';
+          this.notificationService.success(
+            '¡Reserva registrada!',
+            `Tu número de reserva es #${newId}`
+          );
+          this.reservationForm.reset();
+          this.tables.forEach((t) => (t.selected = false));
+          this.selectedTable = null;
+          this.timeSuggestions = [];
+
+          this.router.navigate(['/my-reservations', newId]);
+        },
+        error: (err) => {
+          console.error('Error al registrar reserva:', err);
+          const msg =
+            err?.error?.message ??
+            'No se pudo registrar la reserva, inténtalo más tarde';
+          this.notificationService.error('Error', msg);
+        },
+      });
     } else {
-      alert('Por favor completa todos los campos obligatorios.');
+      this.notificationService.info(
+        'Por favor',
+        'Completa todos los campos obligatorios'
+      );
     }
+  }
+
+  searchTimes(event: AutoCompleteCompleteEvent) {
+    const q = (event.query ?? '').toString().toLowerCase();
+    this.timeSuggestions = this.getAvailableTimesForSelectedTable().filter(
+      (t) => t.label.toLowerCase().includes(q)
+    );
   }
 }

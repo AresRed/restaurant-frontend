@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   LoginRequest,
   UserLoginResponse,
@@ -13,9 +15,6 @@ import { User } from '../models/user.model';
   providedIn: 'root',
 })
 export class AuthService {
-  private baseUrl = 'http://localhost:8080/api/v1/auth';
-  private usersUrl = 'http://localhost:8080/api/v1/users';
-
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
@@ -29,13 +28,20 @@ export class AuthService {
 
   login(data: LoginRequest): Observable<ApiResponse<UserLoginResponse>> {
     return this.http
-      .post<ApiResponse<UserLoginResponse>>(`${this.baseUrl}/login`, data)
+      .post<ApiResponse<UserLoginResponse>>(
+        `${environment.apiUrl}/api/v1/auth/login`,
+        data
+      )
       .pipe(
         tap((res) => {
           if (res.success && res.data.accessToken) {
+            const exp = this.getTokenExpiration(res.data.accessToken);
+
             localStorage.setItem('accessToken', res.data.accessToken);
             localStorage.setItem('refreshToken', res.data.refreshToken);
+            localStorage.setItem('expiresAt', exp.toString());
             localStorage.setItem('currentUser', JSON.stringify(res.data.user));
+
             this.currentUserSubject.next(res.data.user);
           }
         })
@@ -44,7 +50,7 @@ export class AuthService {
 
   register(data: RegisterRequest): Observable<ApiResponse<Object>> {
     return this.http.post<ApiResponse<Object>>(
-      `${this.baseUrl}/register`,
+      `${environment.apiUrl}/api/v1/auh/register`,
       data,
       { withCredentials: true }
     );
@@ -53,17 +59,37 @@ export class AuthService {
   refreshToken(
     refreshToken: string
   ): Observable<ApiResponse<UserLoginResponse>> {
-    return this.http.post<ApiResponse<UserLoginResponse>>(
-      `${this.baseUrl}/refresh`,
-      { refreshToken },
-      { withCredentials: true }
-    );
+    return this.http
+      .post<ApiResponse<UserLoginResponse>>(
+        `${environment.apiUrl}/api/v1/auth/refresh`,
+        { refreshToken },
+        { withCredentials: true }
+      )
+      .pipe(
+        tap((res) => {
+          if (res.success && res.data.accessToken) {
+            const exp = this.getTokenExpiration(res.data.accessToken);
+
+            localStorage.setItem('accessToken', res.data.accessToken);
+            localStorage.setItem('refreshToken', res.data.refreshToken);
+            localStorage.setItem('expiresAt', exp.toString());
+
+            if (res.data.user) {
+              localStorage.setItem(
+                'currentUser',
+                JSON.stringify(res.data.user)
+              );
+              this.currentUserSubject.next(res.data.user);
+            }
+          }
+        })
+      );
   }
 
   logout(refreshToken?: string): Observable<ApiResponse<Object>> {
     return this.http
       .post<ApiResponse<Object>>(
-        `${this.baseUrl}/logout`,
+        `${environment.apiUrl}/api/v1/auth/logout`,
         { refreshToken },
         { withCredentials: true }
       )
@@ -100,7 +126,7 @@ export class AuthService {
       };
 
       const messageHandler = (event: MessageEvent) => {
-        if (event.origin !== 'http://localhost:8080') return;
+        if (event.origin !== environment.apiUrl) return;
 
         const data = event.data;
         console.log('Mensaje recibido desde Google OAuth:', data); // TODO: Eliminar en prod
@@ -149,17 +175,32 @@ export class AuthService {
   }
 
   getCurrentUser(): Observable<ApiResponse<User>> {
-    return this.http.get<ApiResponse<User>>(`${this.usersUrl}/me`).pipe(
-      tap((res) => {
-        if (res.success && res.data) {
-          localStorage.setItem('currentUser', JSON.stringify(res.data));
-          this.currentUserSubject.next(res.data);
-        }
-      })
-    );
+    return this.http
+      .get<ApiResponse<User>>(`${environment.apiUrl}/api/v1/users/me`)
+      .pipe(
+        tap((res) => {
+          if (res.success && res.data) {
+            localStorage.setItem('currentUser', JSON.stringify(res.data));
+            this.currentUserSubject.next(res.data);
+          }
+        })
+      );
   }
 
   setCurrentUser(user: User) {
     this.currentUserSubject.next(user);
+  }
+
+  private getTokenExpiration(token: string): number {
+    const decoded = jwtDecode<JwtPayload>(token);
+    if (!decoded.exp) {
+      throw new Error('El token no contiene fecha de expiración');
+    }
+    return decoded.exp * 1000;
+  }
+
+  isTokenExpired(token: string): boolean {
+    const exp = this.getTokenExpiration(token);
+    return Date.now() > exp;
   }
 }

@@ -12,17 +12,27 @@
         ></p-button>
         <span class="font-medium"></span>
       </div>
-      <div class="flex items-center space-x-2">
-        <span class="font-semibold leading-relaxed **inline-flex**"
-          >S/ 0.00</span
-        >
-        <p-button
-          icon="pi pi-shopping-bag"
-          severity="contrast"
-          [text]="true"
-          [rounded]="true"
-          (click)="openCart()"
-        ></p-button>
+      <div class="flex items-center space-x-2 relative">
+        <span class="font-semibold leading-relaxed inline-flex">
+          S/ {{ total$ | async | number : "1.2-2" }}
+        </span>
+
+        <div class="relative">
+          <p-button
+            icon="pi pi-shopping-bag"
+            severity="contrast"
+            [text]="true"
+            [rounded]="true"
+            (click)="openCart()"
+          ></p-button>
+
+          <span
+            *ngIf="count$ | async as count"
+            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center"
+          >
+            {{ count }}
+          </span>
+        </div>
       </div>
     </div>
 
@@ -84,15 +94,8 @@
               class="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg z-10"
               >Nuevo</span
             >
-
-            <!--    <div class="relative h-40 flex items-center justify-center mt-6">
-            <div
-            class="w-24 h-24 rounded-2xl  flex items-center
-                  justify-center text-5xl shadow-xl 
-                  group-hover:rotate-2 group-hover:scale-150 transition-transform duration-500">
-              {{ item.iconContent}}
-              -->
           </div>
+
           <p-button
             class="absolute top-3 right-3"
             [rounded]="true"
@@ -103,24 +106,23 @@
           ></p-button>
         </div>
 
-        <!-- Información del producto -->
-        <div class="p-6 flex-1 flex flex-col justify-between">
-          <h3
-            class="font-bold text-lg text-white mb-2 transition-colors group-hover:text-red-500"
-          ></h3>
-          <div class="flex justify-between items-center mt-auto">
-            <span
-              class="text-xl font-bold text-white bg-gray-700 px-3 py-1 rounded-lg shadow-sm"
-            >
-            </span>
-            <p-button
-              icon="pi pi-cart-plus"
-              label="Añadir"
-              severity="contrast"
-              class="hover:scale-110 transition-transform"
-            ></p-button>
-          </div>
+        <div
+          *ngIf="filteredProducts.length === 0"
+          class="col-span-full text-center text-gray-400 text-lg py-10"
+        >
+          No hay productos disponibles en esta categoría 🙁
         </div>
+      </div>
+
+      <!-- 🔥 Paginador -->
+      <div class="flex justify-center mt-8">
+        <p-paginator
+          [rows]="rows"
+          [totalRecords]="filteredProducts.length"
+          [first]="first"
+          (onPageChange)="onPageChange($event)"
+          [rowsPerPageOptions]="[6, 9, 12]"
+        ></p-paginator>
       </div>
     </div>
   </section>

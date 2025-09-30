@@ -1,0 +1,68 @@
+<div class="flex flex-col items-center p-6 min-h-[70vh]">
+  <!-- Loader -->
+  <p-progressSpinner *ngIf="loading" strokeWidth="4" styleClass="w-12 h-12" />
+
+  <!-- Lista de reservas -->
+  <div
+    *ngIf="!loading && reservations.length > 0"
+    class="grid gap-6 w-full max-w-5xl md:grid-cols-2"
+  >
+    <p-card
+      *ngFor="let res of reservations"
+      class="shadow-lg rounded-xl border hover:shadow-xl transition"
+    >
+      <ng-template pTemplate="header">
+        <div class="flex justify-between items-center p-5">
+          <h3 class="text-lg font-semibold text-gray-800">
+            Reserva #{{ res.id }}
+          </h3>
+          <span
+            class="px-3 py-1 text-xs font-medium rounded-full"
+            [ngClass]="getStatusClass(res.status)"
+          >
+            {{ res.status }}
+          </span>
+        </div>
+      </ng-template>
+
+      <div class="text-sm space-y-2">
+        <p>
+          <span class="text-gray-500">Cliente:</span> {{ res.customerName }}
+        </p>
+        <p>
+          <span class="text-gray-500">Fecha:</span>
+          {{ res.reservationDate | date : "shortDate" }}
+        </p>
+        <p>
+          <span class="text-gray-500">Hora:</span>
+          {{ res.reservationTime }}
+        </p>
+        <p>
+          <span class="text-gray-500">Mesa:</span>
+          Nº {{ res.tableNumber }}
+        </p>
+      </div>
+
+      <ng-template pTemplate="footer">
+        <div class="flex justify-end">
+          <button
+            pButton
+            label="Ver Detalle"
+            icon="pi pi-search"
+            class="p-button-outlined"
+            (click)="viewDetail(res.id)"
+          ></button>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+
+  <!-- No hay reservas -->
+  <div
+    *ngIf="!loading && reservations.length === 0"
+    class="flex flex-col items-center justify-center text-gray-500 mt-10"
+  >
+    <i class="pi pi-calendar-times text-4xl mb-2"></i>
+    <p>No tienes reservas registradas.</p>
+  </div>
+</div>

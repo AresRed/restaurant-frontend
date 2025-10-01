@@ -1,9 +1,9 @@
-import { User } from '../../user.model';
+import { UserResponse } from "../../user.model";
 
 export interface UserLoginResponse {
   accessToken: string;
-  refreshToken: string;
-  user: User;
+  sessionId: string;
+  user: UserResponse;
 }
 
 export interface LoginRequest {

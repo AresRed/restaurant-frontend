@@ -84,8 +84,7 @@ export class HeaderComponent implements OnInit {
   }
 
   logout() {
-    const refreshToken = localStorage.getItem('refreshToken') || '';
-    this.authService.logout(refreshToken).subscribe({
+    this.authService.logout().subscribe({
       next: () => {
         this.notify.success(
           'Sesión cerrada',

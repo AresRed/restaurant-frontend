@@ -58,15 +58,8 @@ export class LoginFormComponent {
         this.loading = false;
 
         if (res.success && res.data.accessToken) {
-          localStorage.setItem('accessToken', res.data.accessToken);
-          localStorage.setItem('refreshToken', res.data.refreshToken || '');
-          localStorage.setItem('currentUser', JSON.stringify(res.data.user));
-
-          this.authService.setCurrentUser(res.data.user);
           this.uiService.closeLogin();
-
           this.notifyService.success(res.message, 'Se ha iniciado sesión');
-
           this.loginForm.reset();
         } else {
           this.notifyService.error('Login fallido', res.message);
@@ -101,5 +94,4 @@ export class LoginFormComponent {
       },
     });
   }
-
 }

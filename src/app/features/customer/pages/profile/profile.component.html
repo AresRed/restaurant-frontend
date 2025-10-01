@@ -1,0 +1,79 @@
+<div class="max-w-5xl mx-auto p-6 space-y-6">
+  <h2 class="text-3xl font-bold text-gray-800 mb-4">Mi Perfil</h2>
+
+  <div
+    class="bg-white rounded-xl shadow-md p-6 grid grid-cols-1 md:grid-cols-2 gap-6"
+  >
+    <div class="space-y-2">
+      <label class="block text-gray-600 font-medium">Nombres</label>
+      <input
+        pInputText
+        type="text"
+        [(ngModel)]="editableUser!.firstName"
+        [disabled]="!isEditing"
+        class="w-full border-gray-300 rounded-md"
+      />
+    </div>
+    <div class="space-y-2">
+      <label class="block text-gray-600 font-medium">Apellidos</label>
+      <input
+        pInputText
+        type="text"
+        [(ngModel)]="editableUser!.lastName"
+        [disabled]="!isEditing"
+        class="w-full border-gray-300 rounded-md"
+      />
+    </div>
+
+    <div class="space-y-2">
+      <label class="block text-gray-600 font-medium">Email</label>
+      <input
+        pInputText
+        type="email"
+        [(ngModel)]="editableUser!.email"
+        [disabled]="!isEditing"
+        class="w-full border-gray-300 rounded-md"
+      />
+    </div>
+
+    <div class="space-y-2">
+      <label class="block text-gray-600 font-medium">Teléfono</label>
+      <input
+        pInputText
+        type="text"
+        [(ngModel)]="editableUser!.phone"
+        [disabled]="!isEditing"
+        class="w-full border-gray-300 rounded-md"
+      />
+    </div>
+
+    <div class="space-y-2">
+      <label class="block text-gray-600 font-medium">Usuario</label>
+      <input
+        pInputText
+        type="text"
+        [(ngModel)]="editableUser!.username"
+        [disabled]="!isEditing"
+        class="w-full border-gray-300 rounded-md"
+      />
+    </div>
+  </div>
+
+  <!-- Botones de acción -->
+  <div class="flex justify-end space-x-3 mt-4">
+    <button
+      pButton
+      label="{{ isEditing ? 'Cancelar' : 'Editar' }}"
+      class="p-button-outlined"
+      (click)="toggleEdit()"
+    ></button>
+
+    <button
+      *ngIf="isEditing"
+      pButton
+      label="Guardar"
+      class="p-button-primary"
+      (click)="saveChanges()"
+    ></button>
+  </div>
+</div>

@@ -22,6 +22,17 @@ export class OrderService {
     );
   }
 
+  getAllOrdersAuth(): Observable<ApiResponse<OrderResponse[]>> {
+    const headers = new HttpHeaders({
+      'Accept-Language': 'es', // <-- aquí defines el idioma
+    });
+
+    return this.http.get<ApiResponse<OrderResponse[]>>(
+      `${environment.apiUrl}/api/v1/orders/me`,
+      { headers }
+    );
+  }
+
   getOrderById(orderId: number): Observable<ApiResponse<OrderResponse>> {
     const headers = new HttpHeaders({
       'Accept-Language': 'es', // <-- aquí defines el idioma

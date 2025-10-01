@@ -1,6 +1,7 @@
 import { CommonModule, registerLocaleData } from '@angular/common';
 import localeEsPe from '@angular/common/locales/es-PE';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -9,7 +10,6 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { OrderResponse } from '../../../../core/models/order.model';
 import { OrderService } from '../../../../core/services/orders/order.service';
-import { Router } from '@angular/router';
 
 registerLocaleData(localeEsPe);
 
@@ -39,7 +39,7 @@ export class OrdersComponent implements OnInit {
   }
 
   loadOrders() {
-    this.orderService.getAllOrders().subscribe({
+    this.orderService.getAllOrdersAuth().subscribe({
       next: (res) => {
         this.orders = res.data.map((o) => ({ ...o, date: new Date(o.date) }));
         this.loading = false;

@@ -1,6 +1,12 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from '../../core/guards/auth.guard';
+import { ProfileLayoutComponent } from './components/profile-layout/profile-layout.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { SecurityComponent } from './pages/security/security.component';
+import { SettingsComponent } from './pages/settings/settings.component';
 
 export const customerRoutes: Routes = [
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
   {
     path: 'home',
     loadComponent: () =>
@@ -13,6 +19,8 @@ export const customerRoutes: Routes = [
   },
   {
     path: 'reservations',
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_CLIENT'] },
     loadComponent: () =>
       import('./pages/reservations/reservations.component').then(
         (m) => m.ReservationsComponent
@@ -24,6 +32,7 @@ export const customerRoutes: Routes = [
       import('./pages/my-reservations/my-reservations.component').then(
         (m) => m.MyReservationsComponent
       ),
+    canActivate: [AuthGuard],
   },
   {
     path: 'my-reservations/:id',
@@ -31,6 +40,7 @@ export const customerRoutes: Routes = [
       import(
         './pages/my-reservations/reservation-detail/reservation-detail.component'
       ).then((m) => m.ReservationDetailComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'contact',
@@ -57,11 +67,13 @@ export const customerRoutes: Routes = [
       import('./pages/checkout/checkout.component').then(
         (m) => m.CheckoutComponent
       ),
+    canActivate: [AuthGuard],
   },
   {
     path: 'orders',
     loadComponent: () =>
       import('./pages/orders/orders.component').then((m) => m.OrdersComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'orders/:id',
@@ -69,6 +81,20 @@ export const customerRoutes: Routes = [
       import('./pages/orders/order-detail/order-detail.component').then(
         (m) => m.OrderDetailComponent
       ),
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_CLIENT'] },
+  },
+  {
+    path: 'profile',
+    component: ProfileLayoutComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_CLIENT'] },
+    children: [
+      { path: '', redirectTo: 'perfil', pathMatch: 'full' },
+      { path: 'perfil', component: ProfileComponent },
+      { path: 'security', component: SecurityComponent },
+      { path: 'configuration', component: SettingsComponent },
+    ],
   },
   {
     path: 'verify-email',

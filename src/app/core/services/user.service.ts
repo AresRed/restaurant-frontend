@@ -1,0 +1,48 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { ApiResponse } from '../models/base/api-response.model';
+import {
+  PasswordChangeRequest,
+  UpdateProfileRequest,
+  UserResponse,
+  UserSessionResponse,
+} from '../models/user.model';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class UserService {
+  constructor(private http: HttpClient) {}
+
+  getProfileAuth(): Observable<ApiResponse<UserResponse>> {
+    return this.http.get<ApiResponse<UserResponse>>(
+      `${environment.apiUrl}/api/v1/users/me`
+    );
+  }
+
+  getSessionsAuth(): Observable<ApiResponse<UserSessionResponse[]>> {
+    return this.http.get<ApiResponse<UserSessionResponse[]>>(
+      `${environment.apiUrl}/api/v1/users/sessions`
+    );
+  }
+
+  updateProfileAuth(
+    updateProfileRequest: UpdateProfileRequest
+  ): Observable<ApiResponse<UserResponse>> {
+    return this.http.put<ApiResponse<UserResponse>>(
+      `${environment.apiUrl}/api/v1/users/update-profile`,
+      updateProfileRequest
+    );
+  }
+
+  updatePasswordAuth(
+    passwordChangeRequest: PasswordChangeRequest
+  ): Observable<ApiResponse<null>> {
+    return this.http.put<ApiResponse<null>>(
+      `${environment.apiUrl}/api/v1/users/change-password`,
+      passwordChangeRequest
+    );
+  }
+}

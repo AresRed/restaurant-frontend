@@ -4,14 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
-
+import { DialogModule } from 'primeng/dialog';
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
     FormsModule,
-
-    /* PrimeNG */
+    DialogModule,
     DropdownModule,
     CalendarModule,
     ButtonModule,
@@ -43,4 +42,10 @@ export class HomeComponent {
   selectedGuest: number | undefined;
   selectedDate: Date | undefined;
   selectedTime: string | undefined;
+
+  visible: boolean = false;
+
+  showDialog() {
+      this.visible = true;
+  }
 }

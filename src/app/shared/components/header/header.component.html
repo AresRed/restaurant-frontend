@@ -49,6 +49,7 @@
 
             <p-avatar
               icon="pi pi-user"
+              
               shape="circle"
               styleClass="bg-blue-500 text-white cursor-pointer"
               (click)="menu.toggle($event)"
@@ -59,8 +60,8 @@
             #menu
             [model]="itemsUserMenu"
             [popup]="true"
-            appendTo="body"
-            styleClass="shadow-lg rounded-xl"
+            
+            styleClass="!bg-rojo-fondo-claro"
           />
         </ng-container>
 
@@ -73,18 +74,20 @@
             (onClick)="openCart()"
           />
           <p-button
-            label="INICIAR SESIÓN"
-            (onClick)="openLogin()"
-            icon="pi pi-sign-in"
-            severity="danger"
-            variant="text"
-          />
-          <p-button
-            label="REGISTRARSE"
-            (onClick)="openSignup()"
-            icon="pi pi-sign-in"
-            severity="secondary"
-          />
+          label="INICIAR SESIÓN"
+          (onClick)="openLogin()"
+          icon="pi pi-sign-in"
+          severity="danger"
+          variant="text"                   
+        
+        />
+        <p-button
+        label="REGISTRARSE"
+        (onClick)="openSignup()"
+        icon="pi pi-user-plus"
+        severity="secondary"                            
+
+      />
         </ng-template>
       </div>
 

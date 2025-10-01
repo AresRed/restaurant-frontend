@@ -69,12 +69,15 @@ export class AuthService {
       )
       .pipe(
         tap(() => {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('currentUser');
-          this.currentUserSubject.next(null);
+          this.clearSession(); 
         })
       );
+  }
+  clearSession() {
+    localStorage.removeItem('accessToken');   // Borra token de acceso
+    localStorage.removeItem('refreshToken');  // Borra token de refresco
+    localStorage.removeItem('currentUser');   // Borra usuario
+    this.currentUserSubject.next(null);       // Resetea observable
   }
 
   loginWithGoogle(): Observable<any> {
@@ -154,12 +157,15 @@ export class AuthService {
         if (res.success && res.data) {
           localStorage.setItem('currentUser', JSON.stringify(res.data));
           this.currentUserSubject.next(res.data);
+        }else{
+          this.clearSession();
         }
       })
     );
   }
 
   setCurrentUser(user: User) {
+    localStorage.setItem('currentUser', JSON.stringify(user));
     this.currentUserSubject.next(user);
   }
 }

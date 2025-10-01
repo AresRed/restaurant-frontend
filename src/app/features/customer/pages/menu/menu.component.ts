@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CategoryResponse } from '../../../../core/models/category.model';
 import { ProductResponse } from '../../../../core/models/product.model';
@@ -7,31 +8,61 @@ import { CartService } from '../../../../core/services/cart.service';
 import { CategoryService } from '../../../../core/services/category.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ProductService } from '../../../../core/services/product.service';
+import { DialogModule } from 'primeng/dialog';
+import { FormsModule } from '@angular/forms';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { ReactiveFormsModule } from '@angular/forms';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { UbicationComponent } from '../ubication/ubication.component';
+import { UbicationService } from '../../../../core/services/ubication.service';
 
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [CommonModule, ButtonModule],
+  imports: [
+    CommonModule, 
+    ButtonModule,
+    FormsModule,
+    DialogModule,
+    IconFieldModule,
+    InputTextModule,
+    InputIconModule,
+    SelectButtonModule,
+    ReactiveFormsModule,
+    UbicationComponent
+  ],
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss'],
 })
 export class MenuComponent implements OnInit {
+
   categories: CategoryResponse[] = [];
   products: ProductResponse[] = [];
   allProducts: ProductResponse[] = [];
   selectedCategoryId: number | null = null;
 
   constructor(
+    private ubicationService: UbicationService,
     private productService: ProductService,
     private categoryService: CategoryService,
     private cartService: CartService,
     private notificationService: NotificationService
   ) {}
 
+  viewUbication(){
+    this.ubicationService.open();
+  }
+  
   ngOnInit(): void {
     this.loadCategories();
     this.loadProducts();
   }
+
+  
+
+    
+   
 
   loadCategories() {
     this.categoryService.getAllCategories().subscribe({

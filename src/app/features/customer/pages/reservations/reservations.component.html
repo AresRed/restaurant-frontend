@@ -1,13 +1,173 @@
-<div
-  class="bg-reservations relative min-h-screen flex flex-col items-center justify-center p-6 bg-cover bg-no-repeat opacity-50"
-  style="background-image: url('reservation.jpg'); background-size: contain; background-repeat: repeat;"
-
-
->
-  <div class="absolute inset-0 bg-black/50"></div>
-
-
-
-  
+<div class="relative w-full min-h-screen font-[tipo6] ">
+  <div
+    class="absolute inset-0  bg-center"
+    style="background-image: url('fondo5.jpg');"
+  >
+    <div class="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
   </div>
 
+  <div class="relative z-10 p-4 sm:p-8 max-w-4xl mx-auto pt-24 md:pt-10">
+    
+    <div class="bg-white/20 p-6 md:p-7 rounded-xl shadow-2xl backdrop-blur-sm">
+      
+
+<!-- Especificaciones y datos -->
+
+      <div class="grid grid-cols-3 gap-4  ">
+        </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        
+
+        
+        <p-floatlabel class="w-full">
+          <input 
+            pInputText 
+            id="fullName" 
+            [(ngModel)]="fullName" 
+            class="w-full  !border-gray-400 !bg-gray-100/90 "
+          >
+          <label 
+            for="fullName" 
+            class="!text-blue-800 !font-medium"
+          >
+            Nombre Completo
+          </label>
+        </p-floatlabel>
+
+        <p-floatlabel class="w-full">
+          <input 
+            pInputText 
+            id="email" 
+            type="email" 
+            [(ngModel)]="email" 
+            class="w-full !bg-gray-100/90 border-gray-400 focus:border-red-900 text-base py-3"
+          >
+          <label 
+            for="email" 
+            class="!text-blue-800 !font-medium"
+          >
+            Correo
+          </label>
+        </p-floatlabel>
+
+        <p-floatlabel class="w-full">
+          <input 
+            pInputText 
+            id="phone" 
+            type="tel" 
+            [(ngModel)]="phone" 
+            class="w-full !bg-gray-100/90 border-gray-400 focus:border-red-900 text-base py-3"
+          >
+          <label 
+            for="phone" 
+            class="!text-blue-800 !font-medium"
+          >
+            Número de Teléfono
+          </label>
+        </p-floatlabel>
+        
+        <div class="hidden md:block"></div> 
+
+      </div>
+
+      <div class="mb-10">
+        <p-floatlabel>
+          <textarea 
+            pInputTextarea 
+            id="specs" 
+            [rows]="5" 
+            [(ngModel)]="specifications" 
+            class="w-full !bg-gray-100/90 border-gray-400 focus:border-red-900 text-base"
+          ></textarea>
+          <label 
+            for="specs" 
+            class="!text-blue-800 !font-medium"
+          >
+            Especificaciones
+          </label>
+        </p-floatlabel>
+      </div>
+<!-- FIN -->
+
+      <div class="grid grid-cols-3 gap-4 ">
+        <div class="flex flex-col">
+          <p-dropdown
+            [options]="guestsOptions"
+            [(ngModel)]="selectedGuests"
+            optionLabel="label"
+            inputId="guests"
+            [style]="{'width': '100%'}"
+            [ngClass]="'p-inputtext-lg p-3 rounded-lg !bg-rojo-fondo-claro !border-red-800'"
+            styleClass="w-full text-base"
+            panelStyleClass="custom-dropdown-panel"
+          >
+            <ng-template let-option pTemplate="item">
+              <div class="w-full px-2 py-1 rounded-md hover:bg-red-100">
+                {{ option.label }}
+              </div>
+            </ng-template>
+          </p-dropdown>
+        </div>
+        
+        <div class="flex flex-col">
+          <label for="time" class="sr-only">Hora</label>
+          <p-dropdown 
+            [options]="timeOptions" 
+            [(ngModel)]="selectedTime" 
+            optionLabel="label" 
+            inputId="time" 
+            [style]="{'width': '100%'}"
+            [ngClass]="'p-inputtext-lg p-3 border-gray-300 rounded-lg'" 
+            styleClass="w-full text-base"
+            placeholder="All Times"
+          ></p-dropdown>
+        </div>
+
+        <div class="flex flex-col">
+          <label for="date" class="sr-only">Fecha</label>
+          <p-dropdown 
+            [options]="dateOptions" 
+            [(ngModel)]="selectedDate" 
+            optionLabel="label" 
+            inputId="date" 
+            [style]="{'width': '100%'}"
+            [ngClass]="'p-inputtext-lg p-3 border-gray-300 rounded-lg '"
+            styleClass="w-full text-base "
+            placeholder="Today, Sep 29"
+          ></p-dropdown>
+        </div>
+
+      </div>
+
+      <p class="text-xl text-center text-yellow-100 p-5">
+        Reservas con 1 mes de anticipacion
+      </p>
+
+      <div class="grid grid-cols-3 gap-4">
+        <ng-container *ngFor="let slot of timeSlots">
+          <p-button 
+            [label]="slot.Mesa" 
+            [styleClass]="'p-button-lg w-full text-center py-4 rounded-lg shadow-md ' + (slot.available ? 'bg-red-900 hover:bg-red-800 text-white' : 'bg-gray-100 text-gray-700')"
+            [disabled]="!slot.available"
+            (onClick)="reserveTime(slot)"
+          >
+       
+          </p-button>
+        </ng-container>
+
+        <div class="col-span-1 justify-center ">
+          <p-button 
+            label="Enviar Solicitud" 
+            styleClass="p-button-lg p-button-outlined w-full
+             text-center py-4 border border-gray-400 bg-white
+              hover:bg-gray-50 text-gray-800 rounded-lg shadow-md
+              justify-center "
+            (onClick)="showAlert()"
+          >
+          </p-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

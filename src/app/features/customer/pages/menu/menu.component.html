@@ -8,9 +8,10 @@
           icon="pi pi-map-marker"
           [raised]="true" 
           severity="secondary"
-          
+          (onClick)="viewUbication()"
           label="¿Dónde quieres pedir?"
-        ></p-button>
+        />
+        <app-ubication></app-ubication>
         <span class="font-medium"></span>
       </div>
       <div class="flex items-center space-x-2 ">

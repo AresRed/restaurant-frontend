@@ -10,7 +10,6 @@ import {
   BehaviorSubject,
   catchError,
   filter,
-  map,
   Observable,
   switchMap,
   take,
@@ -42,25 +41,19 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
-          // Si no hay accessToken, cerramos sesión
-          const accessToken = localStorage.getItem('accessToken');
-          if (!accessToken) {
+          if (!token) {
             this.authService.logout().subscribe();
             return throwError(() => error);
           }
 
-          // Solo refrescamos token si no estamos ya refrescando
           if (!this.isRefreshing) {
             this.isRefreshing = true;
             this.accessTokenSubject.next(null);
 
-            // TODO: Aquí podrías implementar refresh por sessionId
-            // Si no quieres refresh, simplemente cerramos sesión
             this.isRefreshing = false;
-            this.authService.logout().subscribe();
+            console.warn('401 recibido, token podría estar expirado');
             return throwError(() => error);
           } else {
-            // Esperamos a que termine otro refresh si ya estaba en curso
             return this.accessTokenSubject.pipe(
               filter((t) => t != null),
               take(1),

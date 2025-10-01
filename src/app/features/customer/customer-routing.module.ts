@@ -74,6 +74,7 @@ export const customerRoutes: Routes = [
     loadComponent: () =>
       import('./pages/orders/orders.component').then((m) => m.OrdersComponent),
     canActivate: [AuthGuard],
+    data: { roles: ['ROLE_CLIENT'] },
   },
   {
     path: 'orders/:id',

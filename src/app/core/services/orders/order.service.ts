@@ -13,7 +13,7 @@ export class OrderService {
 
   getAllOrders(): Observable<ApiResponse<OrderResponse[]>> {
     const headers = new HttpHeaders({
-      'Accept-Language': 'es', // <-- aquí defines el idioma
+      'Accept-Language': 'es',
     });
 
     return this.http.get<ApiResponse<OrderResponse[]>>(
@@ -24,7 +24,7 @@ export class OrderService {
 
   getAllOrdersAuth(): Observable<ApiResponse<OrderResponse[]>> {
     const headers = new HttpHeaders({
-      'Accept-Language': 'es', // <-- aquí defines el idioma
+      'Accept-Language': 'es',
     });
 
     return this.http.get<ApiResponse<OrderResponse[]>>(
@@ -35,7 +35,7 @@ export class OrderService {
 
   getOrderById(orderId: number): Observable<ApiResponse<OrderResponse>> {
     const headers = new HttpHeaders({
-      'Accept-Language': 'es', // <-- aquí defines el idioma
+      'Accept-Language': 'es',
     });
 
     return this.http.get<ApiResponse<OrderResponse>>(

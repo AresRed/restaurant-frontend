@@ -3,7 +3,6 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 import {
   FormControl,
   FormGroup,
-  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -212,62 +211,73 @@ export class ReservationsComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (this.reservationForm.valid) {
-      const raw = this.reservationForm.getRawValue();
-
-      const reservationDateStr =
-        raw.date instanceof Date
-          ? raw.date.toISOString().split('T')[0]
-          : String(raw.date);
-      const reservationTimeStr = this.normalizeTimeValue(raw.time);
-
-      if (!reservationTimeStr) {
-        this.notificationService.info(
-          'Por favor',
-          'Selecciona una hora válida'
-        );
-        return;
-      }
-
-      const payload: AuthenticatedReservationRequest = {
-        tableId: this.selectedTable.id,
-        contactName: raw.name,
-        contactPhone: raw.phone,
-        reservationDate: reservationDateStr,
-        reservationTime: reservationTimeStr,
-        numberOfPeople: raw.guests!,
-      };
-
-      this.reservationService.addReservationAuth(payload).subscribe({
-        next: (res) => {
-          const newId = res?.data?.id ?? '—';
-          this.notificationService.success(
-            '¡Reserva registrada!',
-            `Tu número de reserva es #${newId}`
-          );
-          this.reservationForm.reset();
-          this.tables.forEach((t) => (t.selected = false));
-          this.selectedTable = null;
-          this.timeSuggestions = [];
-
-          this.router.navigate(['/my-reservations', newId]);
-        },
-        error: (err) => {
-          console.error('Error al registrar reserva:', err);
-          const msg =
-            err?.error?.message ??
-            'No se pudo registrar la reserva, inténtalo más tarde';
-          this.notificationService.error('Error', msg);
-        },
-      });
-    } else {
+    if (!this.reservationForm.valid) {
       this.notificationService.info(
         'Por favor',
         'Completa todos los campos obligatorios'
       );
+      return;
     }
-  }
 
+    const raw = this.reservationForm.getRawValue();
+    const reservationDateStr =
+      raw.date instanceof Date
+        ? raw.date.toISOString().split('T')[0]
+        : String(raw.date);
+    const reservationTimeStr = this.normalizeTimeValue(raw.time);
+
+    if (!reservationTimeStr) {
+      this.notificationService.info('Por favor', 'Selecciona una hora válida');
+      return;
+    }
+
+    const payload: AuthenticatedReservationRequest = {
+      tableId: this.selectedTable.id,
+      contactName: raw.name,
+      contactPhone: raw.phone,
+      reservationDate: reservationDateStr,
+      reservationTime: reservationTimeStr,
+      numberOfPeople: raw.guests!,
+    };
+
+    this.reservationService.addReservationAuth(payload).subscribe({
+      next: (res) => {
+        const reservationCreated = res?.data ?? res;
+
+        if (!reservationCreated || !reservationCreated.id) {
+          console.error('Respuesta completa del backend:', res);
+          this.notificationService.error(
+            'Error',
+            'No se pudo obtener el ID de la reserva creada'
+          );
+          return;
+        }
+
+        const newId = reservationCreated.id;
+
+        this.notificationService.success(
+          '¡Reserva registrada!',
+          `Tu número de reserva es #${newId}`
+        );
+
+        this.reservationForm.reset();
+        this.tables.forEach((t) => (t.selected = false));
+        this.selectedTable = null;
+        this.timeSuggestions = [];
+
+        this.router.navigate(['/my-reservations', newId]).then(() => {
+          console.log('Redirigido a /my-reservations', newId);
+        });
+      },
+      error: (err) => {
+        console.error('Error al registrar reserva:', err);
+        const msg =
+          err?.error?.message ??
+          'No se pudo registrar la reserva, inténtalo más tarde';
+        this.notificationService.error('Error', msg);
+      },
+    });
+  }
   searchTimes(event: AutoCompleteCompleteEvent) {
     const q = (event.query ?? '').toString().toLowerCase();
     this.timeSuggestions = this.getAvailableTimesForSelectedTable().filter(

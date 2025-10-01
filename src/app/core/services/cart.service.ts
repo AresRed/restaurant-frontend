@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, map } from 'rxjs';
 import { CartItem } from '../models/cart.model';
 import { ProductResponse } from '../models/product.model';
 
@@ -7,6 +7,14 @@ import { ProductResponse } from '../models/product.model';
 export class CartService {
   private itemsSubject = new BehaviorSubject<CartItem[]>(this.loadCart());
   items$ = this.itemsSubject.asObservable();
+
+  total$ = this.items$.pipe(
+    map((items) => items.reduce((sum, i) => sum + i.price * i.quantity, 0))
+  );
+
+  count$ = this.items$.pipe(
+    map((items) => items.reduce((sum, i) => sum + i.quantity, 0))
+  );
 
   get items(): CartItem[] {
     return this.itemsSubject.value;

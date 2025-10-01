@@ -1,173 +1,244 @@
-<div class="relative w-full min-h-screen font-[tipo6] ">
-  <div
-    class="absolute inset-0  bg-center"
-    style="background-image: url('fondo5.jpg');"
-  >
-    <div class="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
-  </div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto mt-20">
+  <!-- Columna izquierda: Stepper -->
+  <div class="md:col-span-2 bg-white p-6 rounded-2xl shadow-lg space-y-6">
+    <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">
+      Reserva tu mesa
+    </h2>
 
-  <div class="relative z-10 p-4 sm:p-8 max-w-4xl mx-auto pt-24 md:pt-10">
-    
-    <div class="bg-white/20 p-6 md:p-7 rounded-xl shadow-2xl backdrop-blur-sm">
-      
-
-<!-- Especificaciones y datos -->
-
-      <div class="grid grid-cols-3 gap-4  ">
-        </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        
-
-        
-        <p-floatlabel class="w-full">
-          <input 
-            pInputText 
-            id="fullName" 
-            [(ngModel)]="fullName" 
-            class="w-full  !border-gray-400 !bg-gray-100/90 "
+    <!-- 🔥 Aquí está el formGroup -->
+    <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
+      <p-stepper [value]="1" styleClass="w-full">
+        <!-- Lista de pasos -->
+        <p-step-list>
+          <p-step [value]="1" icon="pi pi-calendar" [disabled]="false"
+            >Fecha & Personas</p-step
           >
-          <label 
-            for="fullName" 
-            class="!text-blue-800 !font-medium"
+          <p-step
+            [value]="2"
+            icon="pi pi-table"
+            [disabled]="
+              !reservationForm.value.date || !reservationForm.value.guests
+            "
+            >Mesa</p-step
           >
-            Nombre Completo
-          </label>
-        </p-floatlabel>
+          <p-step [value]="3" icon="pi pi-clock" [disabled]="!selectedTable"
+            >Hora</p-step
+          >
+          <p-step
+            [value]="4"
+            icon="pi pi-user"
+            [disabled]="!reservationForm.value.time"
+            >Tus Datos</p-step
+          >
+        </p-step-list>
 
-        <p-floatlabel class="w-full">
-          <input 
-            pInputText 
-            id="email" 
-            type="email" 
-            [(ngModel)]="email" 
-            class="w-full !bg-gray-100/90 border-gray-400 focus:border-red-900 text-base py-3"
-          >
-          <label 
-            for="email" 
-            class="!text-blue-800 !font-medium"
-          >
-            Correo
-          </label>
-        </p-floatlabel>
+        <!-- Contenido de cada paso -->
+        <p-step-panels>
+          <!-- Paso 1: Fecha y Personas -->
+          <p-step-panel [value]="1">
+            <ng-template #content let-activateCallback="activateCallback">
+              <div class="space-y-8">
+                <p-floatlabel class="w-full">
+                  <p-date-picker
+                    formControlName="date"
+                    [showIcon]="true"
+                    [showOnFocus]="false"
+                    [iconDisplay]="'input'"
+                    fluid
+                    class="w-full rounded-lg"
+                  ></p-date-picker>
+                  <label>Fecha</label>
+                </p-floatlabel>
 
-        <p-floatlabel class="w-full">
-          <input 
-            pInputText 
-            id="phone" 
-            type="tel" 
-            [(ngModel)]="phone" 
-            class="w-full !bg-gray-100/90 border-gray-400 focus:border-red-900 text-base py-3"
-          >
-          <label 
-            for="phone" 
-            class="!text-blue-800 !font-medium"
-          >
-            Número de Teléfono
-          </label>
-        </p-floatlabel>
-        
-        <div class="hidden md:block"></div> 
+                <p-floatlabel class="w-full">
+                  <p-dropdown
+                    [options]="guestsOptions"
+                    formControlName="guests"
+                    class="w-full rounded-lg"
+                  ></p-dropdown>
+                  <label>Personas</label>
+                </p-floatlabel>
+              </div>
 
-      </div>
-
-      <div class="mb-10">
-        <p-floatlabel>
-          <textarea 
-            pInputTextarea 
-            id="specs" 
-            [rows]="5" 
-            [(ngModel)]="specifications" 
-            class="w-full !bg-gray-100/90 border-gray-400 focus:border-red-900 text-base"
-          ></textarea>
-          <label 
-            for="specs" 
-            class="!text-blue-800 !font-medium"
-          >
-            Especificaciones
-          </label>
-        </p-floatlabel>
-      </div>
-<!-- FIN -->
-
-      <div class="grid grid-cols-3 gap-4 ">
-        <div class="flex flex-col">
-          <p-dropdown
-            [options]="guestsOptions"
-            [(ngModel)]="selectedGuests"
-            optionLabel="label"
-            inputId="guests"
-            [style]="{'width': '100%'}"
-            [ngClass]="'p-inputtext-lg p-3 rounded-lg !bg-rojo-fondo-claro !border-red-800'"
-            styleClass="w-full text-base"
-            panelStyleClass="custom-dropdown-panel"
-          >
-            <ng-template let-option pTemplate="item">
-              <div class="w-full px-2 py-1 rounded-md hover:bg-red-100">
-                {{ option.label }}
+              <div class="flex justify-end mt-6">
+                <p-button
+                  label="Siguiente"
+                  icon="pi pi-arrow-right"
+                  (click)="loadAvailableTables(); activateCallback(2)"
+                  [disabled]="
+                    !reservationForm.value.date || !reservationForm.value.guests
+                  "
+                ></p-button>
               </div>
             </ng-template>
-          </p-dropdown>
-        </div>
-        
-        <div class="flex flex-col">
-          <label for="time" class="sr-only">Hora</label>
-          <p-dropdown 
-            [options]="timeOptions" 
-            [(ngModel)]="selectedTime" 
-            optionLabel="label" 
-            inputId="time" 
-            [style]="{'width': '100%'}"
-            [ngClass]="'p-inputtext-lg p-3 border-gray-300 rounded-lg'" 
-            styleClass="w-full text-base"
-            placeholder="All Times"
-          ></p-dropdown>
-        </div>
+          </p-step-panel>
 
-        <div class="flex flex-col">
-          <label for="date" class="sr-only">Fecha</label>
-          <p-dropdown 
-            [options]="dateOptions" 
-            [(ngModel)]="selectedDate" 
-            optionLabel="label" 
-            inputId="date" 
-            [style]="{'width': '100%'}"
-            [ngClass]="'p-inputtext-lg p-3 border-gray-300 rounded-lg '"
-            styleClass="w-full text-base "
-            placeholder="Today, Sep 29"
-          ></p-dropdown>
-        </div>
+          <!-- Paso 2: Selección de mesa -->
+          <p-step-panel [value]="2">
+            <ng-template #content let-activateCallback="activateCallback">
+              <div class="grid grid-cols-3 gap-4">
+                <div
+                  *ngFor="let table of tables"
+                  (click)="selectTable(table, $event)"
+                  [ngClass]="{
+                    'bg-green-500 text-white': table.selected,
+                    'bg-gray-200': !table.selected
+                  }"
+                  class="cursor-pointer text-gray-800 flex flex-col items-center justify-center rounded-lg p-4 shadow hover:scale-105 transform transition-all duration-200"
+                >
+                  <span class="font-semibold">{{ table.name }}</span>
+                  <span>{{ table.capacity }} personas</span>
+                </div>
+              </div>
 
-      </div>
+              <div class="flex justify-between mt-6">
+                <p-button
+                  label="Volver"
+                  icon="pi pi-arrow-left"
+                  (click)="activateCallback(1)"
+                ></p-button>
+                <p-button
+                  label="Siguiente"
+                  icon="pi pi-arrow-right"
+                  [disabled]="!selectedTable"
+                  (click)="activateCallback(3)"
+                ></p-button>
+              </div>
+            </ng-template>
+          </p-step-panel>
 
-      <p class="text-xl text-center text-yellow-100 p-5">
-        Reservas con 1 mes de anticipacion
-      </p>
+          <!-- Paso 3: Selección de hora -->
+          <p-step-panel [value]="3">
+            <ng-template #content let-activateCallback="activateCallback">
+              <p-floatlabel class="w-full">
+                <p-autocomplete
+                  formControlName="time"
+                  [suggestions]="timeSuggestions"
+                  (completeMethod)="searchTimes($event)"
+                  optionLabel="label"
+                  dropdown="true"
+                  class="w-full"
+                  styleClass="w-full"
+                ></p-autocomplete>
+                <label for="time">Hora</label>
+              </p-floatlabel>
 
-      <div class="grid grid-cols-3 gap-4">
-        <ng-container *ngFor="let slot of timeSlots">
-          <p-button 
-            [label]="slot.Mesa" 
-            [styleClass]="'p-button-lg w-full text-center py-4 rounded-lg shadow-md ' + (slot.available ? 'bg-red-900 hover:bg-red-800 text-white' : 'bg-gray-100 text-gray-700')"
-            [disabled]="!slot.available"
-            (onClick)="reserveTime(slot)"
-          >
-       
-          </p-button>
-        </ng-container>
+              <div class="flex justify-between mt-6">
+                <p-button
+                  label="Volver"
+                  icon="pi pi-arrow-left"
+                  (click)="activateCallback(2)"
+                ></p-button>
+                <p-button
+                  label="Siguiente"
+                  icon="pi pi-arrow-right"
+                  [disabled]="!reservationForm.value.time"
+                  (click)="activateCallback(4)"
+                ></p-button>
+              </div>
+            </ng-template>
+          </p-step-panel>
 
-        <div class="col-span-1 justify-center ">
-          <p-button 
-            label="Enviar Solicitud" 
-            styleClass="p-button-lg p-button-outlined w-full
-             text-center py-4 border border-gray-400 bg-white
-              hover:bg-gray-50 text-gray-800 rounded-lg shadow-md
-              justify-center "
-            (onClick)="showAlert()"
-          >
-          </p-button>
-        </div>
-      </div>
+          <!-- Paso 4: Datos personales -->
+          <p-step-panel [value]="4">
+            <ng-template #content let-activateCallback="activateCallback">
+              <div class="space-y-8">
+                <p-floatlabel class="w-full">
+                  <input
+                    type="text"
+                    pInputText
+                    formControlName="name"
+                    class="w-full rounded-lg"
+                  />
+                  <label>Nombre</label>
+                </p-floatlabel>
+
+                <p-floatlabel class="w-full">
+                  <input
+                    type="email"
+                    pInputText
+                    formControlName="email"
+                    class="w-full rounded-lg"
+                  />
+                  <label>Correo electrónico</label>
+                </p-floatlabel>
+
+                <p-floatlabel class="w-full">
+                  <input
+                    type="text"
+                    pInputText
+                    formControlName="phone"
+                    class="w-full rounded-lg"
+                  />
+                  <label>Teléfono</label>
+                </p-floatlabel>
+
+                <p-floatlabel class="w-full">
+                  <textarea
+                    pTextarea
+                    rows="4"
+                    formControlName="message"
+                    class="w-full rounded-lg resize-none"
+                  ></textarea>
+                  <label>Comentarios adicionales</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="flex justify-between mt-6">
+                <p-button
+                  label="Volver"
+                  icon="pi pi-arrow-left"
+                  (click)="activateCallback(3)"
+                ></p-button>
+                <p-button
+                  label="Reservar"
+                  icon="pi pi-check"
+                  class="p-button-success"
+                  type="submit"
+                ></p-button>
+              </div>
+            </ng-template>
+          </p-step-panel>
+        </p-step-panels>
+      </p-stepper>
+    </form>
+  </div>
+
+  <!-- Columna derecha: Resumen -->
+  <div class="bg-white p-6 rounded-2xl shadow-lg sticky top-6 h-fit space-y-4">
+    <h2 class="text-2xl font-bold text-gray-800">Resumen de Reserva</h2>
+
+    <div
+      *ngIf="selectedTable"
+      class="flex justify-between py-2 border-b border-gray-200"
+    >
+      <span
+        >Mesa: {{ selectedTable.name }} ({{
+          selectedTable.capacity
+        }}
+        personas)</span
+      >
+    </div>
+    <div
+      *ngIf="reservationForm.value.date"
+      class="flex justify-between py-2 border-b border-gray-200"
+    >
+      <span>Fecha:</span>
+      <span>{{ reservationForm.value.date | date : "mediumDate" }}</span>
+    </div>
+    <div
+      *ngIf="reservationForm.value.time"
+      class="flex justify-between py-2 border-b border-gray-200"
+    >
+      <span>Hora:</span>
+      <span>{{ reservationForm.value.time }}</span>
+    </div>
+    <div
+      *ngIf="reservationForm.value.guests"
+      class="flex justify-between py-2 border-b border-gray-200"
+    >
+      <span>Personas:</span>
+      <span>{{ reservationForm.value.guests }}</span>
     </div>
   </div>
 </div>

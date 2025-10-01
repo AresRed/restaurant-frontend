@@ -2,34 +2,25 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
+import { Observable } from 'rxjs';
 import { CategoryResponse } from '../../../../core/models/category.model';
 import { ProductResponse } from '../../../../core/models/product.model';
 import { CartService } from '../../../../core/services/cart.service';
 import { CategoryService } from '../../../../core/services/category.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ProductService } from '../../../../core/services/product.service';
-import { DialogModule } from 'primeng/dialog';
-import { FormsModule } from '@angular/forms';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { ReactiveFormsModule } from '@angular/forms';
-import { SelectButtonModule } from 'primeng/selectbutton';
+import { UiService } from '../../../../core/services/ui.service';
 import { UbicationComponent } from '../ubication/ubication.component';
 import { UbicationService } from '../../../../core/services/ubication.service';
-
+import { PaginatorModule } from 'primeng/paginator';  
 @Component({
   selector: 'app-menu',
   standalone: true,
   imports: [
     CommonModule, 
     ButtonModule,
-    FormsModule,
-    DialogModule,
-    IconFieldModule,
     InputTextModule,
-    InputIconModule,
-    SelectButtonModule,
-    ReactiveFormsModule,
+    PaginatorModule,
     UbicationComponent
   ],
   templateUrl: './menu.component.html',
@@ -38,16 +29,25 @@ import { UbicationService } from '../../../../core/services/ubication.service';
 export class MenuComponent implements OnInit {
 
   categories: CategoryResponse[] = [];
-  products: ProductResponse[] = [];
-  allProducts: ProductResponse[] = [];
+
+  products: ProductResponse[] = []; // productos paginados que se muestran
+  filteredProducts: ProductResponse[] = []; // productos filtrados por categoría
+  originalProducts: ProductResponse[] = []; // todos los productos del backend
+
   selectedCategoryId: number | null = null;
+  total$!: Observable<number>;
+  count$!: Observable<number>;
+
+  first: number = 0;
+  rows: number = 12;
 
   constructor(
     private ubicationService: UbicationService,
     private productService: ProductService,
     private categoryService: CategoryService,
     private cartService: CartService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private uiService: UiService
   ) {}
 
   viewUbication(){
@@ -57,6 +57,8 @@ export class MenuComponent implements OnInit {
   ngOnInit(): void {
     this.loadCategories();
     this.loadProducts();
+    this.total$ = this.cartService.total$;
+    this.count$ = this.cartService.count$;
   }
 
   
@@ -87,9 +89,8 @@ export class MenuComponent implements OnInit {
     this.productService.getAllProducts().subscribe({
       next: (res) => {
         if (res.success) {
-          this.allProducts = res.data;
-          this.products = [...this.allProducts];
-          this.selectedCategoryId = 0;
+          this.originalProducts = res.data;
+          this.filterByCategory(0);
         }
       },
       error: (err) => console.error('Error cargando productos', err),
@@ -98,13 +99,34 @@ export class MenuComponent implements OnInit {
 
   filterByCategory(categoryId: number) {
     this.selectedCategoryId = categoryId;
+
     if (categoryId === 0) {
-      this.products = [...this.allProducts];
+      this.filteredProducts = [...this.originalProducts];
     } else {
-      this.products = this.allProducts.filter(
+      this.filteredProducts = this.originalProducts.filter(
         (p) => p.categoryId === categoryId
       );
     }
+
+    this.first = 0;
+    this.updatePage();
+  }
+
+  updatePage() {
+    this.products = this.filteredProducts.slice(
+      this.first,
+      this.first + this.rows
+    );
+  }
+
+  onPageChange(event: any) {
+    this.first = event.first;
+    this.rows = event.rows;
+    this.updatePage();
+  }
+
+  openCart() {
+    this.uiService.openCart();
   }
 
   addToCart(product: ProductResponse) {

@@ -1,53 +1,50 @@
-<header class="bg-neutral-900 shadow-md sticky z-">
-  <div class="max-w-7xl mx-auto ">
-    <div class="flex justify-between  items-center h-16">
+<header class="bg-neutral-900 shadow-md sticky z-11">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex justify-between items-center h-16">
       <div class="flex items-center space-x-3 w-80">
         <img
           src="logoF.png"
           alt="Logo"
           class="h-11 w-11 rounded-full shadow-md"
         />
-      
       </div>
 
-      <nav class="hidden md:flex space-x-8 text-gray-300 font-medium ">
+      <nav class="hidden md:flex space-x-8 text-gray-300 font-medium">
         <a
           routerLink="/home"
           routerLinkActive="text-rojo-principal "
-          class="hover:text-rojo-principal transition duration-300 font-[tipo6] text-xl "
-          >INICIO</a
+          class="hover:text-rojo-principal transition duration-300 font-[tipo6] text-xl uppercase"
+          >Inicio</a
         >
         <a
           routerLink="/menu"
           routerLinkActive="text-rojo-principal "
-          class="hover:text-rojo-principal transition duration-300 font-[tipo6] text-xl"
-          >MENÚ</a
+          class="hover:text-rojo-principal transition duration-300 font-[tipo6] text-xl uppercase"
+          >Menú</a
         >
         <a
           routerLink="/reservations"
           routerLinkActive="text-rojo-principal "
-          class="hover:text-rojo-principal transition duration-300 font-[tipo6] text-xl"
-          >RESERVAS</a
+          class="hover:text-rojo-principal transition duration-300 font-[tipo6] text-xl uppercase"
+          >Reservas</a
         >
         <a
           routerLink="/contact"
           routerLinkActive="text-rojo-principal "
-          class="hover:text-rojo-principal transition duration-300 font-[tipo6] text-xl"
-          >CONTACTO</a
+          class="hover:text-rojo-principal transition duration-300 font-[tipo6] text-xl uppercase"
+          >Contacto</a
         >
       </nav>
 
-      <div class="hidden md:flex items-center space-x-2 font-[tipo6] text-xl font-medium7
-        
-      ">
+      <div
+        class="hidden md:flex items-center space-x-2 font-[tipo6] text-xl font-medium"
+      >
         <ng-container
           *ngIf="currentUser$ | async as currentUser; else guestButtons"
         >
-          <div class="flex items-center space-x-2 text-white">
-            <span
-              class=" font-medium transition"
-            >
-              {{ currentUser.email||currentUser.username   }}
+          <div class="flex items-center space-x-2">
+            <span class="font-medium transition text-white">
+              {{ currentUser.username || currentUser.email }}
             </span>
 
             <p-avatar
@@ -68,15 +65,14 @@
           />
         </ng-container>
 
-        
         <ng-template #guestButtons>
           <p-button
-          icon="pi pi-shopping-cart"
-          variant="text"
-          [rounded]="true"
-          severity="danger"
-          (onClick)="openCart()"
-        />
+            icon="pi pi-shopping-cart"
+            variant="text"
+            [rounded]="true"
+            severity="danger"
+            (onClick)="openCart()"
+          />
           <p-button
           label="INICIAR SESIÓN"
           (onClick)="openLogin()"
@@ -93,12 +89,10 @@
 
       />
         </ng-template>
-      
       </div>
 
       <div class="flex items-center space-x-2 md:hidden">
-        
-          <p-button
+        <p-button
           icon="pi pi-shopping-cart"
           variant="text"
           [rounded]="true"
@@ -171,6 +165,12 @@
             (click)="goToOrders()"
           >
             Mis compras
+          </button>
+          <button
+            class="w-full text-left px-3 py-2 text-gray-300 hover:bg-gray-600 rounded"
+            (click)="goToReservations()"
+          >
+            Mis reservas
           </button>
           <button
             class="w-full text-left px-3 py-2 text-gray-300 hover:bg-gray-600 rounded"

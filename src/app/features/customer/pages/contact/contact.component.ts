@@ -46,6 +46,7 @@ export class ContactComponent implements AfterViewInit {
     this.contactForm = this.fb.group({
       subject: [null, Validators.required],
       message: [null, Validators.required],
+      phone: [null],
       name: [null],
       email: [null],
     });
@@ -82,6 +83,7 @@ export class ContactComponent implements AfterViewInit {
     const request: SendEmailRequest = {
       subject: formValue.subject,
       message: formValue.message,
+      phone: formValue.phone,
       ...(this.isAuthenticated
         ? {}
         : { name: formValue.name, email: formValue.email }),
@@ -94,6 +96,7 @@ export class ContactComponent implements AfterViewInit {
           {
             subject: null,
             message: null,
+            phone: null,
             name: null,
             email: null,
           },

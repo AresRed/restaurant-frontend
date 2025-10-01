@@ -1,85 +1,93 @@
 <div
-  class="relative min-h-screen bg-gradient-to-br from-stone-900 to-zinc-800 flex items-center justify-center p-6 overflow-hidden"
+  class="bg_principal_contact relative min-h-screen flex items-center justify-center p-6 md:p-10 font-[tipo6]"
+  style="background-image: url('fondo5.jpg')"
 >
-  <img
-    src="ingredientes_en_mesa.jpg"
-    class="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm"
-  />
+  <!-- Capa oscura -->
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
 
   <div
-    class="relative z-10 w-full max-w-7xl grid grid-cols-1 md:grid-cols-2 gap-10"
+    class="relative z-10 w-full max-w-7xl grid grid-cols-1 md:grid-cols-6 gap-6 md:gap-10"
   >
+    <!-- Información de contacto -->
     <div
-      class="flex flex-col justify-center gap-8 p-8 bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500"
+      class="flex flex-col justify-center gap-6 p-6 md:p-8 md:col-span-2 bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500"
     >
       <h2
-        class="text-3xl font-extrabold text-white mb-4 text-center md:text-left"
+        class="text-2xl md:text-3xl font-extrabold text-white mb-4 text-center md:text-left"
       >
         Información de Contacto
       </h2>
 
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3 md:gap-4">
         <div
           class="bg-blue-500 rounded-full px-4 py-2 flex items-center justify-center shadow-lg"
         >
-          <i class="pi pi-map-marker text-white text-2xl"></i>
+          <i class="pi pi-map-marker text-white text-xl md:text-2xl"></i>
         </div>
         <div>
-          <h3 class="font-semibold text-white">Dirección</h3>
-          <p class="text-gray-200">Av San Martin 1149, Ica, Peru</p>
+          <h3 class="font-semibold text-white text-sm md:text-base">
+            Dirección
+          </h3>
+          <p class="text-gray-200 text-sm md:text-base">
+            Av San Martin 1149, Ica, Peru
+          </p>
         </div>
       </div>
 
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3 md:gap-4">
         <div
           class="bg-green-500 rounded-full px-4 py-2 flex items-center justify-center shadow-lg"
         >
-          <i class="pi pi-phone text-white text-2xl"></i>
+          <i class="pi pi-phone text-white text-xl md:text-2xl"></i>
         </div>
         <div>
-          <h3 class="font-semibold text-white">Teléfono</h3>
-          <p class="text-gray-200">+51 930 532 846</p>
+          <h3 class="font-semibold text-white text-sm md:text-base">
+            Teléfono
+          </h3>
+          <p class="text-gray-200 text-sm md:text-base">+51 930 532 846</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3 md:gap-4">
         <div
           class="bg-red-500 rounded-full px-4 py-2 flex items-center justify-center shadow-lg"
         >
-          <i class="pi pi-envelope text-white text-2xl"></i>
+          <i class="pi pi-envelope text-white text-xl md:text-2xl"></i>
         </div>
         <div>
-          <h3 class="font-semibold text-white">Email</h3>
-          <p class="text-gray-200">contacto&#64;gmail.com</p>
+          <h3 class="font-semibold text-white text-sm md:text-base">Email</h3>
+          <p class="text-gray-200 text-sm md:text-base">
+            sanIsidro&#64;gmail.com
+          </p>
         </div>
       </div>
 
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3 md:gap-4">
         <div
           class="bg-yellow-500 rounded-full px-4 py-2 flex items-center justify-center shadow-lg"
         >
-          <i class="pi pi-globe text-white text-2xl"></i>
+          <i class="pi pi-globe text-white text-xl md:text-2xl"></i>
         </div>
         <div>
-          <h3 class="font-semibold text-white">Web</h3>
+          <h3 class="font-semibold text-white text-sm md:text-base">Web</h3>
           <a
             href="https://www.restaurantesanisidro.com"
             target="_blank"
-            class="text-yellow-200 hover:text-yellow-400 underline"
+            class="text-yellow-200 hover:text-yellow-400 underline text-sm md:text-base"
             >www.restaurantesanisidro.com</a
           >
         </div>
       </div>
 
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3 md:gap-4">
         <div
           class="bg-purple-500 rounded-full px-4 py-2 flex items-center justify-center shadow-lg"
         >
-          <i class="pi pi-users text-white text-2xl"></i>
+          <i class="pi pi-users text-white text-xl md:text-2xl"></i>
         </div>
         <div>
-          <h3 class="font-semibold text-white">Redes</h3>
-          <div class="flex gap-4 mt-1">
+          <h3 class="font-semibold text-white text-sm md:text-base">Redes</h3>
+          <div class="flex gap-3 mt-1">
             <a
               pButton
               icon="pi pi-facebook"
@@ -102,57 +110,143 @@
       </div>
     </div>
 
-    <!-- Formulario de contacto -->
-    <div
-      class="p-10 bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500"
-    >
-      <h2
-        class="text-3xl font-extrabold text-white mb-6 text-center md:text-left"
+    <!-- Contenido principal -->
+    <div class="relative z-10 w-full h-full px-4 md:px-6 md:col-span-4">
+      <div
+        class="bg-white/10 backdrop-blur-sm rounded-xl shadow-2xl overflow-hidden p-6 md:p-10"
       >
-        Envíanos un Mensaje
-      </h2>
-
-      <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="space-y-8">
-        <div *ngIf="!isAuthenticated" class="space-y-8">
-          <p-floatlabel class="w-full">
-            <input pInputText formControlName="name" class="w-full" />
-            <label>Nombre</label>
-          </p-floatlabel>
-
-          <p-floatlabel class="w-full">
-            <input
-              pInputText
-              type="email"
-              formControlName="email"
-              class="w-full"
-            />
-            <label>Email</label>
-          </p-floatlabel>
+        <div class="text-center mb-8 md:mb-12">
+          <h1 class="text-3xl md:text-4xl font-extrabold text-white">
+            Contáctanos
+          </h1>
+          <p class="text-gray-200 text-sm md:text-lg">
+            Completa el formulario y nos pondremos en contacto contigo lo antes
+            posible.
+          </p>
         </div>
 
-        <p-floatlabel class="w-full">
-          <input pInputText formControlName="subject" class="w-full" />
-          <label>Asunto</label>
-        </p-floatlabel>
+        <form [formGroup]="contactForm" class="space-y-4 md:space-y-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+            <div class="flex flex-col gap-8 mb-2">
+              <!-- Nombre y Email solo si no está logueado -->
+              <ng-container *ngIf="!isAuthenticated">
+                <p-floatlabel class="w-full">
+                  <input
+                    id="name"
+                    type="text"
+                    pInputText
+                    formControlName="name"
+                    class="w-full py-3 px-4 rounded-lg !bg-gray-100/90 border-gray-400 focus:border-blue-600 text-base"
+                  />
+                  <label for="name" class="!text-black !font-semibold"
+                    >Nombre</label
+                  >
+                </p-floatlabel>
 
-        <p-floatlabel class="w-full">
-          <textarea
-            pTextarea
-            formControlName="message"
-            rows="5"
-            class="w-full"
-          ></textarea>
-          <label>Mensaje</label>
-        </p-floatlabel>
+                <p-floatlabel class="w-full">
+                  <input
+                    id="email"
+                    type="email"
+                    pInputText
+                    formControlName="email"
+                    class="w-full py-3 px-4 rounded-lg !bg-gray-100/90 border-gray-400 focus:border-blue-600 text-base"
+                  />
+                  <label for="email" class="!text-black !font-semibold"
+                    >Correo electrónico</label
+                  >
+                </p-floatlabel>
+              </ng-container>
 
-        <button
-          pButton
-          type="submit"
-          [disabled]="!canSubmit"
-          label="Enviar Mensaje"
-          class="w-full"
-        ></button>
-      </form>
+              <!-- Subject siempre visible -->
+              <p-floatlabel class="w-full">
+                <input
+                  id="subject"
+                  type="text"
+                  pInputText
+                  formControlName="subject"
+                  class="w-full py-3 px-4 rounded-lg !bg-gray-100/90 border-gray-400 focus:border-blue-600 text-base"
+                />
+                <label for="subject" class="!text-black !font-semibold"
+                  >Asunto</label
+                >
+              </p-floatlabel>
+
+              <!-- Teléfono -->
+              <p-floatlabel class="w-full">
+                <input
+                  id="phone"
+                  type="text"
+                  pInputText
+                  formControlName="phone"
+                  class="w-full py-3 px-4 rounded-lg !bg-gray-100/90 border-gray-400 focus:border-blue-600 text-base"
+                />
+                <label for="phone" class="!text-black !font-semibold"
+                  >Teléfono</label
+                >
+              </p-floatlabel>
+            </div>
+
+            <div>
+              <!-- Mensaje -->
+              <p-floatlabel class="w-full h-full">
+                <textarea
+                  id="message"
+                  pTextarea
+                  formControlName="message"
+                  class="w-full h-full py-3 px-4 rounded-lg resize-none !bg-gray-100/90 border-gray-400 focus:border-blue-600 text-base"
+                ></textarea>
+                <label for="message" class="!text-black !font-semibold"
+                  >Mensaje</label
+                >
+              </p-floatlabel>
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <p-button
+              severity="contrast"
+              label="Enviar Solicitud"
+              styleClass="p-button-lg w-full text-center py-4 !text-2xl md:!text-3xl"
+              (click)="onSubmit()"
+            ></p-button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Botones extra -->
+    <div
+      class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 col-span-1 md:col-span-6 bg-rojo-fondo-claro/50 backdrop-blur-sm rounded-xl shadow-xl p-4 md:p-6 text-center"
+    >
+      <p-button
+        icon="pi pi-phone"
+        disabled="true"
+        [raised]="true"
+        severity="contrast"
+        label="987-654-321"
+        styleClass="p-button-text w-full !text-lg md:!text-2xl"
+      />
+      <p-button
+        icon="pi pi-envelope"
+        [raised]="true"
+        severity="contrast"
+        label="sanIsidro@gmail.com"
+        styleClass="p-button-text w-full !text-lg md:!text-2xl"
+      />
+      <p-button
+        icon="pi pi-map-marker"
+        [raised]="true"
+        severity="contrast"
+        label="Ica, Perú"
+        styleClass="p-button-text w-full !text-lg md:!text-2xl"
+      />
+      <p-button
+        icon="pi pi-globe"
+        [raised]="true"
+        severity="contrast"
+        label="www.sanIsidro.com"
+        styleClass="p-button-text w-full !text-lg md:!text-2xl"
+      />
     </div>
   </div>
 </div>

@@ -210,4 +210,8 @@ export class AuthService {
   get currentUserValue(): UserResponse | null {
     return this.currentUserSubject.value;
   }
+
+  setAccessToken(token: string) {
+    localStorage.setItem('accessToken', token);
+  }
 }

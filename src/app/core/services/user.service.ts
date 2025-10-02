@@ -6,6 +6,7 @@ import { ApiResponse } from '../models/base/api-response.model';
 import {
   PasswordChangeRequest,
   UpdateProfileRequest,
+  UpdateProfileResponse,
   UserResponse,
   UserSessionResponse,
 } from '../models/user.model';
@@ -30,8 +31,8 @@ export class UserService {
 
   updateProfileAuth(
     updateProfileRequest: UpdateProfileRequest
-  ): Observable<ApiResponse<UserResponse>> {
-    return this.http.put<ApiResponse<UserResponse>>(
+  ): Observable<ApiResponse<UpdateProfileResponse>> {
+    return this.http.put<ApiResponse<UpdateProfileResponse>>(
       `${environment.apiUrl}/api/v1/users/update-profile`,
       updateProfileRequest
     );

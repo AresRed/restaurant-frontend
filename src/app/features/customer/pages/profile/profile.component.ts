@@ -57,20 +57,28 @@ export class ProfileComponent implements OnInit {
     if (!this.editableUser) return;
 
     this.userService.updateProfileAuth(this.editableUser).subscribe({
-      next: (updatedUser) => {
-        this.user = updatedUser.data;
-        this.editableUser = { ...updatedUser.data };
-        this.authService.setCurrentUser(updatedUser.data);
-        this.notificationService.success('Perfil actualizado correctamente');
-        this.isEditing = false;
+      next: (response) => {
+        const updatedUser = response.data.user;
+        const newToken = response.data.token;
+
+        this.user = updatedUser;
+        this.editableUser = { ...updatedUser };
         this.avatarPreview = null;
+        this.isEditing = false;
+
+        this.authService.setCurrentUser(updatedUser);
+
+        if (newToken) {
+          this.authService.setAccessToken(newToken);
+        }
+
+        this.notificationService.success('Perfil actualizado correctamente');
       },
       error: () => {
         this.notificationService.error('Error al actualizar perfil');
       },
     });
   }
-
   // Drag & Drop handlers
   onDragOver(event: DragEvent) {
     event.preventDefault();
@@ -124,5 +132,21 @@ export class ProfileComponent implements OnInit {
         this.notificationService.error('Error al subir la imagen de perfil');
       },
     });
+  }
+
+  get usernameDaysLeft(): number | null {
+    if (!this.editableUser?.usernameNextChange) return null;
+    const now = new Date().getTime();
+    const next = new Date(this.editableUser.usernameNextChange).getTime();
+    const diff = next - now;
+    return diff > 0 ? Math.ceil(diff / (1000 * 60 * 60 * 24)) : 0;
+  }
+
+  get emailDaysLeft(): number | null {
+    if (!this.editableUser?.emailNextChange) return null;
+    const now = new Date().getTime();
+    const next = new Date(this.editableUser.emailNextChange).getTime();
+    const diff = next - now;
+    return diff > 0 ? Math.ceil(diff / (1000 * 60 * 60 * 24)) : 0;
   }
 }

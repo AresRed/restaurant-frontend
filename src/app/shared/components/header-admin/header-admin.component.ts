@@ -5,17 +5,20 @@ import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
+import { UserResponse } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-header-admin',
+  standalone: true,
   imports: [AvatarModule, AvatarGroupModule, ButtonModule, MenuModule],
   templateUrl: './header-admin.component.html',
-  styleUrl: './header-admin.component.scss',
+  styleUrls: ['./header-admin.component.scss'],
 })
 export class HeaderAdminComponent {
   items: MenuItem[] = [];
+  currentUser: UserResponse | null = null;
 
   constructor(
     private router: Router,
@@ -24,6 +27,11 @@ export class HeaderAdminComponent {
   ) {}
 
   ngOnInit() {
+    // Suscribirse a los cambios del usuario
+    this.authService.currentUser$.subscribe((user) => {
+      this.currentUser = user;
+    });
+
     this.items = [
       {
         label: 'Perfil',
@@ -35,9 +43,7 @@ export class HeaderAdminComponent {
         icon: 'pi pi-cog',
         command: () => this.goToSettings(),
       },
-      {
-        separator: true,
-      },
+      { separator: true },
       {
         label: 'Cerrar sesión',
         icon: 'pi pi-sign-out',
@@ -51,7 +57,7 @@ export class HeaderAdminComponent {
   }
 
   goToSettings() {
-    this.router.navigate(['admin/settings']);
+    this.router.navigate(['admin/profile/security']);
   }
 
   logout() {

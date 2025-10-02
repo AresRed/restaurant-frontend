@@ -95,69 +95,50 @@ export class AuthService {
       );
   }
 
-  loginWithGoogle(): Observable<any> {
+  loginWithGoogle(): Observable<UserResponse> {
     const width = 500;
     const height = 600;
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
     const popup = window.open(
-      'http://localhost:8080/oauth2/authorization/google',
+      `${environment.apiUrl}/oauth2/authorization/google`,
       'Google Login',
       `width=${width},height=${height},top=${top},left=${left}`
     );
 
-    return new Observable<any>((observer) => {
+    return new Observable<UserResponse>((observer) => {
       if (!popup) {
         observer.error(new Error('No se pudo abrir el popup de Google'));
         return;
       }
 
-      const cleanup = () => {
+      const cleanup = () =>
         window.removeEventListener('message', messageHandler);
-      };
 
       const messageHandler = (event: MessageEvent) => {
-        if (event.origin !== environment.apiUrl) return;
+        console.log('Mensaje recibido en frontend:', event);
 
         const data = event.data;
+        if (!data?.success) return;
 
-        if (data?.success === false) {
-          observer.error(new Error(data.message || 'Error en Google OAuth'));
-          popup.close();
-          cleanup();
-          return;
-        }
+        try {
+          console.log('Datos reales del backend:', data);
 
-        if (data?.accessToken && data?.sessionId) {
           localStorage.setItem('accessToken', data.accessToken);
-          localStorage.setItem('sessionId', data.sessionId);
+          localStorage.setItem('sessionId', data.refreshToken);
+          localStorage.setItem('currentUser', JSON.stringify(data.user));
+          this.currentUserSubject.next(data.user);
 
-          this.getCurrentUser().subscribe({
-            next: (userRes) => {
-              if (userRes.success && userRes.data) {
-                localStorage.setItem(
-                  'currentUser',
-                  JSON.stringify(userRes.data)
-                );
-                this.currentUserSubject.next(userRes.data);
-                observer.next(userRes.data);
-                observer.complete();
-              } else {
-                observer.error(
-                  new Error('No se pudo obtener la información del usuario')
-                );
-              }
-              popup.close();
-              cleanup();
-            },
-            error: (err) => {
-              observer.error(err);
-              popup.close();
-              cleanup();
-            },
-          });
+          observer.next(data.user);
+          observer.complete();
+        } catch (e) {
+          console.error('Error guardando usuario en localStorage:', e);
+          observer.error(e);
         }
+
+        popup.close();
+        cleanup();
       };
 
       window.addEventListener('message', messageHandler);
@@ -228,5 +209,9 @@ export class AuthService {
 
   get currentUserValue(): UserResponse | null {
     return this.currentUserSubject.value;
+  }
+
+  setAccessToken(token: string) {
+    localStorage.setItem('accessToken', token);
   }
 }

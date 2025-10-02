@@ -1,1 +1,52 @@
-<p>reports works!</p>
+<div class="p-6 space-y-10">
+  <h2 class="text-3xl font-bold mb-6">📊 Reportes del Restaurante</h2>
+
+  <!-- Resumen en cards -->
+  <div class="grid gap-6 md:grid-cols-3">
+    <div class="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
+      <i class="pi pi-dollar text-green-500 text-3xl mb-2"></i>
+      <h3 class="text-lg font-semibold">Ventas de Hoy</h3>
+      <p class="text-2xl font-bold text-gray-800">S/. 2,350</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
+      <i class="pi pi-shopping-cart text-blue-500 text-3xl mb-2"></i>
+      <h3 class="text-lg font-semibold">Órdenes Totales</h3>
+      <p class="text-2xl font-bold text-gray-800">128</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
+      <i class="pi pi-star text-yellow-500 text-3xl mb-2"></i>
+      <h3 class="text-lg font-semibold">Producto más vendido</h3>
+      <p class="text-xl font-medium text-gray-700">Pollo a la Brasa</p>
+    </div>
+  </div>
+
+  <!-- Gráficas -->
+  <div class="grid gap-8 md:grid-cols-2">
+    <div class="bg-white rounded-2xl shadow-md p-6">
+      <h3 class="font-semibold text-lg mb-4">📈 Ventas Semanales</h3>
+      <p-chart
+        type="line"
+        [data]="salesChartData"
+        [options]="salesChartOptions"
+      ></p-chart>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-md p-6">
+      <h3 class="font-semibold text-lg mb-4">🥘 Productos más Vendidos</h3>
+      <p-chart
+        type="bar"
+        [data]="productsChartData"
+        [options]="productsChartOptions"
+      ></p-chart>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-md p-6">
+    <h3 class="font-semibold text-lg mb-4">📊 Tipos de Órdenes</h3>
+    <p-chart
+      type="doughnut"
+      [data]="orderTypeChartData"
+      [options]="orderTypeChartOptions"
+    ></p-chart>
+  </div>
+</div>

@@ -1,65 +1,147 @@
-<div class="max-w-5xl mx-auto p-6 space-y-6">
-  <h2 class="text-3xl font-bold text-gray-800 mb-4">Mi Perfil</h2>
+<div class="max-w-4xl mx-auto p-6 space-y-8">
+  <h2 class="text-3xl font-bold text-gray-800">Mi Perfil</h2>
 
   <div
-    class="bg-white rounded-xl shadow-md p-6 grid grid-cols-1 md:grid-cols-2 gap-6"
+    class="bg-white rounded-xl shadow-md hover:shadow-lg p-6 grid grid-cols-1 md:grid-cols-3 gap-6 transition-shadow duration-300"
   >
-    <div class="space-y-2">
-      <label class="block text-gray-600 font-medium">Nombres</label>
-      <input
-        pInputText
-        type="text"
-        [(ngModel)]="editableUser!.firstName"
-        [disabled]="!isEditing"
-        class="w-full border-gray-300 rounded-md"
-      />
-    </div>
-    <div class="space-y-2">
-      <label class="block text-gray-600 font-medium">Apellidos</label>
-      <input
-        pInputText
-        type="text"
-        [(ngModel)]="editableUser!.lastName"
-        [disabled]="!isEditing"
-        class="w-full border-gray-300 rounded-md"
-      />
+    <!-- Avatar -->
+    <div class="flex flex-col items-center md:col-span-1">
+      <div
+        class="relative w-36 h-36 rounded-full overflow-hidden border-4 border-gray-300 flex justify-center items-center cursor-pointer"
+        [ngClass]="{
+          'border-blue-500': isEditing,
+          'border-dashed border-blue-400': isDragging && isEditing
+        }"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+        (click)="isEditing ? fileInput.click() : null"
+      >
+        <img
+          [src]="
+            avatarPreview ||
+            editableUser?.profileImageUrl ||
+            'default-avatar.jpg'
+          "
+          alt="Avatar"
+          class="w-full h-full object-cover rounded-full"
+        />
+
+        <div
+          *ngIf="isDragging && isEditing"
+          class="absolute inset-0 flex flex-col justify-center items-center bg-black bg-opacity-40 text-white text-center"
+        >
+          <i class="pi pi-upload text-3xl mb-2"></i>
+          <span>Suelta para subir</span>
+        </div>
+
+        <div
+          *ngIf="isEditing && !isDragging"
+          class="absolute inset-0 flex flex-col justify-center items-center bg-black bg-opacity-20 text-white text-center transition-opacity duration-200 hover:bg-opacity-40"
+        >
+          <i class="pi pi-camera text-4xl"></i>
+          <span class="mt-1 text-sm">Clic o arrastra para cambiar</span>
+        </div>
+
+        <input
+          type="file"
+          #fileInput
+          class="hidden"
+          accept="image/*"
+          (change)="onFileSelected($event)"
+        />
+      </div>
+
+      <h3 class="mt-4 text-xl font-semibold text-gray-700">
+        {{ editableUser?.fullName }}
+      </h3>
+      <p class="text-gray-500">{{ editableUser?.username }}</p>
     </div>
 
-    <div class="space-y-2">
-      <label class="block text-gray-600 font-medium">Email</label>
-      <input
-        pInputText
-        type="email"
-        [(ngModel)]="editableUser!.email"
-        [disabled]="!isEditing"
-        class="w-full border-gray-300 rounded-md"
-      />
-    </div>
+    <!-- Datos personales -->
+    <div class="md:col-span-2 space-y-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Nombres -->
+        <div>
+          <label class="block text-gray-600 font-medium mb-1">Nombres</label>
+          <input
+            pInputText
+            type="text"
+            [(ngModel)]="editableUser!.firstName"
+            [disabled]="!isEditing"
+            class="w-full border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 p-2"
+          />
+        </div>
 
-    <div class="space-y-2">
-      <label class="block text-gray-600 font-medium">Teléfono</label>
-      <input
-        pInputText
-        type="text"
-        [(ngModel)]="editableUser!.phone"
-        [disabled]="!isEditing"
-        class="w-full border-gray-300 rounded-md"
-      />
-    </div>
+        <!-- Apellidos -->
+        <div>
+          <label class="block text-gray-600 font-medium mb-1">Apellidos</label>
+          <input
+            pInputText
+            type="text"
+            [(ngModel)]="editableUser!.lastName"
+            [disabled]="!isEditing"
+            class="w-full border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 p-2"
+          />
+        </div>
 
-    <div class="space-y-2">
-      <label class="block text-gray-600 font-medium">Usuario</label>
-      <input
-        pInputText
-        type="text"
-        [(ngModel)]="editableUser!.username"
-        [disabled]="!isEditing"
-        class="w-full border-gray-300 rounded-md"
-      />
+        <!-- Email -->
+        <div class="md:col-span-2">
+          <label class="block text-gray-600 font-medium mb-1">Email</label>
+          <input
+            pInputText
+            type="email"
+            [(ngModel)]="editableUser!.email"
+            [disabled]="
+              !isEditing || (emailDaysLeft != null && emailDaysLeft > 0)
+            "
+            class="w-full border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 p-2"
+          />
+          <div
+            *ngIf="emailDaysLeft && emailDaysLeft > 0"
+            class="text-sm text-red-500 mt-1"
+          >
+            Solo puedes cambiar tu email nuevamente en {{ emailDaysLeft }} días.
+          </div>
+        </div>
+
+        <!-- Teléfono -->
+        <div class="md:col-span-2">
+          <label class="block text-gray-600 font-medium mb-1">Teléfono</label>
+          <input
+            pInputText
+            type="text"
+            [(ngModel)]="editableUser!.phone"
+            [disabled]="!isEditing"
+            class="w-full border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 p-2"
+          />
+        </div>
+
+        <!-- Username -->
+        <div class="md:col-span-2">
+          <label class="block text-gray-600 font-medium mb-1">Usuario</label>
+          <input
+            pInputText
+            type="text"
+            [(ngModel)]="editableUser!.username"
+            [disabled]="
+              !isEditing || (usernameDaysLeft != null && usernameDaysLeft > 0)
+            "
+            class="w-full border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 p-2"
+          />
+          <div
+            *ngIf="usernameDaysLeft && usernameDaysLeft > 0"
+            class="text-sm text-red-500 mt-1"
+          >
+            Solo puedes cambiar tu username nuevamente en
+            {{ usernameDaysLeft }} días.
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Botones de acción -->
+  <!-- Botones Editar/Guardar -->
   <div class="flex justify-end space-x-3 mt-4">
     <button
       pButton
@@ -67,7 +149,6 @@
       class="p-button-outlined"
       (click)="toggleEdit()"
     ></button>
-
     <button
       *ngIf="isEditing"
       pButton

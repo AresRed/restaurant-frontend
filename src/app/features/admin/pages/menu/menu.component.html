@@ -1,1 +1,130 @@
-<p>menu works!</p>
+<div class="p-6 space-y-8">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold">📖 Menú del Restaurante</h2>
+
+    <!-- Botón de cambio vista -->
+    <p-toggleButton
+      onLabel="Tabla"
+      offLabel="Cards"
+      [(ngModel)]="showTable"
+      onIcon="pi-table"
+      offIcon="pi pi-id-card"
+    ></p-toggleButton>
+  </div>
+
+  <!-- Tabs de categorías -->
+  <div class="card shadow-md rounded-2xl">
+    <p-tabs [(value)]="selectedCategory">
+      <p-tablist>
+        <p-tab *ngFor="let cat of categories" [value]="cat">
+          {{ cat }}
+        </p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <p-tabpanel *ngFor="let cat of categories" [value]="cat">
+          <!-- Vista en Cards -->
+          <div
+            *ngIf="!showTable; else tableView"
+            class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            <div
+              *ngFor="let item of getMenuByCategory(cat)"
+              class="bg-white shadow-md rounded-2xl overflow-hidden hover:shadow-xl hover:scale-105 transition transform duration-200 relative"
+            >
+              <!-- Etiqueta Popular -->
+              <span
+                *ngIf="item.popular"
+                class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md"
+              >
+                ⭐ Popular
+              </span>
+
+              <!-- Imagen -->
+              <img
+                [src]="item.image"
+                alt="{{ item.name }}"
+                class="w-full h-48 object-cover"
+              />
+
+              <!-- Contenido -->
+              <div class="p-5 flex flex-col gap-3">
+                <div class="flex justify-between items-center">
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    {{ item.name }}
+                  </h3>
+                  <span class="text-lg font-bold text-green-600">
+                    S/. {{ item.price }}
+                  </span>
+                </div>
+
+                <p class="text-gray-500 text-sm line-clamp-2">
+                  {{ item.description }}
+                </p>
+
+                <!-- Botones -->
+                <div class="flex justify-end gap-2 mt-3">
+                  <button
+                    pButton
+                    icon="pi pi-eye"
+                    label="Ver"
+                    class="p-button-sm p-button-info"
+                    (click)="viewDetails(item)"
+                  ></button>
+                  <button
+                    pButton
+                    icon="pi pi-pencil"
+                    label="Editar"
+                    class="p-button-sm p-button-warning"
+                    (click)="editItem(item)"
+                  ></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vista en Tabla -->
+          <ng-template #tableView>
+            <p-table
+              [value]="getMenuByCategory(cat)"
+              class="shadow-lg rounded-lg overflow-hidden mt-4"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Producto</th>
+                  <th>Descripción</th>
+                  <th class="text-right">Precio</th>
+                  <th class="text-center">Acciones</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-item>
+                <tr>
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.description }}</td>
+                  <td class="text-right">S/. {{ item.price }}</td>
+                  <td class="text-center space-x-4">
+                    <p-button
+                      icon="pi pi-eye"
+                      variant="text"
+                      severity="contrast"
+                      [rounded]="true"
+                      (click)="viewDetails(item)"
+                    />
+                    <p-button
+                      icon="pi pi-pencil"
+                      variant="text"
+                      severity="info"
+                      [rounded]="true"
+                      (click)="editItem(item)"
+                    />
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </ng-template>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+</div>

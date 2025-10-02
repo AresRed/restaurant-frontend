@@ -1,1 +1,155 @@
-<p>reservations works!</p>
+<div class="p-6 space-y-6">
+  <h2 class="text-3xl font-bold mb-6">📅 Reservaciones del Restaurante</h2>
+
+  <div class="grid lg:grid-cols-3 gap-6">
+    <!-- Calendario grande -->
+    <div class="lg:col-span-2 border rounded-lg p-4 shadow-lg bg-white">
+      <!-- Navegación Mes/Año -->
+      <div class="flex justify-between items-center mb-4">
+        <div class="flex gap-1">
+          <button class="p-2 bg-gray-200 rounded" (click)="changeYear(-1)">
+            « Año
+          </button>
+          <button class="p-2 bg-gray-200 rounded" (click)="changeMonth(-1)">
+            ‹ Mes
+          </button>
+        </div>
+        <span class="font-semibold">{{
+          currentMonth | date : "MMMM yyyy"
+        }}</span>
+        <div class="flex gap-1">
+          <button class="p-2 bg-gray-200 rounded" (click)="changeMonth(1)">
+            Mes ›
+          </button>
+          <button class="p-2 bg-gray-200 rounded" (click)="changeYear(1)">
+            Año »
+          </button>
+        </div>
+      </div>
+
+      <!-- Días de la semana -->
+      <div class="grid grid-cols-7 text-center font-semibold mb-2">
+        <div
+          *ngFor="let day of ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']"
+        >
+          {{ day }}
+        </div>
+      </div>
+
+      <!-- Días del mes -->
+      <div class="grid grid-cols-7 gap-2">
+        <div
+          *ngFor="let day of getDaysOfMonth()"
+          class="p-2 border rounded cursor-pointer relative hover:bg-gray-100"
+          [ngClass]="{
+            'bg-blue-100': selectedDate?.toDateString() === day?.toDateString(),
+            'bg-gray-50': !day
+          }"
+          (click)="selectDate(day)"
+        >
+          {{ day?.getDate() || "" }}
+          <span
+            *ngIf="hasReservation(day)"
+            class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"
+          ></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario nueva reserva -->
+    <div class="lg:col-span-1 border rounded-lg p-4 shadow-lg bg-white">
+      <h3 class="font-semibold mb-4">Nueva Reservación</h3>
+      <div class="space-y-4">
+        <label>Cliente</label>
+        <input type="text" pInputText [(ngModel)]="newReservation.customer" />
+
+        <label>Fecha y Hora</label>
+        <input
+          type="datetime-local"
+          class="p-inputtext w-full"
+          [(ngModel)]="newReservation.date"
+        />
+
+        <label>Invitados</label>
+        <input type="number" pInputText [(ngModel)]="newReservation.guests" />
+
+        <label>Estado</label>
+        <select [(ngModel)]="newReservation.status" class="p-inputtext w-full">
+          <option value="Pendiente">Pendiente</option>
+          <option value="Confirmada">Confirmada</option>
+          <option value="Cancelada">Cancelada</option>
+        </select>
+
+        <button
+          pButton
+          label="Guardar"
+          icon="pi pi-check"
+          class="p-button-success w-full"
+          (click)="addReservation(newReservation)"
+        ></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de todas las reservas -->
+  <div class="mt-6 border rounded-lg p-4 shadow-lg bg-white">
+    <div class="mb-4 flex items-center gap-2">
+      <label>Filtrar por fecha:</label>
+      <input type="date" class="p-inputtext" (change)="filterByDate($event)" />
+      <button
+        pButton
+        label="Limpiar"
+        class="p-button-outlined"
+        (click)="filterByDate({ target: { value: '' } })"
+      ></button>
+    </div>
+
+    <p-table
+      [value]="filteredReservations"
+      class="shadow-lg rounded-lg overflow-hidden"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>#</th>
+          <th>Cliente</th>
+          <th>Fecha y Hora</th>
+          <th>Invitados</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-res>
+        <tr>
+          <td>{{ res.id }}</td>
+          <td>{{ res.customer }}</td>
+          <td>{{ res.date | date : "short" }}</td>
+          <td>{{ res.guests }}</td>
+          <td>
+            <span
+              [ngClass]="{
+                'bg-green-100 text-green-800': res.status === 'Confirmada',
+                'bg-yellow-100 text-yellow-800': res.status === 'Pendiente',
+                'bg-red-100 text-red-800': res.status === 'Cancelada'
+              }"
+              class="px-2 py-1 rounded-full text-xs font-semibold"
+            >
+              {{ res.status }}
+            </span>
+          </td>
+          <td class="space-x-2">
+            <button
+              pButton
+              icon="pi pi-search"
+              class="p-button-sm p-button-info"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-pencil"
+              class="p-button-sm p-button-warning"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

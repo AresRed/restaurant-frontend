@@ -6,6 +6,7 @@ import { ApiResponse } from '../models/base/api-response.model';
 import {
   PasswordChangeRequest,
   UpdateProfileRequest,
+  UpdateProfileResponse,
   UserResponse,
   UserSessionResponse,
 } from '../models/user.model';
@@ -30,10 +31,20 @@ export class UserService {
 
   updateProfileAuth(
     updateProfileRequest: UpdateProfileRequest
-  ): Observable<ApiResponse<UserResponse>> {
-    return this.http.put<ApiResponse<UserResponse>>(
+  ): Observable<ApiResponse<UpdateProfileResponse>> {
+    return this.http.put<ApiResponse<UpdateProfileResponse>>(
       `${environment.apiUrl}/api/v1/users/update-profile`,
       updateProfileRequest
+    );
+  }
+
+  updateProfileImageAuth(file: File): Observable<ApiResponse<UserResponse>> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.put<ApiResponse<UserResponse>>(
+      `${environment.apiUrl}/api/v1/users/profile-image`,
+      formData
     );
   }
 

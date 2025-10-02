@@ -26,7 +26,7 @@ export class DashboardComponent {
       title: 'Ventas de hoy',
       value: '$1,250',
       icon: 'pi pi-dollar',
-      color: 'from-green-500 to-green-600',
+      color: 'from-red-500 to-red-600',
     },
     {
       title: 'Reservaciones',

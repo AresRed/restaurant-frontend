@@ -1,6 +1,16 @@
 <header
   class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-10 shadow-sm"
 >
+  <p-button
+    icon="pi pi-bars"
+    [rounded]="true"
+    variant="outlined"
+    [raised]="true"
+    severity="secondary"
+    class="xl:hidden"
+    (click)="toggleSidebar.emit()"
+  />
+
   <h2 class="text-lg font-semibold text-gray-700">Panel de Administración</h2>
 
   <div class="flex items-center space-x-4">

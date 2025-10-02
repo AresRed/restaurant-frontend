@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
@@ -29,6 +29,7 @@ export class HeaderAdminComponent {
 
   items: MenuItem[] = [];
   currentUser: UserResponse | null = null;
+  @Output() toggleSidebar = new EventEmitter<void>();
 
   notifications = [
     {

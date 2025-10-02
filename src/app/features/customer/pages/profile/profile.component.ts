@@ -1,8 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { take } from 'rxjs';
 import { UserResponse } from '../../../../core/models/user.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { NotificationService } from '../../../../core/services/notification.service';
@@ -10,6 +17,7 @@ import { UserService } from '../../../../core/services/user.service';
 
 @Component({
   selector: 'app-profile',
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -22,51 +30,90 @@ import { UserService } from '../../../../core/services/user.service';
 })
 export class ProfileComponent implements OnInit {
   user: UserResponse | null = null;
-  editableUser: UserResponse | null = null;
-  isEditing = false;
   avatarPreview: string | null = null;
+  isEditing = false;
   isDragging = false;
+
+  profileForm!: FormGroup;
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   constructor(
+    private fb: FormBuilder,
     private userService: UserService,
     private authService: AuthService,
     private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$.pipe(take(1)).subscribe((user) => {
       this.user = user;
-      if (user) {
-        this.editableUser = { ...user };
-        this.avatarPreview = null;
-      }
+      this.profileForm = this.fb.group({
+        firstName: [
+          { value: user?.firstName || '', disabled: true },
+          Validators.required,
+        ],
+        lastName: [
+          { value: user?.lastName || '', disabled: true },
+          Validators.required,
+        ],
+        email: [
+          { value: user?.email || '', disabled: true },
+          [Validators.required, Validators.email],
+        ],
+        phone: [
+          { value: user?.phone || '', disabled: true },
+          [
+            Validators.required,
+            Validators.pattern('^[0-9]*$'),
+            Validators.minLength(9),
+            Validators.maxLength(9),
+          ],
+        ],
+        username: [
+          { value: user?.username || '', disabled: true },
+          [Validators.required, Validators.minLength(3)],
+        ],
+      });
     });
   }
 
   toggleEdit() {
     this.isEditing = !this.isEditing;
-    if (!this.isEditing && this.user) {
-      this.editableUser = { ...this.user };
+    if (this.isEditing) {
+      this.profileForm.enable();
+    } else {
+      this.profileForm.disable();
+      if (this.user) this.profileForm.patchValue(this.user);
       this.avatarPreview = null;
     }
   }
 
   saveChanges() {
-    if (!this.editableUser) return;
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
+      this.notificationService.error(
+        'Por favor, corrige los errores del formulario.'
+      );
+      return;
+    }
 
-    this.userService.updateProfileAuth(this.editableUser).subscribe({
+    const updatedUser: UserResponse = {
+      ...this.user!,
+      ...this.profileForm.value,
+    };
+
+    this.userService.updateProfileAuth(updatedUser).subscribe({
       next: (response) => {
-        const updatedUser = response.data.user;
+        const updated = response.data.user;
         const newToken = response.data.token;
 
-        this.user = updatedUser;
-        this.editableUser = { ...updatedUser };
+        this.user = updated;
+        this.profileForm.patchValue(updated);
         this.avatarPreview = null;
         this.isEditing = false;
 
-        this.authService.setCurrentUser(updatedUser);
+        this.authService.setCurrentUser(updated);
 
         if (newToken) {
           this.authService.setAccessToken(newToken);
@@ -79,7 +126,7 @@ export class ProfileComponent implements OnInit {
       },
     });
   }
-  // Drag & Drop handlers
+
   onDragOver(event: DragEvent) {
     event.preventDefault();
     if (!this.isEditing) return;
@@ -108,20 +155,18 @@ export class ProfileComponent implements OnInit {
   }
 
   private uploadFile(file: File) {
-    if (!file || !this.editableUser) return;
+    if (!file || !this.user) return;
 
-    // Preview inmediato
     const reader = new FileReader();
     reader.onload = (e: any) => {
       this.avatarPreview = e.target.result;
     };
     reader.readAsDataURL(file);
 
-    // Subir al backend
     this.userService.updateProfileImageAuth(file).subscribe({
       next: (updated) => {
         this.user = updated.data;
-        this.editableUser = { ...updated.data };
+        this.profileForm.patchValue(updated.data);
         this.avatarPreview = null;
         this.authService.setCurrentUser(updated.data);
         this.notificationService.success(
@@ -135,17 +180,17 @@ export class ProfileComponent implements OnInit {
   }
 
   get usernameDaysLeft(): number | null {
-    if (!this.editableUser?.usernameNextChange) return null;
+    if (!this.user?.usernameNextChange) return null;
     const now = new Date().getTime();
-    const next = new Date(this.editableUser.usernameNextChange).getTime();
+    const next = new Date(this.user.usernameNextChange).getTime();
     const diff = next - now;
     return diff > 0 ? Math.ceil(diff / (1000 * 60 * 60 * 24)) : 0;
   }
 
   get emailDaysLeft(): number | null {
-    if (!this.editableUser?.emailNextChange) return null;
+    if (!this.user?.emailNextChange) return null;
     const now = new Date().getTime();
-    const next = new Date(this.editableUser.emailNextChange).getTime();
+    const next = new Date(this.user.emailNextChange).getTime();
     const diff = next - now;
     return diff > 0 ? Math.ceil(diff / (1000 * 60 * 60 * 24)) : 0;
   }

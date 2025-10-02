@@ -1,4 +1,20 @@
-:host ::ng-deep .p-menu.p-component {
-  margin-top: 4px;         /* un poquito más abajo del avatar */
-  margin-left: -40px;      /* desplaza a la izquierda/derecha según necesites */
+.pi-chevron-down {
+  transition: transform 0.35s ease;
+}
+
+aside {
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.35);
+
+  nav::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+  }
+}
+
+ul li a {
+  transition: all 0.3s ease;
 }

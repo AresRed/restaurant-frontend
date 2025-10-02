@@ -9,15 +9,18 @@
       [rounded]="true"
       [text]="true"
       severity="secondary"
-    />
+    ></p-button>
+
     <p-avatar
-      image="https://primefaces.org/cdn/primeng/images/demo/avatar/onyamalimba.png"
+      [image]="
+        currentUser?.profileImageUrl || 'default-avatar.jpg'
+      "
       class="mr-2"
       size="normal"
       shape="circle"
       (click)="menu.toggle($event)"
       styleClass="cursor-pointer"
-    />
+    ></p-avatar>
 
     <p-menu #menu [popup]="true" [model]="items" appendTo="body"></p-menu>
   </div>

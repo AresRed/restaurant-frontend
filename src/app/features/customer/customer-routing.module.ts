@@ -1,7 +1,15 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '../../core/guards/auth.guard';
 import { ProfileLayoutComponent } from './components/profile-layout/profile-layout.component';
+import { AddressesComponent } from './pages/addresses/addresses.component';
+import { FavoritesComponent } from './pages/favorites/favorites.component';
+import { MyReservationsComponent } from './pages/my-reservations/my-reservations.component';
+import { NotificationsComponent } from './pages/notifications/notifications.component';
+import { OrdersComponent } from './pages/orders/orders.component';
+import { PaymentComponent } from './pages/payment/payment.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { PromotionsComponent } from './pages/promotions/promotions.component';
+import { ReviewsComponent } from './pages/reviews/reviews.component';
 import { SecurityComponent } from './pages/security/security.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 
@@ -60,6 +68,8 @@ export const customerRoutes: Routes = [
     path: 'cart',
     loadComponent: () =>
       import('./pages/cart/cart.component').then((m) => m.CartComponent),
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_CLIENT'] },
   },
   {
     path: 'checkout',
@@ -68,6 +78,7 @@ export const customerRoutes: Routes = [
         (m) => m.CheckoutComponent
       ),
     canActivate: [AuthGuard],
+    data: { roles: ['ROLE_CLIENT'] },
   },
   {
     path: 'orders',
@@ -91,10 +102,17 @@ export const customerRoutes: Routes = [
     canActivate: [AuthGuard],
     data: { roles: ['ROLE_CLIENT'] },
     children: [
-      { path: '', redirectTo: 'perfil', pathMatch: 'full' },
-      { path: 'perfil', component: ProfileComponent },
+      { path: '', component: ProfileComponent, pathMatch: 'full' },
       { path: 'security', component: SecurityComponent },
-      { path: 'configuration', component: SettingsComponent },
+      { path: 'settings', component: SettingsComponent },
+      { path: 'addresses', component: AddressesComponent },
+      { path: 'orders', component: OrdersComponent },
+      { path: 'reservations', component: MyReservationsComponent },
+      { path: 'payment', component: PaymentComponent },
+      { path: 'favorites', component: FavoritesComponent },
+      { path: 'reviews', component: ReviewsComponent },
+      { path: 'promotions', component: PromotionsComponent },
+      { path: 'notifications', component: NotificationsComponent },
     ],
   },
   {

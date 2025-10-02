@@ -11,6 +11,7 @@ export interface UserResponse {
   phone: string;
   provider: AuthProvider;
   hasPassword: boolean;
+  profileImageUrl: string;
 }
 
 export interface PasswordChangeRequest {

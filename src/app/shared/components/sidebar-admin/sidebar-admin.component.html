@@ -1,75 +1,62 @@
-<aside class="w-64 h-full bg-gray-900 text-gray-200 flex flex-col">
-  <div class="h-16 flex items-center justify-center border-b border-gray-700">
-    <h1 class="text-xl font-bold text-white">Admin</h1>
+<aside class="w-64 h-full bg-zinc-900 text-gray-200 flex flex-col">
+  <!-- Header con logo y nombre de la empresa -->
+  <div
+    class="h-20 flex items-center justify-center gap-3 px-4 border-b border-gray-700"
+  >
+    <img [src]="companyLogo" alt="Logo" class="w-10 h-10 object-contain" />
+    <h1 class="text-xl font-bold text-white">{{ companyName }}</h1>
   </div>
 
+  <!-- Navigation -->
   <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-    <a
-      routerLink="/admin/dashboard"
-      routerLinkActive="bg-gray-800 text-white"
-      class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-800 transition"
-    >
-      <span class="ml-2">Dashboard</span>
-    </a>
+    <ng-container *ngFor="let item of sidebarItems; let i = index">
+      <!-- Item sin submenú -->
+      <a
+        *ngIf="!item.children"
+        routerLink="{{ item.route }}"
+        routerLinkActive="bg-gray-800 text-white font-semibold"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 hover:text-white transition-colors duration-200"
+      >
+        <i *ngIf="item.icon" class="{{ item.icon }}"></i>
+        <span>{{ item.label }}</span>
+      </a>
 
-    <a
-      routerLink="/admin/orders"
-      routerLinkActive="bg-gray-800 text-white"
-      class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-800 transition"
-    >
-      <span class="ml-2">Ordenes</span>
-    </a>
+      <!-- Item con submenú -->
+      <div *ngIf="item.children" class="flex flex-col">
+        <div
+          class="flex items-center justify-between gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-800 hover:text-white transition-all duration-300"
+          (click)="toggleSubmenu(item, submenuEl)"
+        >
+          <div class="flex items-center gap-3">
+            <i *ngIf="item.icon" class="{{ item.icon }}"></i>
+            <span>{{ item.label }}</span>
+          </div>
+          <i
+            class="pi pi-chevron-down transform transition-transform duration-300"
+            [ngClass]="{ 'rotate-180': item.isOpen }"
+          ></i>
+        </div>
 
-    <a
-      routerLink="/admin/inventory"
-      routerLinkActive="bg-gray-800 text-white"
-      class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-800 transition"
-    >
-      <span class="ml-2">Inventario</span>
-    </a>
-    <a
-      routerLink="/admin/staff"
-      routerLinkActive="bg-gray-800 text-white"
-      class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-800 transition"
-    >
-      <span class="ml-2">Personal</span>
-    </a>
-
-    <a
-      routerLink="/admin/reports"
-      routerLinkActive="bg-gray-800 text-white"
-      class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-800 transition"
-    >
-      <span class="ml-2">Reportes</span>
-    </a>
-
-    <a
-      routerLink="/admin/menu"
-      routerLinkActive="bg-gray-800 text-white"
-      class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-800 transition"
-    >
-      <span class="ml-2">Menú</span>
-    </a>
-    <a
-      routerLink="/admin/reservations"
-      routerLinkActive="bg-gray-800 text-white"
-      class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-800 transition"
-    >
-      <span class="ml-2">Reservaciones</span>
-    </a>
-    <a
-      routerLink="/admin/delivery"
-      routerLinkActive="bg-gray-800 text-white"
-      class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-800 transition"
-    >
-      <span class="ml-2">Delivery</span>
-    </a>
-    <a
-      routerLink="/admin/feedback-and-loyalty"
-      routerLinkActive="bg-gray-800 text-white"
-      class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-800 transition"
-    >
-      <span class="ml-2">Feedback & Lealtad</span>
-    </a>
+        <ul
+          #submenuEl
+          id="submenu-{{ i }}"
+          class="list-none p-0 m-0 overflow-hidden opacity-0"
+          [style.height]="'0px'"
+        >
+          <li *ngFor="let child of item.children">
+            <a
+              routerLink="{{ child.route }}"
+              routerLinkActive="bg-gray-800 text-white font-semibold"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="flex items-center gap-3 p-3 pl-10 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-300"
+            >
+              <i *ngIf="child.icon" class="{{ child.icon }}"></i>
+              <span>{{ child.label }}</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </ng-container>
   </nav>
 </aside>

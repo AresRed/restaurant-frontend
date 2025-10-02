@@ -37,6 +37,16 @@ export class UserService {
     );
   }
 
+  updateProfileImageAuth(file: File): Observable<ApiResponse<UserResponse>> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.put<ApiResponse<UserResponse>>(
+      `${environment.apiUrl}/api/v1/users/profile-image`,
+      formData
+    );
+  }
+
   updatePasswordAuth(
     passwordChangeRequest: PasswordChangeRequest
   ): Observable<ApiResponse<null>> {

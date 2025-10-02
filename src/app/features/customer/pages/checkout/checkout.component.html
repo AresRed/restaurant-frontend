@@ -8,86 +8,93 @@
     <p-stepper [value]="1" styleClass="w-full">
       <p-step-list>
         <p-step [value]="1" icon="pi pi-truck">Tipo de Entrega</p-step>
-        <p-step [value]="2" icon="pi pi-map-marker">Dirección de Envío</p-step>
+        <p-step [value]="2" icon="pi pi-map-marker"
+          >Dirección / Sucursal</p-step
+        >
         <p-step [value]="3" icon="pi pi-credit-card">Método de Pago</p-step>
       </p-step-list>
 
       <p-step-panels>
+        <!-- Paso 1: Selección de Tipo de Orden -->
         <p-step-panel [value]="1">
           <ng-template #content let-activateCallback="activateCallback">
-            <div class="flex flex-col space-y-4">
-              <label
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div
                 *ngFor="let type of orderTypes"
-                class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition"
+                class="checkout-option-card cursor-pointer transition-all p-4 rounded-xl border"
+                [ngClass]="{
+                  'selected border-blue-500 bg-blue-50 shadow-md':
+                    selectedOrderType?.id === type.id,
+                  'hover:border-gray-400': selectedOrderType?.id !== type.id
+                }"
+                (click)="selectedOrderType = type"
               >
-                <p-radiobutton
-                  name="orderType"
-                  [value]="type"
-                  [(ngModel)]="selectedOrderType"
-                ></p-radiobutton>
-
                 <i
                   class="{{ getOrderTypeIcon(type.code).icon }} {{
                     getOrderTypeIcon(type.code).color
-                  }} text-lg"
+                  }} text-4xl mb-2"
                 ></i>
-
-                <span class="text-gray-800">{{ type.name }}</span>
-              </label>
+                <div>
+                  <p class="font-semibold text-gray-800">{{ type.name }}</p>
+                  <p class="text-gray-500 text-sm">
+                    {{
+                      type.code === "DELIVERY" ? "Recíbelo en tu domicilio" : ""
+                    }}
+                    {{
+                      type.code === "TAKE_AWAY" ? "Recógelo en la tienda" : ""
+                    }}
+                    {{
+                      type.code === "DINE_IN"
+                        ? "Disfrútalo en el restaurante"
+                        : ""
+                    }}
+                  </p>
+                </div>
+              </div>
             </div>
+
             <div class="flex justify-end mt-6">
               <p-button
                 label="Siguiente"
                 size="small"
                 icon="pi pi-arrow-right"
+                [disabled]="!selectedOrderType"
                 (click)="activateCallback(2)"
               ></p-button>
             </div>
           </ng-template>
         </p-step-panel>
 
+        <!-- Paso 2: Selección de Dirección o Sucursal -->
         <p-step-panel [value]="2">
           <ng-template #content let-activateCallback="activateCallback">
             <div class="space-y-6">
-              <div *ngIf="isDelivery()" class="space-y-6">
-                <div *ngIf="addresses.length > 0" class="space-y-2">
-                  <div
-                    *ngFor="let addr of addresses"
-                    class="flex items-center justify-between border p-3 rounded-lg"
-                  >
-                    <label class="flex items-center gap-3 cursor-pointer">
-                      <p-radiobutton
-                        name="savedAddress"
-                        [value]="addr.id"
-                        [(ngModel)]="selectedAddressId"
-                      ></p-radiobutton>
-                      <div>
-                        <div class="font-medium">
-                          {{ addr.street }}, {{ addr.city }}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                          {{ addr.province }} - {{ addr.reference }}
-                        </div>
-                      </div>
-                    </label>
-
-                    <button
-                      pButton
-                      type="button"
-                      icon="pi pi-trash"
-                      class="p-button-rounded p-button-text p-button-danger"
-                      (click)="deleteAddress(addr.id)"
-                    ></button>
+              <!-- DELIVERY -->
+              <div *ngIf="isDelivery()" class="space-y-4">
+                <p class="font-semibold text-gray-700">
+                  Selecciona tu dirección:
+                </p>
+                <div
+                  *ngFor="let addr of addresses"
+                  class="address-card"
+                  [ngClass]="{ selected: selectedAddressId === addr.id }"
+                  (click)="selectedAddressId = addr.id"
+                >
+                  <div>
+                    <p class="font-medium">
+                      {{ addr.street }}, {{ addr.city }}
+                    </p>
+                    <p class="text-sm text-gray-500">
+                      {{ addr.province }} - {{ addr.reference }}
+                    </p>
                   </div>
-
-                  <div class="mt-4">
-                    <p-button
-                      label="Agregar nueva dirección"
-                      icon="pi pi-plus"
-                      (click)="addNewAddress()"
-                      *ngIf="!showAddressForm"
-                    ></p-button>
-                  </div>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-trash"
+                    class="p-button-rounded p-button-text p-button-danger"
+                    (click)="deleteAddress(addr.id)"
+                  ></button>
                 </div>
 
                 <app-address-form
@@ -98,20 +105,37 @@
                 </app-address-form>
               </div>
 
+              <!-- TAKE_AWAY -->
               <div *ngIf="isTakeAway()" class="space-y-4">
-                <p-autoComplete
-                  [(ngModel)]="storeSelected"
-                  [suggestions]="filteredStores"
-                  (completeMethod)="searchStores($event)"
-                  optionLabel="name"
-                  [dropdown]="true"
-                  placeholder="Buscar tienda..."
-                />
+                <p class="font-semibold text-gray-700">
+                  Selecciona la sucursal:
+                </p>
+                <div
+                  class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+                >
+                  <div
+                    *ngFor="let store of stores"
+                    class="store-card flex flex-col gap-2 p-4 cursor-pointer transition-all"
+                    [ngClass]="{ selected: storeSelected?.id === store.id }"
+                    (click)="storeSelected = store"
+                  >
+                    <i class="pi pi-shopping-bag text-green-500 text-3xl"></i>
+                    <p class="font-medium text-gray-800">{{ store.name }}</p>
+                    <p class="text-gray-500 text-sm">Avenida Siempre Viva</p>
+                  </div>
+                </div>
               </div>
 
-              <!-- DINE IN -->
-              <div *ngIf="isDineIn()" class="text-center text-gray-600">
-                No se requiere dirección para pedidos en restaurante.
+              <!-- DINE_IN -->
+              <div
+                *ngIf="isDineIn()"
+                class="text-center text-gray-600 flex flex-col items-center gap-3"
+              >
+                <i class="pi pi-store text-4xl text-blue-500"></i>
+                <p class="font-semibold">Pedido presencial</p>
+                <p>
+                  No se requiere dirección. Recoge tu pedido en el restaurante.
+                </p>
               </div>
             </div>
 
@@ -121,27 +145,40 @@
                 severity="secondary"
                 icon="pi pi-arrow-left"
                 (onClick)="activateCallback(1)"
-              />
+              ></p-button>
               <p-button
                 label="Siguiente"
                 icon="pi pi-arrow-right"
                 iconPos="right"
-                [disabled]="isDelivery() && !selectedAddressId"
+                [disabled]="
+                  (isDelivery() && !selectedAddressId) ||
+                  (isTakeAway() && !storeSelected)
+                "
                 (onClick)="activateCallback(3)"
-              />
+              >
+              </p-button>
             </div>
+
             <div
               *ngIf="isDelivery() && !selectedAddressId"
               class="text-red-500 mt-2 text-sm flex items-end justify-end"
             >
               Debes seleccionar una dirección para continuar con el pago.
             </div>
+            <div
+              *ngIf="isTakeAway() && !storeSelected"
+              class="text-red-500 mt-2 text-sm flex items-end justify-end"
+            >
+              Debes seleccionar una sucursal para continuar con el pago.
+            </div>
           </ng-template>
         </p-step-panel>
+
+        <!-- Paso 3: Pago (igual que tu implementación actual) -->
         <p-step-panel [value]="3">
           <ng-template #content let-activateCallback="activateCallback">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Opción tarjeta -->
+              <!-- Tarjeta -->
               <label
                 class="flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all duration-200"
                 [ngClass]="{
@@ -154,15 +191,14 @@
                   name="payment"
                   value="card"
                   [(ngModel)]="paymentMethod"
-                  inputId="card"
-                />
+                ></p-radiobutton>
                 <i class="pi pi-credit-card text-2xl text-blue-600"></i>
-                <span class="font-medium text-gray-800">
-                  Tarjeta de crédito/débito
-                </span>
+                <span class="font-medium text-gray-800"
+                  >Tarjeta de crédito/débito</span
+                >
               </label>
 
-              <!-- Opción efectivo -->
+              <!-- Efectivo -->
               <label
                 class="flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all duration-200"
                 [ngClass]="{
@@ -175,12 +211,11 @@
                   name="payment"
                   value="cash"
                   [(ngModel)]="paymentMethod"
-                  inputId="cash"
-                />
+                ></p-radiobutton>
                 <i class="pi pi-money-bill text-2xl text-green-600"></i>
-                <span class="font-medium text-gray-800">
-                  Pago en efectivo contra entrega
-                </span>
+                <span class="font-medium text-gray-800"
+                  >Pago en efectivo contra entrega</span
+                >
               </label>
             </div>
 
@@ -191,17 +226,17 @@
                 (token)="handleBrickToken($event)"
                 (ready)="onPaymentBrickReady()"
                 (brickError)="onPaymentBrickError($event)"
-              ></app-payment-brick>
+              >
+              </app-payment-brick>
             </div>
 
-            <!-- Botón volver -->
             <div class="flex pt-6 justify-start">
               <p-button
                 label="Volver"
                 severity="secondary"
                 icon="pi pi-arrow-left"
                 (onClick)="activateCallback(2)"
-              />
+              ></p-button>
             </div>
           </ng-template>
         </p-step-panel>
@@ -209,10 +244,9 @@
     </p-stepper>
   </div>
 
-  <!-- Columna derecha: Resumen -->
+  <!-- Columna derecha: Resumen del pedido -->
   <div class="bg-white p-6 rounded-2xl shadow-lg sticky top-6 h-fit space-y-4">
     <h2 class="text-2xl font-bold text-gray-800">Resumen del Pedido</h2>
-
     <div
       *ngFor="let item of items"
       class="flex justify-between py-2 border-b border-gray-200 text-gray-700"
@@ -220,7 +254,6 @@
       <div>{{ item.name }} x{{ item.quantity }}</div>
       <div>S/{{ item.price * item.quantity | number : "1.2-2" }}</div>
     </div>
-
     <div class="flex justify-between text-gray-600">
       <span>Subtotal</span>
       <span>S/{{ total / 1.18 | number : "1.2-2" }}</span>

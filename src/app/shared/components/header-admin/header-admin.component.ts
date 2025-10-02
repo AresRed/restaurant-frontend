@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { Component, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
-import { AvatarGroupModule } from 'primeng/avatargroup';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
+import { PopoverModule } from 'primeng/popover';
 import { UserResponse } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -12,13 +13,36 @@ import { NotificationService } from '../../../core/services/notification.service
 @Component({
   selector: 'app-header-admin',
   standalone: true,
-  imports: [AvatarModule, AvatarGroupModule, ButtonModule, MenuModule],
+  imports: [
+    CommonModule,
+    AvatarModule,
+    ButtonModule,
+    MenuModule,
+    PopoverModule,
+    DatePipe,
+  ],
   templateUrl: './header-admin.component.html',
   styleUrls: ['./header-admin.component.scss'],
 })
 export class HeaderAdminComponent {
+  @ViewChild('notificationPopover') notificationPopover: any;
+
   items: MenuItem[] = [];
   currentUser: UserResponse | null = null;
+
+  notifications = [
+    {
+      title: 'Pedido Nuevo',
+      message: 'Tienes un nuevo pedido pendiente',
+      date: new Date(),
+    },
+    {
+      title: 'Mensaje Cliente',
+      message: 'Juan Pérez te ha enviado un mensaje',
+      date: new Date(),
+    },
+    { title: 'Sistema', message: 'Actualización disponible', date: new Date() },
+  ];
 
   constructor(
     private router: Router,
@@ -27,7 +51,6 @@ export class HeaderAdminComponent {
   ) {}
 
   ngOnInit() {
-    // Suscribirse a los cambios del usuario
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
     });
@@ -52,10 +75,17 @@ export class HeaderAdminComponent {
     ];
   }
 
+  toggleNotifications(event: Event) {
+    this.notificationPopover.toggle(event);
+  }
+
+  viewAllNotifications() {
+    console.log('Ir a todas las notificaciones');
+  }
+
   goToProfile() {
     this.router.navigate(['admin/profile']);
   }
-
   goToSettings() {
     this.router.navigate(['admin/profile/security']);
   }

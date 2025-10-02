@@ -1,1 +1,155 @@
-<p>feedback-and-loyalty works!</p>
+<div class="min-h-screen bg-gray-100 p-6 flex flex-col lg:flex-row gap-6">
+  <!-- Columna principal: Reseñas Recientes -->
+  <div class="flex-1">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6">Reseñas Recientes</h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let review of paginatedReviews">
+        <div
+          class="review-card"
+        >
+          <div class="flex items-start gap-4 mb-4">
+            <!-- Avatar con color según rating -->
+            <div
+              [ngClass]="{
+                'bg-green-500': review.rating >= 4,
+                'bg-yellow-400': review.rating === 3,
+                'bg-red-500': review.rating < 3
+              }"
+              class="avatar"
+            >
+              {{ review.customer[0] }}
+            </div>
+
+            <div class="flex-1">
+              <div class="flex justify-between items-center">
+                <p class="font-semibold text-gray-900 text-lg">
+                  {{ review.customer }}
+                </p>
+                <span class="text-gray-400 text-sm">{{ review.date }}</span>
+              </div>
+              <div class="flex gap-1 mt-1">
+                <ng-container *ngFor="let star of [].constructor(review.rating)">
+                  <span class="star">★</span>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-gray-700 mb-4 text-sm leading-relaxed">
+            {{ review.comment }}
+          </p>
+
+          <div class="flex gap-2 flex-wrap">
+            <span
+              class="tag"
+              [ngClass]="{
+                'bg-green-100 text-green-800': review.rating >= 4,
+                'bg-yellow-100 text-yellow-800': review.rating === 3,
+                'bg-red-100 text-red-800': review.rating < 3
+              }"
+            >
+              {{
+                review.rating >= 4
+                  ? "Excelente"
+                  : review.rating === 3
+                  ? "Bueno"
+                  : "Regular"
+              }}
+            </span>
+            <span class="tag bg-blue-100 text-blue-800">Pedido reciente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paginación -->
+    <div class="mt-6 flex justify-center">
+      <p-paginator
+        [rows]="reviewsPerPage"
+        [totalRecords]="reviews.length"
+        [rowsPerPageOptions]="[3, 5, 10]"
+        (onPageChange)="onPageChange($event)"
+      >
+      </p-paginator>
+    </div>
+  </div>
+
+  <!-- Columna lateral: Programa de Lealtad -->
+  <div class="w-full lg:w-80 flex flex-col gap-6 mt-6 lg:mt-0">
+    <!-- Estadísticas -->
+    <div class="sidebar-panel bg-gradient-to-r from-gray-50 to-gray-200">
+      <div class="flex items-center justify-between">
+        <span class="font-semibold">Clientes Registrados</span>
+        <span class="font-bold text-lg">{{ loyaltyStats.totalCustomers }}</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="font-semibold">Puntos Acumulados</span>
+        <span class="font-bold text-lg">{{ loyaltyStats.totalPointsAccumulated }}</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="font-semibold">Puntos Canjeados</span>
+        <span class="font-bold text-lg">{{ loyaltyStats.totalPointsRedeemed }}</span>
+      </div>
+    </div>
+
+    <!-- Clientes más leales -->
+    <div class="sidebar-panel bg-white">
+      <h3 class="font-semibold mb-4 text-gray-900 text-lg">Clientes Más Leales</h3>
+      <ul class="space-y-3">
+        <li *ngFor="let customer of loyaltyStats.topCustomers" class="top-customer">
+          <div class="avatar bg-gradient-to-br from-blue-400 to-blue-600 text-white">
+            {{ customer.name[0] }}
+          </div>
+          <div class="flex-1 text-gray-700 font-medium">{{ customer.name }}</div>
+          <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full font-semibold text-xs">
+            {{ customer.points }} pts
+          </span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Premios disponibles -->
+    <div class="sidebar-panel bg-white">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-semibold text-gray-900 text-lg">Premios Disponibles</h3>
+        <button
+          pButton
+          label="Nuevo Premio"
+          icon="pi pi-plus"
+          class="p-button-sm p-button-success"
+          (click)="displayNewPrizeDialog = true"
+        ></button>
+      </div>
+
+      <div class="space-y-3">
+        <div *ngFor="let prize of prizes" class="prize-card">
+          <div class="font-medium text-gray-800">{{ prize.name }}</div>
+          <div class="flex items-center gap-2">
+            <i class="pi pi-star"></i>
+            <span class="text-gray-600 font-semibold">{{ prize.pointsRequired }} pts</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dialog Crear Premio -->
+<p-dialog
+  header="Crear Nuevo Premio"
+  [(visible)]="displayNewPrizeDialog"
+  [modal]="true"
+  [closable]="true"
+>
+  <div class="space-y-3">
+    <label>Nombre del Premio</label>
+    <input pInputText [(ngModel)]="newPrizeName" placeholder="Ej: Descuento 10%" class="w-full"/>
+    <label>Puntos Necesarios</label>
+    <input pInputText type="number" [(ngModel)]="newPrizePoints" placeholder="100" class="w-full"/>
+    <div class="flex justify-end gap-2 mt-2">
+      <button pButton label="Cancelar" class="p-button-secondary" (click)="displayNewPrizeDialog = false"></button>
+      <button pButton label="Crear" class="p-button-success" (click)="createPrize()"></button>
+    </div>
+  </div>
+</p-dialog>

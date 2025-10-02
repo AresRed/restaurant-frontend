@@ -1,1 +1,206 @@
-<p>delivery works!</p>
+<div class="p-6 bg-gray-50 min-h-screen space-y-6">
+  <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-2">
+    🚚 Dashboard Delivery
+  </h2>
+
+  <!-- Selector de vista -->
+  <div class="flex gap-4 mb-4">
+    <button
+      pButton
+      label="Kanban"
+      class="p-button-outlined"
+      [class.p-button-secondary]="view === 'kanban'"
+      (click)="view = 'kanban'"
+    ></button>
+    <button
+      pButton
+      label="Tabla"
+      class="p-button-outlined"
+      [class.p-button-secondary]="view === 'table'"
+      (click)="view = 'table'"
+    ></button>
+  </div>
+
+  <!-- Kanban -->
+  <div *ngIf="view === 'kanban'" class="kanban-container mt-6">
+    <div class="kanban-column w-80">
+      <h3 class="font-semibold mb-3">Pendientes ({{ pendientes.length }})</h3>
+      <p-card
+        *ngFor="let order of pendientes"
+        class="shadow-lg rounded-lg bg-white"
+      >
+        <div class="flex justify-between items-center mb-2">
+          <span class="font-semibold text-gray-700">#{{ order.id }}</span>
+          <span
+            [ngClass]="getStatusColor(order.status)"
+            class="px-2 py-1 rounded-full text-xs font-semibold"
+          >
+            {{ order.status }}
+          </span>
+        </div>
+        <p class="text-gray-600">
+          <strong>Cliente:</strong> {{ order.customer }}
+        </p>
+        <p class="text-gray-600">
+          <strong>Dirección:</strong> {{ order.address }}
+        </p>
+        <p class="text-gray-700 font-semibold mt-1 mb-1">Items:</p>
+        <ul class="list-disc list-inside text-gray-600">
+          <li *ngFor="let item of order.items">{{ item }}</li>
+        </ul>
+        <p class="text-gray-800 font-semibold mt-2">
+          Total: ${{ order.total }}
+        </p>
+      </p-card>
+    </div>
+
+    <div class="kanban-column w-80">
+      <h3 class="font-semibold mb-3">En Camino ({{ enCamino.length }})</h3>
+      <p-card
+        *ngFor="let order of enCamino"
+        class="shadow-lg rounded-lg bg-white"
+      >
+        <div class="flex justify-between items-center mb-2">
+          <span class="font-semibold text-gray-700">#{{ order.id }}</span>
+          <span
+            [ngClass]="getStatusColor(order.status)"
+            class="px-2 py-1 rounded-full text-xs font-semibold"
+          >
+            {{ order.status }}
+          </span>
+        </div>
+        <p class="text-gray-600">
+          <strong>Cliente:</strong> {{ order.customer }}
+        </p>
+        <p class="text-gray-600">
+          <strong>Dirección:</strong> {{ order.address }}
+        </p>
+      </p-card>
+    </div>
+
+    <div class="kanban-column w-80">
+      <h3 class="font-semibold mb-3">Entregados ({{ entregados.length }})</h3>
+      <p-card
+        *ngFor="let order of entregados"
+        class="shadow-lg rounded-lg bg-white"
+      >
+        <div class="flex justify-between items-center mb-2">
+          <span class="font-semibold text-gray-700">#{{ order.id }}</span>
+          <span
+            [ngClass]="getStatusColor(order.status)"
+            class="px-2 py-1 rounded-full text-xs font-semibold"
+          >
+            {{ order.status }}
+          </span>
+        </div>
+        <p class="text-gray-600">
+          <strong>Cliente:</strong> {{ order.customer }}
+        </p>
+        <p class="text-gray-600">
+          <strong>Dirección:</strong> {{ order.address }}
+        </p>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Tabla con paginación y filtros -->
+  <div *ngIf="view === 'table'">
+    <p-table
+      #dt
+      [value]="orders"
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      class="mt-4"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID</th>
+          <th>Cliente</th>
+          <th>Dirección</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Acciones</th>
+        </tr>
+        <tr>
+          <th>
+            <input
+              #idInput
+              pInputText
+              type="text"
+              (input)="dt.filter(idInput.value, 'id', 'contains')"
+              placeholder="Buscar"
+            />
+          </th>
+          <th>
+            <input
+              #customerInput
+              pInputText
+              type="text"
+              (input)="dt.filter(customerInput.value, 'customer', 'contains')"
+              placeholder="Buscar"
+            />
+          </th>
+          <th>
+            <input
+              #addressInput
+              pInputText
+              type="text"
+              (input)="dt.filter(addressInput.value, 'address', 'contains')"
+              placeholder="Buscar"
+            />
+          </th>
+          <th></th>
+          <th></th>
+          <th>
+            <p-dropdown
+              [options]="statusOptions"
+              (onChange)="dt.filter($event.value, 'status', 'equals')"
+              placeholder="Filtrar"
+            ></p-dropdown>
+          </th>
+          <th></th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-order>
+        <tr>
+          <td>{{ order.id }}</td>
+          <td>{{ order.customer }}</td>
+          <td>{{ order.address }}</td>
+          <td>{{ order.items.join(", ") }}</td>
+          <td>${{ order.total }}</td>
+          <td>
+            <span
+              [ngClass]="getStatusColor(order.status)"
+              class="px-2 py-1 rounded-full text-xs font-semibold"
+            >
+              {{ order.status }}
+            </span>
+          </td>
+          <td class="flex gap-1">
+            <button
+              pButton
+              icon="pi pi-check"
+              class="p-button-sm p-button-success"
+              (click)="updateStatus(order, 'Entregado')"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-arrow-right"
+              class="p-button-sm p-button-info"
+              (click)="updateStatus(order, 'En Camino')"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-exclamation-triangle"
+              class="p-button-sm p-button-warning"
+              (click)="updateStatus(order, 'Pendiente')"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

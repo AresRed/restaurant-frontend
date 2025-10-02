@@ -1,1 +1,105 @@
-<p>inventory works!</p>
+<div class="p-6 space-y-10">
+  <h2 class="text-3xl font-bold mb-6">🍴 Inventario del Restaurante</h2>
+
+  <!-- Si no hay productos -->
+  @if (inventory.length === 0) {
+    <div
+      class="flex flex-col items-center justify-center bg-gray-50 border border-dashed border-gray-300 rounded-lg p-10 text-center shadow-sm"
+    >
+      <i class="pi pi-box text-6xl text-gray-400 mb-4"></i>
+      <h3 class="text-lg font-semibold text-gray-700">
+        No hay productos registrados en el inventario
+      </h3>
+      <p class="text-gray-500 mt-1 mb-4">
+        Agrega los ingredientes y productos para comenzar a gestionarlos.
+      </p>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-plus"
+        label="Registrar producto"
+        class="p-button-success"
+      ></button>
+    </div>
+  } @else {
+    <!-- Tabla de inventario -->
+    <p-table
+      [value]="inventory"
+      class="shadow-xl rounded-xl overflow-hidden"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [rows]="10"
+      [paginator]="true"
+      [rowsPerPageOptions]="[5, 10, 20]"
+    >
+      <ng-template pTemplate="header">
+        <tr class="bg-gray-100">
+          <th class="text-left p-3">#</th>
+          <th class="text-left p-3">Producto</th>
+          <th class="text-left p-3">Categoría</th>
+          <th class="text-center p-3">Stock</th>
+          <th class="text-center p-3">Unidad</th>
+          <th class="text-center p-3">Mínimo Requerido</th>
+          <th class="text-center p-3">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <!-- CORRECTO: usar let-rowData en lugar de @for -->
+      <ng-template pTemplate="body" let-item>
+        <tr class="hover:bg-gray-50">
+          <td class="p-3">{{ item.id }}</td>
+          <td class="p-3 font-medium text-gray-800">{{ item.name }}</td>
+          <td class="p-3 text-gray-600">{{ item.category }}</td>
+          <td class="text-center p-3">
+            <span
+              class="px-3 py-1 rounded-full text-xs font-semibold"
+              [ngClass]="getStockBadgeClass(item)"
+            >
+              {{ item.stock }}
+            </span>
+          </td>
+          <td class="text-center p-3">{{ item.unit }}</td>
+          <td class="text-center p-3">{{ item.minStock }}</td>
+          <td class="text-center space-x-2 p-3">
+            <button
+              pButton
+              type="button"
+              icon="pi pi-search"
+              class="p-button-sm p-button-rounded p-button-info"
+              (click)="viewItem(item)"
+            ></button>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-plus-circle"
+              class="p-button-sm p-button-rounded p-button-success"
+              (click)="orderMore(item)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <!-- Sección de gráficas -->
+    <div class="grid gap-8 md:grid-cols-2 mt-12">
+      <div class="bg-white rounded-2xl shadow-md p-6">
+        <h3 class="font-semibold text-lg mb-6">📦 Productos por categoría</h3>
+        <p-chart
+          type="pie"
+          [data]="categoryChartData"
+          [options]="chartOptions"
+          style="max-height: 320px"
+        ></p-chart>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-md p-6">
+        <h3 class="font-semibold text-lg mb-6">📊 Estado del inventario</h3>
+        <p-chart
+          type="doughnut"
+          [data]="statusChartData"
+          [options]="chartOptions"
+          style="max-height: 320px"
+        ></p-chart>
+      </div>
+    </div>
+  }
+</div>

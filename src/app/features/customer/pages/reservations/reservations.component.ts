@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnInit,
+  ViewEncapsulation,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,

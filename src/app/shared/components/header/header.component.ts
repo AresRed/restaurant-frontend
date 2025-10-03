@@ -96,8 +96,12 @@ export class HeaderComponent implements OnInit {
         );
         this.router.navigate(['/']);
       },
-      error: (err) => {
-        this.notify.error('Error', 'No se pudo cerrar la sesión');
+      error: () => {
+        this.notify.warn(
+          'Sesión cerrada localmente',
+          'El backend no respondió'
+        );
+        this.router.navigate(['/']);
       },
     });
   }

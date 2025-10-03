@@ -59,6 +59,13 @@ export class AddressService {
     );
   }
 
+  updateAddressAuth(addressId: number, addressRequest: AddressCustomerRequest) {
+    return this.http.put<ApiResponse<AddressResponse>>(
+      `${environment.apiUrl}/api/v1/addresses/me/${addressId}`,
+      addressRequest
+    );
+  }
+
   deleteAddress(addressId: number) {
     return this.http.delete<ApiResponse<null>>(
       `${environment.apiUrl}/api/v1/addresses/${addressId}`

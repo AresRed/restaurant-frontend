@@ -63,6 +63,11 @@ export class HeaderAdminComponent {
         command: () => this.goToProfile(),
       },
       {
+        label: 'Seguridad',
+        icon: 'pi pi-shield',
+        command: () => this.goToSecurity(),
+      },
+      {
         label: 'Configuración',
         icon: 'pi pi-cog',
         command: () => this.goToSettings(),
@@ -87,8 +92,13 @@ export class HeaderAdminComponent {
   goToProfile() {
     this.router.navigate(['admin/profile']);
   }
-  goToSettings() {
+
+  goToSecurity() {
     this.router.navigate(['admin/profile/security']);
+  }
+
+  goToSettings() {
+    this.router.navigate(['admin/profile/settings']);
   }
 
   logout() {

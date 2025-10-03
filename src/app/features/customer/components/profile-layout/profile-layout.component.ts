@@ -13,6 +13,7 @@ import {
   Router,
   RouterModule,
 } from '@angular/router';
+import { gsap } from 'gsap';
 import { ButtonModule } from 'primeng/button';
 import { filter } from 'rxjs';
 import { UserResponse } from '../../../../core/models/user.model';
@@ -85,15 +86,14 @@ export class ProfileLayoutComponent implements OnInit, AfterViewInit {
       this.sections = [
         { key: '', label: 'Perfil', icon: 'pi pi-user' },
         { key: 'security', label: 'Seguridad', icon: 'pi pi-shield' },
-        { key: 'settings', label: 'Configuración', icon: 'pi pi-cog' },
         { key: 'addresses', label: 'Direcciones', icon: 'pi pi-map-marker' },
         { key: 'orders', label: 'Pedidos', icon: 'pi pi-shopping-cart' },
         { key: 'reservations', label: 'Reservas', icon: 'pi pi-calendar' },
-        { key: 'payment', label: 'Pagos', icon: 'pi pi-credit-card' },
         { key: 'favorites', label: 'Favoritos', icon: 'pi pi-heart' },
         { key: 'reviews', label: 'Reseñas', icon: 'pi pi-star' },
         { key: 'promotions', label: 'Promociones', icon: 'pi pi-tag' },
         { key: 'notifications', label: 'Notificaciones', icon: 'pi pi-bell' },
+        { key: 'settings', label: 'Configuración', icon: 'pi pi-cog' },
       ];
     }
   }
@@ -101,8 +101,8 @@ export class ProfileLayoutComponent implements OnInit, AfterViewInit {
   animateMenu() {
     this.menuButtons.forEach((btn, index) => {
       gsap.from(btn.nativeElement, {
-        opacity: 0,
-        x: -40,
+        opacity: 1,
+        x: -0,
         delay: 0.1 * index,
         duration: 0.6,
         ease: 'power2.out',

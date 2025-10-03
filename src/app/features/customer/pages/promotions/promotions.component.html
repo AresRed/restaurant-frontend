@@ -1,1 +1,63 @@
-<p>promotions works!</p>
+<div class="max-w-7xl mx-auto px-6 py-16">
+  <!-- Encabezado -->
+  <h2
+    class="text-4xl font-extrabold text-center text-gray-900 mb-14 relative inline-block"
+  >
+    Promociones <span class="text-pink-500">🔥</span>
+    <span
+      class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-pink-500 rounded-full"
+    ></span>
+  </h2>
+
+  <!-- Carrusel -->
+  <p-carousel
+    [value]="promotions"
+    [numVisible]="2.5"
+    [numScroll]="1"
+    [circular]="true"
+    [autoplayInterval]="5000"
+    class="custom-carousel"
+  >
+    <ng-template pTemplate="item" let-promo>
+      <div class="px-3"> <!-- 🔥 Padding lateral entre items -->
+        <div
+          class="group relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg hover:shadow-2xl overflow-hidden transition transform hover:-translate-y-2"
+        >
+          <!-- Imagen -->
+          <div class="relative">
+            <img
+              [src]="promo.image"
+              [alt]="promo.title"
+              class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <span
+              class="absolute top-4 left-4 bg-pink-600 text-white text-sm font-bold px-3 py-1 rounded-full shadow-md"
+            >
+              {{ promo.discount }}
+            </span>
+          </div>
+
+          <!-- Contenido -->
+          <div class="p-6 space-y-3">
+            <h3
+              class="text-lg font-bold text-gray-900 group-hover:text-pink-600 transition"
+            >
+              {{ promo.title }}
+            </h3>
+            <p class="text-sm text-gray-600">{{ promo.description }}</p>
+            <p class="text-xs text-gray-400 italic">
+              Válido hasta {{ promo.validUntil | date : "longDate" }}
+            </p>
+
+            <button
+              pButton
+              label="Canjear"
+              icon="pi pi-gift"
+              class="p-button-rounded w-full bg-pink-500 border-none hover:bg-pink-600 transition font-semibold shadow-md"
+            ></button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </p-carousel>
+</div>

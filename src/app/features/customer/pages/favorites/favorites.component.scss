@@ -1,0 +1,33 @@
+:host {
+  display: block;
+
+  .break-inside-avoid {
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    -moz-column-break-inside: avoid;
+  }
+
+  // Botones PrimeNG modernos
+  ::ng-deep .p-button {
+    font-weight: 600;
+    border-radius: 9999px;
+    transition: all 0.25s ease-in-out;
+
+    &:hover {
+      transform: translateY(-1px) scale(1.05);
+    }
+  }
+
+  ::ng-deep .p-button-danger {
+    background: #ef4444;
+    border: none;
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5);
+    z-index: 50 !important;
+  }
+
+  ::ng-deep .p-button-secondary {
+    border-width: 2px;
+    font-weight: 500;
+    color: #374151;
+  }
+}

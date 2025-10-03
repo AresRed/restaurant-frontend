@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/base/api-response.model';
 import {
   TableAvailabilityResponse,
+  TableRequest,
   TableResponse,
 } from '../models/table.model';
 
@@ -33,6 +34,16 @@ export class TableService {
   getAllTables(): Observable<ApiResponse<TableResponse[]>> {
     return this.http.get<ApiResponse<TableResponse[]>>(
       `${environment.apiUrl}/api/v1/tables`
+    );
+  }
+
+  updateTable(
+    tableId: number,
+    tableRequest: TableRequest
+  ): Observable<ApiResponse<TableResponse>> {
+    return this.http.put<ApiResponse<TableResponse>>(
+      `${environment.apiUrl}/api/v1/tables/${tableId}`,
+      tableRequest
     );
   }
 }

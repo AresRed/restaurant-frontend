@@ -44,33 +44,32 @@
         <td>{{ order.date | date : "short" }}</td>
         <td class="text-right">S/. {{ order.total | number : "1.2-2" }}</td>
         <td class="text-center">
-          <span
-            class="px-3 py-1 rounded-full text-xs font-semibold"
-            [ngClass]="getStatusClass(order.statusName)"
-          >
-            {{ order.statusName }}
-          </span>
+          <p-tag [value]="order.statusName" />
         </td>
         <td class="text-center space-x-2">
-          <button
-            pButton
+          <p-button
             type="button"
             icon="pi pi-search"
-            class="p-button-sm p-button-rounded p-button-info"
-            (click)="viewOrder(order)"
-          ></button>
+            size="small"
+            pTooltip="Ver detalle"
+            [rounded]="true"
+            [raised]="true"
+            severity="info"
+          ></p-button>
 
-          <button
-            pButton
+          <p-button
             type="button"
             icon="pi pi-times"
-            class="p-button-sm p-button-rounded p-button-danger"
+            size="small"
+            pTooltip="Cancelar orden"
+            [raised]="true"
+            [rounded]="true"
+            severity="danger"
             [disabled]="
               order.statusName === 'DELIVERED' ||
               order.statusName === 'CANCELLED'
             "
-            (click)="cancelOrder(order)"
-          ></button>
+          ></p-button>
         </td>
       </tr>
       }
@@ -86,21 +85,86 @@
     >
       <div
         *ngFor="let table of tables"
-        class="p-6 rounded-xl shadow-md flex flex-col items-center justify-center cursor-pointer transition hover:scale-105 hover:shadow-lg"
+        class="p-6 rounded-xl shadow-md flex flex-col items-center justify-center cursor-pointer"
         [ngClass]="{
           'bg-green-100 border border-green-400': table.status === 'FREE',
           'bg-yellow-100 border border-yellow-400': table.status === 'OCCUPIED',
-          'bg-red-100 border border-red-400': table.status === 'RESERVED'
+          'bg-red-100 border border-red-400': table.status === 'OUT_OF_SERVICE'
         }"
-        (click)="selectTable(table)"
+        (click)="openTableActions(table)"
       >
         <i class="pi pi-table text-3xl mb-2"></i>
-        <span class="font-semibold">Mesa {{ table.number }}</span>
+        <span class="font-semibold">Mesa {{ table.code }}</span>
         <small class="text-gray-700">{{ table.status }}</small>
-        <div *ngIf="table.orderId" class="mt-2 text-xs text-gray-600">
-          Orden #{{ table.orderId }}
-        </div>
       </div>
+
+      <p-dialog
+        header="Modificar Mesa"
+        [modal]="true"
+        [(visible)]="dialogTableVisible"
+        [style]="{ width: '40rem', height: 'auto', 'max-height': '90vh' }"
+        [contentStyle]="{ 'overflow-y': 'auto' }"
+      >
+        <span class="p-text-secondary block mb-6">
+          Actualiza la información de la mesa seleccionada
+        </span>
+
+        <div class="flex flex-col space-y-4">
+          <div class="flex flex-col gap-4 mb-4">
+            <label for="name" class="font-semibold w-32">Codigo</label>
+            <input
+              pInputText
+              id="name"
+              class="flex-auto"
+              [(ngModel)]="selectedTable.code"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="flex flex-col gap-4 mb-4">
+            <label>Capacidad</label>
+            <p-floatlabel>
+              <p-inputnumber
+                id="capacity"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                spinnerMode="horizontal"
+                class="w-full"
+                [(ngModel)]="selectedTable.capacity"
+              >
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+              </p-inputnumber>
+            </p-floatlabel>
+          </div>
+
+          <div class="flex flex-col gap-4 mb-4">
+            <label for="status" class="font-semibold w-32">Estado</label>
+            <p-autocomplete
+              id="status"
+              [suggestions]="filteredStatusOptions"
+              [(ngModel)]="selectedTable.status"
+              (completeMethod)="searchTableState($event)"
+              [dropdown]="true"
+              appendTo="body"
+              styleClass="w-full"
+            />
+          </div>
+
+          <div class="flex justify-end gap-2">
+            <p-button
+              label="Cancelar"
+              severity="secondary"
+              (click)="dialogTableVisible = false"
+            />
+            <p-button label="Guardar" (click)="saveTable()" />
+          </div>
+        </div>
+      </p-dialog>
     </div>
   </div>
 </div>

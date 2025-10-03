@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import {
   FormBuilder,
@@ -10,6 +11,7 @@ import {
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { take } from 'rxjs';
+import { ApiError } from '../../../../core/models/base/api-response.model';
 import { UserResponse } from '../../../../core/models/user.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { NotificationService } from '../../../../core/services/notification.service';
@@ -51,29 +53,33 @@ export class ProfileComponent implements OnInit {
       this.profileForm = this.fb.group({
         firstName: [
           { value: user?.firstName || '', disabled: true },
-          Validators.required,
+          [Validators.required, Validators.maxLength(50)],
         ],
         lastName: [
           { value: user?.lastName || '', disabled: true },
-          Validators.required,
+          [Validators.required, Validators.maxLength(50)],
         ],
         email: [
           { value: user?.email || '', disabled: true },
-          [Validators.required, Validators.email],
+          [Validators.required, Validators.email, Validators.maxLength(100)],
+        ],
+        username: [
+          { value: user?.username || '', disabled: true },
+          [
+            Validators.required,
+            Validators.minLength(1),
+            Validators.maxLength(30),
+          ],
         ],
         phone: [
           { value: user?.phone || '', disabled: true },
           [
-            Validators.required,
             Validators.pattern('^[0-9]*$'),
             Validators.minLength(9),
             Validators.maxLength(9),
           ],
         ],
-        username: [
-          { value: user?.username || '', disabled: true },
-          [Validators.required, Validators.minLength(3)],
-        ],
+        newPassword: ['', []],
       });
     });
   }
@@ -103,28 +109,79 @@ export class ProfileComponent implements OnInit {
       ...this.profileForm.value,
     };
 
-    this.userService.updateProfileAuth(updatedUser).subscribe({
-      next: (response) => {
-        const updated = response.data.user;
-        const newToken = response.data.token;
+    // Validación para usuarios OAuth sin contraseña
+    const needsPasswordSetup =
+      this.user?.provider !== 'LOCAL' && !this.user?.hasPassword;
 
-        this.user = updated;
-        this.profileForm.patchValue(updated);
-        this.avatarPreview = null;
-        this.isEditing = false;
+    if (needsPasswordSetup && !this.profileForm.get('newPassword')?.value) {
+      this.notificationService.warn(
+        'Debes establecer una contraseña antes de cambiar tu correo o username.'
+      );
+      return;
+    }
 
-        this.authService.setCurrentUser(updated);
+    const newPassword = this.profileForm.get('newPassword')?.value;
 
-        if (newToken) {
-          this.authService.setAccessToken(newToken);
-        }
+    const passwordObservable = newPassword
+      ? this.userService.updatePasswordAuth({
+          newPassword: newPassword,
+          currentPassword: '', // string vacío para usuarios OAuth
+        })
+      : null;
 
-        this.notificationService.success('Perfil actualizado correctamente');
-      },
-      error: () => {
-        this.notificationService.error('Error al actualizar perfil');
-      },
-    });
+    const executeUpdate = () => {
+      this.userService.updateProfileAuth(updatedUser).subscribe({
+        next: (response) => {
+          const updated = response.data.user;
+          const newToken = response.data.token;
+
+          this.user = updated;
+          this.profileForm.patchValue(updated);
+
+          this.profileForm.disable();
+          this.avatarPreview = null;
+          this.isEditing = false;
+
+          this.authService.setCurrentUser(updated);
+
+          if (newToken) this.authService.setAccessToken(newToken);
+
+          this.notificationService.success('Perfil actualizado correctamente');
+        },
+        error: (err: HttpErrorResponse) => {
+          const apiErr = err.error as ApiError;
+          let errorMessage = apiErr?.message || 'Ocurrió un error inesperado';
+
+          if (apiErr?.data) {
+            const fieldErrors = Object.values(apiErr.data);
+            if (fieldErrors.length) {
+              errorMessage += ': ' + fieldErrors.join(', ');
+            }
+          }
+
+          this.notificationService.error(
+            'Error al actualizar perfil',
+            errorMessage
+          );
+        },
+      });
+    };
+
+    if (passwordObservable) {
+      passwordObservable.subscribe({
+        next: () => {
+          this.notificationService.success(
+            'Contraseña establecida correctamente'
+          );
+          executeUpdate();
+        },
+        error: () => {
+          this.notificationService.error('Error al establecer la contraseña');
+        },
+      });
+    } else {
+      executeUpdate();
+    }
   }
 
   onDragOver(event: DragEvent) {

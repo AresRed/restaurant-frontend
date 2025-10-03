@@ -1,0 +1,33 @@
+:host {
+  display: block;
+
+  ::ng-deep .p-carousel {
+    .p-carousel-items-content {
+      padding: 0 1rem; // 🔥 separa el carrusel de los bordes
+    }
+
+    .p-carousel-item {
+      transition: transform 0.3s ease;
+    }
+
+    .p-carousel-prev,
+    .p-carousel-next {
+      background: #fff !important;
+      border-radius: 9999px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      width: 3rem;
+      height: 3rem;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: scale(1.1);
+        background: #f9fafb !important;
+      }
+
+      .pi {
+        font-size: 1.25rem;
+        color: #111827;
+      }
+    }
+  }
+}

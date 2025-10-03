@@ -1,0 +1,39 @@
+:host {
+  .address-card {
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .p-button-text {
+    transition: transform 0.2s ease, color 0.2s ease;
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  .p-button-danger {
+    color: #e53e3e;
+    &:hover {
+      background-color: rgba(229, 62, 62, 0.1);
+    }
+  }
+
+  .p-inputtext,
+  textarea {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    &:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}

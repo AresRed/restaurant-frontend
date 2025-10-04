@@ -29,6 +29,18 @@ export class UserService {
     );
   }
 
+  getAllPersonalForAdmin(): Observable<ApiResponse<UserResponse[]>> {
+    return this.http.get<ApiResponse<UserResponse[]>>(
+      `${environment.apiUrl}/api/v1/users/admin`
+    );
+  }
+
+  getUserById(userId: number): Observable<ApiResponse<UserResponse>> {
+    return this.http.get<ApiResponse<UserResponse>>(
+      `${environment.apiUrl}/api/v1/users/${userId}`
+    );
+  }
+
   updateProfileAuth(
     updateProfileRequest: UpdateProfileRequest
   ): Observable<ApiResponse<UpdateProfileResponse>> {

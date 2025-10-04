@@ -1,0 +1,105 @@
+<div class="p-6 max-w-3xl mx-auto">
+  <h2 class="text-2xl font-bold mb-6">Editar Empleado</h2>
+
+  <form [formGroup]="employeeForm" (ngSubmit)="save()" class="space-y-6">
+    <!-- Nombre -->
+    <div>
+      <label class="block font-medium mb-1">Nombre completo</label>
+      <input
+        pInputText
+        formControlName="fullName"
+        class="w-full"
+        placeholder="Ej: Juan Pérez"
+      />
+      <small
+        *ngIf="
+          employeeForm.get('fullName')?.invalid &&
+          employeeForm.get('fullName')?.touched
+        "
+        class="text-red-500"
+      >
+        Nombre requerido (mínimo 3 caracteres)
+      </small>
+    </div>
+
+    <!-- Username -->
+    <div>
+      <label class="block font-medium mb-1">Usuario</label>
+      <input
+        pInputText
+        formControlName="username"
+        class="w-full"
+        placeholder="Ej: jperez"
+      />
+    </div>
+
+    <!-- Puesto -->
+    <div>
+      <label class="block font-medium mb-1">Cargo</label>
+      <input
+        pInputText
+        formControlName="positionName"
+        class="w-full"
+        placeholder="Ej: Cocinero"
+      />
+    </div>
+
+    <!-- Descripción -->
+    <div>
+      <label class="block font-medium mb-1">Descripción del cargo</label>
+      <textarea
+        pInputText
+        formControlName="positionDescription"
+        rows="3"
+        class="w-full"
+        placeholder="Ej: Responsable de la cocina..."
+      ></textarea>
+    </div>
+
+    <!-- Salario -->
+    <div>
+      <label class="block font-medium mb-1">Salario</label>
+      <input type="number" pInputText formControlName="salary" class="w-full" />
+    </div>
+
+    <!-- Fecha contratación -->
+    <div>
+      <label class="block font-medium mb-1">Fecha de contratación</label>
+      <p-calendar
+        formControlName="hireDate"
+        dateFormat="yy-mm-dd"
+        class="w-full"
+      ></p-calendar>
+    </div>
+
+    <!-- Estado -->
+    <div>
+      <label class="block font-medium mb-1">Estado</label>
+      <p-dropdown
+        formControlName="status"
+        [options]="employmentStatuses"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Seleccione un estado"
+        class="w-full"
+      ></p-dropdown>
+    </div>
+
+    <!-- Botón -->
+    <div class="flex justify-end gap-4">
+      <button
+        pButton
+        type="button"
+        label="Cancelar"
+        class="p-button-secondary"
+        (click)="backToStaff()"
+      ></button>
+      <button
+        pButton
+        type="submit"
+        label="Guardar"
+        [disabled]="employeeForm.invalid"
+      ></button>
+    </div>
+  </form>
+</div>

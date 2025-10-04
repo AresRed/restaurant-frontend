@@ -18,5 +18,5 @@ export const routes: Routes = [
     data: { roles: ['ROLE_ADMIN'] },
     children: adminRoutes,
   },
-  { path: '**', redirectTo: '/home' },
+  // { path: '**', redirectTo: '/home' },
 ];

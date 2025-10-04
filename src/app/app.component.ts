@@ -21,7 +21,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     const token = localStorage.getItem('accessToken');
     if (token && this.authService.isTokenExpired(token)) {
-      this.authService.logout().subscribe();
+      this.authService.forceLogout();
     }
   }
 }

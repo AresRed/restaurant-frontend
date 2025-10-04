@@ -11,6 +11,7 @@ import {
 import { RegisterRequest } from '../models/auth/register/register.model';
 import { ApiResponse } from '../models/base/api-response.model';
 import { UserResponse } from '../models/user.model';
+import { Roles } from '../models/base/roles.model';
 
 @Injectable({
   providedIn: 'root',
@@ -198,7 +199,7 @@ export class AuthService {
 
   private redirectAfterLogin(user: UserResponse) {
     const roles = user.roles || [];
-    if (roles.includes('ROLE_ADMIN')) {
+    if (roles.includes(Roles.ROLE_ADMIN)) {
       this.router.navigate(['/admin/dashboard']);
     } else {
       this.router.navigate(['/home']);

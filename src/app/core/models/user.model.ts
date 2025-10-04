@@ -1,10 +1,13 @@
+import { Roles } from './base/roles.model';
+
 export type AuthProvider = 'LOCAL' | 'GOOGLE' | 'FACEBOOK' | 'GITHUB';
 
 export interface UserResponse {
+  id: number;
   username: string;
   email: string;
   enabled: boolean;
-  roles: string[];
+  roles: Roles[];
   firstName: string;
   lastName: string;
   fullName: string;

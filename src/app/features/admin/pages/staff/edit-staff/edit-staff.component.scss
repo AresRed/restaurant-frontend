@@ -1,0 +1,13 @@
+:host {
+  display: block;
+
+  form {
+    .p-inputtext, .p-dropdown, .p-calendar {
+      @apply rounded-lg shadow-sm;
+    }
+
+    label {
+      @apply text-gray-700;
+    }
+  }
+}

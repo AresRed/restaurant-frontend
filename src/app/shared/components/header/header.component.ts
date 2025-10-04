@@ -40,6 +40,11 @@ export class HeaderComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // const token = localStorage.getItem('accessToken');
+    // if (token && this.authService.isTokenExpired(token)) {
+    //   this.authService.forceLogout();
+    // }
+    
     this.currentUser$ = this.authService.currentUser$;
 
     this.itemsUserMenu = [

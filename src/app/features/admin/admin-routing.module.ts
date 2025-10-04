@@ -11,12 +11,16 @@ import { MenuComponent } from './pages/menu/menu.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { ReportsComponent } from './pages/reports/reports.component';
 import { ReservationsComponent } from './pages/reservations/reservations.component';
+import { DetailStaffComponent } from './pages/staff/detail-staff/detail-staff.component';
+import { EditStaffComponent } from './pages/staff/edit-staff/edit-staff.component';
 import { StaffComponent } from './pages/staff/staff.component';
 
 export const adminRoutes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent },
   { path: 'staff', component: StaffComponent },
+  { path: 'staff/:id', component: DetailStaffComponent },
+  { path: 'staff/:id/edit', component: EditStaffComponent },
   { path: 'reservations', component: ReservationsComponent },
   { path: 'orders', component: OrdersComponent },
   { path: 'reports', component: ReportsComponent },
@@ -25,7 +29,6 @@ export const adminRoutes: Routes = [
   { path: 'menu', component: MenuComponent },
   { path: 'feedback-and-loyalty', component: FeedbackAndLoyaltyComponent },
 
-  // Rutas de perfil/envueltas en ProfileLayout
   {
     path: 'profile',
     component: ProfileLayoutComponent,

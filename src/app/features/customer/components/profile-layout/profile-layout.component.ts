@@ -16,6 +16,7 @@ import {
 import { gsap } from 'gsap';
 import { ButtonModule } from 'primeng/button';
 import { filter } from 'rxjs';
+import { Roles } from '../../../../core/models/base/roles.model';
 import { UserResponse } from '../../../../core/models/user.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
@@ -50,7 +51,7 @@ export class ProfileLayoutComponent implements OnInit, AfterViewInit {
   ) {
     this.authService.currentUser$.subscribe((user) => {
       this.user = user;
-      this.isAdmin = user?.roles.includes('ROLE_ADMIN') || false;
+      this.isAdmin = user?.roles.includes(Roles.ROLE_ADMIN) || false;
       this.setSections();
       this.setActiveSectionFromRoute();
     });

@@ -58,6 +58,6 @@ export class DetailStaffComponent implements OnInit {
   }
 
   editUser(id: number) {
-    this.router.navigate(['/admin/staff/edit', id]);
+    this.router.navigate(['/admin/staff/', id, 'edit']);
   }
 }

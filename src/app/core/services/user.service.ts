@@ -7,6 +7,7 @@ import {
   PasswordChangeRequest,
   UpdateProfileRequest,
   UpdateProfileResponse,
+  UpdateUserRequest,
   UserResponse,
   UserSessionResponse,
 } from '../models/user.model';
@@ -38,6 +39,16 @@ export class UserService {
   getUserById(userId: number): Observable<ApiResponse<UserResponse>> {
     return this.http.get<ApiResponse<UserResponse>>(
       `${environment.apiUrl}/api/v1/users/${userId}`
+    );
+  }
+
+  updateUserById(
+    userId: number,
+    userRequest: UpdateUserRequest
+  ): Observable<ApiResponse<UserResponse>> {
+    return this.http.put<ApiResponse<UserResponse>>(
+      `${environment.apiUrl}/api/v1/users/${userId}`,
+      userRequest
     );
   }
 

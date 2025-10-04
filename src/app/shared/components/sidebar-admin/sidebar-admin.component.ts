@@ -42,6 +42,11 @@ export class SidebarAdminComponent {
         },
         { label: 'Inventario', icon: 'pi pi-box', route: '/admin/inventory' },
         { label: 'Personal', icon: 'pi pi-users', route: '/admin/staff' },
+        {
+          label: 'Proveedores',
+          icon: 'pi pi-briefcase',
+          route: '/admin/suppliers',
+        },
       ],
     },
     {

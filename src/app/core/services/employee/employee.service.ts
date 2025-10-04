@@ -3,7 +3,10 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiResponse } from '../../models/base/api-response.model';
-import { EmployeeRequest, EmployeeResponse } from '../../models/employee.model';
+import {
+  EmployeeRequest,
+  EmployeeResponse,
+} from '../../models/employee/employee.model';
 
 @Injectable({
   providedIn: 'root',

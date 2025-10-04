@@ -14,6 +14,7 @@ import { ReservationsComponent } from './pages/reservations/reservations.compone
 import { DetailStaffComponent } from './pages/staff/detail-staff/detail-staff.component';
 import { EditStaffComponent } from './pages/staff/edit-staff/edit-staff.component';
 import { StaffComponent } from './pages/staff/staff.component';
+import { SuppliersComponent } from './pages/suppliers/suppliers.component';
 
 export const adminRoutes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -21,6 +22,7 @@ export const adminRoutes: Routes = [
   { path: 'staff', component: StaffComponent },
   { path: 'staff/:id', component: DetailStaffComponent },
   { path: 'staff/:id/edit', component: EditStaffComponent },
+  { path: 'suppliers', component: SuppliersComponent },
   { path: 'reservations', component: ReservationsComponent },
   { path: 'orders', component: OrdersComponent },
   { path: 'reports', component: ReportsComponent },

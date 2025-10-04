@@ -1,0 +1,168 @@
+<div class="p-6 space-y-8">
+  <!-- Encabezado -->
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-2">
+      🏢 Proveedores
+    </h2>
+    <p-togglebutton
+      onLabel="Tabla"
+      offLabel="Cards"
+      [(ngModel)]="showTable"
+      [onIcon]="'pi pi-table'"
+      offIcon="pi pi-id-card"
+      class="p-button-sm"
+    ></p-togglebutton>
+  </div>
+
+  <!-- Filtro de búsqueda -->
+  <div
+    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
+  >
+    <input
+      type="text"
+      pInputText
+      placeholder="Buscar proveedor..."
+      [(ngModel)]="filter"
+      class="w-full sm:w-1/3 p-2 rounded-lg shadow-sm border"
+    />
+  </div>
+
+  <!-- Vista en Cards -->
+  <ng-container *ngIf="!showTable; else suppliersTable">
+    <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <p-card
+        *ngFor="let supplier of filteredSuppliers()"
+        class="rounded-2xl overflow-hidden shadow-lg border hover:shadow-2xl transition transform hover:-translate-y-2 bg-gradient-to-br from-white to-gray-50"
+      >
+        <div class="flex flex-col items-center p-6">
+          <p-avatar
+            [image]="'default-avatar.jpg'"
+            size="xlarge"
+            shape="circle"
+            class="mb-4 ring-4 ring-indigo-100"
+          ></p-avatar>
+          <h3 class="text-xl font-semibold text-gray-800 text-center">
+            {{ supplier.companyName }}
+          </h3>
+          <p class="text-gray-500 italic text-center">
+            {{ supplier.contactName }}
+          </p>
+
+          <!-- Badges y categoría -->
+          <!-- <div class="flex gap-2 mt-2">
+            <span
+              [ngClass]="supplier.active ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'"
+              class="px-3 py-1 rounded-full text-xs font-semibold"
+            >
+              {{ supplier.active ? 'Activo' : 'Inactivo' }}
+            </span>
+            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">
+              {{ supplier.category || 'General' }}
+            </span>
+          </div> -->
+
+          <p class="text-gray-600 text-sm mt-2 flex items-center gap-1">
+            <i class="pi pi-phone"></i> {{ supplier.phone }}
+          </p>
+          <p class="text-gray-600 text-sm flex items-center gap-1">
+            <i class="pi pi-map-marker"></i> {{ supplier.address }}
+          </p>
+
+          <!-- Mini estadísticas -->
+          <!-- <div class="flex gap-4 mt-4 w-full justify-center">
+            <div class="text-center">
+              <p class="text-lg font-bold">{{ supplier.totalOrders || 0 }}</p>
+              <p class="text-xs text-gray-500">Pedidos</p>
+            </div>
+            <div class="text-center">
+              <p class="text-lg font-bold">{{ supplier.totalProducts || 0 }}</p>
+              <p class="text-xs text-gray-500">Productos</p>
+            </div>
+          </div> -->
+
+          <div class="flex gap-3 mt-5">
+            <button
+              pButton
+              icon="pi pi-search"
+              pTooltip="Ver detalle"
+              class="p-button-rounded p-button-info"
+              (click)="viewDetails(supplier)"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-pencil"
+              pTooltip="Editar"
+              class="p-button-rounded p-button-warning"
+              (click)="editSupplier(supplier)"
+            ></button>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </ng-container>
+
+  <!-- Vista en Tabla -->
+  <ng-template #suppliersTable>
+    <p-table
+      [value]="filteredSuppliers()"
+      class="shadow-xl rounded-xl overflow-hidden"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [tableStyle]="{ 'min-width': '50rem' }"
+    >
+      <ng-template pTemplate="header">
+        <tr class="bg-gradient-to-r from-indigo-500 to-blue-500 text-white">
+          <th class="p-3">Empresa</th>
+          <th class="p-3">Contacto</th>
+          <th class="p-3">Teléfono</th>
+          <th class="p-3">Dirección</th>
+          <th class="p-3">Estado</th>
+          <th class="p-3 text-center">Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-supplier>
+        <tr class="hover:bg-gray-50">
+          <td class="p-3 font-medium text-gray-800">
+            {{ supplier.companyName }}
+          </td>
+          <td class="p-3 text-gray-600">{{ supplier.contactName }}</td>
+          <td class="p-3 text-gray-600">{{ supplier.phone }}</td>
+          <td class="p-3 text-gray-600">{{ supplier.address }}</td>
+          <td class="p-3">
+            <span
+              [ngClass]="
+                supplier.active
+                  ? 'bg-green-200 text-green-800'
+                  : 'bg-red-200 text-red-800'
+              "
+              class="px-3 py-1 rounded-full text-xs font-semibold"
+            >
+              {{ supplier.active ? "Activo" : "Inactivo" }}
+            </span>
+          </td>
+          <td class="p-3 text-center">
+            <button
+              pButton
+              icon="pi pi-search"
+              class="p-button-rounded p-button-info p-button-sm mr-2"
+              (click)="viewDetails(supplier)"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-pencil"
+              class="p-button-rounded p-button-warning p-button-sm"
+              (click)="editSupplier(supplier)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-template>
+
+  <ng-template #noSuppliers>
+    <div class="text-center text-gray-500 italic">
+      🚫 No hay proveedores registrados.
+    </div>
+  </ng-template>
+</div>

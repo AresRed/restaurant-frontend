@@ -20,12 +20,10 @@
     />
   </div>
 
-  <!-- Loading -->
   <div *ngIf="loading" class="text-gray-500 italic text-center py-12">
     Cargando usuario...
   </div>
 
-  <!-- Error -->
   <div
     *ngIf="!loading && errorMessage"
     class="text-red-500 font-semibold text-center py-12"
@@ -33,10 +31,8 @@
     {{ errorMessage }}
   </div>
 
-  <!-- Usuario -->
   <div *ngIf="!loading && user" class="grid gap-8 md:grid-cols-3 items-start">
 
-    <!-- Avatar + Estado -->
     <div
       class="flex flex-col items-center md:col-span-1 bg-white shadow-lg rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 border border-transparent hover:border-indigo-300"
     >
@@ -70,10 +66,8 @@
       </span>
     </div>
 
-    <!-- Información básica + roles + seguridad -->
     <div class="md:col-span-2 space-y-6">
 
-      <!-- Contacto -->
       <div
         class="bg-white shadow-lg rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 border border-transparent hover:border-indigo-300"
       >
@@ -93,7 +87,6 @@
         </div>
       </div>
 
-      <!-- Roles -->
       <div
         class="bg-white shadow-lg rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 border border-transparent hover:border-indigo-300"
       >
@@ -111,7 +104,6 @@
         </div>
       </div>
 
-      <!-- Seguridad -->
       <div
         class="bg-white shadow-lg rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 border border-transparent hover:border-indigo-300"
       >

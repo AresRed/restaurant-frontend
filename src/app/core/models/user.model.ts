@@ -19,6 +19,16 @@ export interface UserResponse {
   emailNextChange: Date;
 }
 
+export interface UpdateUserRequest {
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  enabled: boolean;
+  roles: Roles[];
+}
+
 export interface UpdateProfileResponse {
   user: UserResponse;
   token: string;

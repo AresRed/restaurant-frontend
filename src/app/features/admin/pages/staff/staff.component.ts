@@ -9,15 +9,15 @@ import { ChartModule } from 'primeng/chart';
 import { TableModule } from 'primeng/table';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { TooltipModule } from 'primeng/tooltip';
-import { roleLabels } from '../../../../core/models/base/roles.model';
+import { EmployeeResponse } from '../../../../core/models/employee/employee.model';
 import {
   DayOfWeekEnum,
   ScheduleResponse,
 } from '../../../../core/models/schedule.model';
-import { UserResponse } from '../../../../core/models/user.model';
+import { EmployeeService } from '../../../../core/services/employee/employee.service';
 import { ScheduleService } from '../../../../core/services/employee/schedule.service';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { UserService } from '../../../../core/services/user.service';
+import { PositionLabelPipe } from '../../../../shared/pipes/position-label.pipe';
 import { RoleLabelPipe } from '../../../../shared/pipes/role-label.pipe';
 
 interface ScheduleByDay {
@@ -39,21 +39,33 @@ interface ScheduleByDay {
     ChartModule,
     RoleLabelPipe,
     TooltipModule,
+    PositionLabelPipe,
   ],
   templateUrl: './staff.component.html',
   styleUrls: ['./staff.component.scss'],
 })
 export class StaffComponent implements OnInit {
-  staffList: UserResponse[] = [];
+  staffList: EmployeeResponse[] = [];
   schedules: ScheduleResponse[] = [];
   schedulesByDay: ScheduleByDay[] = [];
+  hours = Array.from({ length: 13 }, (_, i) => i + 8);
+  dayNamesMap: Record<DayOfWeekEnum, string> = {
+    MONDAY: 'Lunes',
+    TUESDAY: 'Martes',
+    WEDNESDAY: 'Miércoles',
+    THURSDAY: 'Jueves',
+    FRIDAY: 'Viernes',
+    SATURDAY: 'Sábado',
+    SUNDAY: 'Domingo',
+  };
+
   showTable = false;
 
   chartData: any;
   chartOptions: any;
 
   constructor(
-    private userService: UserService,
+    private employeeService: EmployeeService,
     private notificationService: NotificationService,
     private scheduleService: ScheduleService,
     private router: Router
@@ -61,9 +73,7 @@ export class StaffComponent implements OnInit {
     this.chartOptions = {
       responsive: true,
       plugins: {
-        legend: {
-          position: 'bottom',
-        },
+        legend: { position: 'bottom' },
       },
     };
   }
@@ -74,24 +84,23 @@ export class StaffComponent implements OnInit {
   }
 
   loadPersonal() {
-    this.userService.getAllPersonalForAdmin().subscribe({
+    this.employeeService.getAllEmployees().subscribe({
       next: (res) => {
         if (res.success) {
           this.staffList = res.data;
 
-          const roleCounts: Record<string, number> = {};
+          // Generar gráfico: distribución por cargo
+          const positionCounts: Record<string, number> = {};
           this.staffList.forEach((s) => {
-            s.roles.forEach((role) => {
-              const label = roleLabels[role as keyof typeof roleLabels] || role;
-              roleCounts[label] = (roleCounts[label] || 0) + 1;
-            });
+            const label = s.positionName || 'Sin cargo';
+            positionCounts[label] = (positionCounts[label] || 0) + 1;
           });
 
           this.chartData = {
-            labels: Object.keys(roleCounts), // ahora son las etiquetas legibles
+            labels: Object.keys(positionCounts),
             datasets: [
               {
-                data: Object.values(roleCounts),
+                data: Object.values(positionCounts),
                 backgroundColor: [
                   '#4CAF50',
                   '#2196F3',
@@ -116,11 +125,10 @@ export class StaffComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.schedules = res.data;
-
           const daysOfWeek = Object.values(DayOfWeekEnum);
 
           this.schedulesByDay = daysOfWeek.map((day) => ({
-            day: this.capitalizeDay(day),
+            day: this.dayNamesMap[day],
             schedules: this.schedules.filter((s) => s.dayOfWeek === day),
           }));
         }
@@ -131,14 +139,14 @@ export class StaffComponent implements OnInit {
     });
   }
 
-  viewDetails(user: UserResponse) {
-    if (!user.id) return
-    this.router.navigate(['/admin/staff', user.id]);
+  viewDetails(employee: EmployeeResponse) {
+    if (!employee.id) return;
+    this.router.navigate(['/admin/staff', employee.id]);
   }
 
-  editStaff(user: UserResponse) {
-    if (!user.id) return;
-    this.router.navigate(['/admin/staff', user.id, 'edit']);
+  editStaff(employee: EmployeeResponse) {
+    if (!employee.id) return;
+    this.router.navigate(['/admin/staff', employee.id, 'edit']);
   }
 
   capitalizeDay(day: string): string {
@@ -151,14 +159,7 @@ export class StaffComponent implements OnInit {
   }
 
   getEmployeeColorClass(employeeId: number): string {
-    const colors = [
-      'bg-blue-500',
-      'bg-green-500',
-      'bg-orange-500',
-      'bg-purple-500',
-      'bg-pink-500',
-      'bg-teal-500',
-    ];
+    const colors = ['bg-green-500', 'bg-purple-500', 'bg-pink-500'];
     return colors[employeeId % colors.length] + ' text-white';
   }
 }

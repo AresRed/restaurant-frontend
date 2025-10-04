@@ -120,7 +120,7 @@ export class AuthService {
         console.log('Mensaje recibido en frontend:', event);
 
         const data = event.data;
-        if (!data?.success) return;
+        if (!data || !data.accessToken) return; 
 
         try {
           console.log('Datos reales del backend:', data);

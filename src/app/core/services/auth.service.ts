@@ -214,4 +214,10 @@ export class AuthService {
   setAccessToken(token: string) {
     localStorage.setItem('accessToken', token);
   }
+
+  public getAccessToken(): string | null {
+    return localStorage.getItem('accessToken'); 
+  }
+
+ 
 }

@@ -87,6 +87,8 @@ export const customerRoutes: Routes = [
     canActivate: [AuthGuard],
     data: { roles: ['ROLE_CLIENT'] },
   },
+
+ 
   {
     path: 'orders/:id',
     loadComponent: () =>

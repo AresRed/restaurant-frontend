@@ -125,7 +125,7 @@ export class AuthService {
         console.log('Mensaje recibido en frontend:', event);
 
         const data = event.data;
-        if (!data?.success) return;
+        if (!data || !data.accessToken) return; 
 
         try {
           console.log('Datos reales del backend:', data);
@@ -226,4 +226,10 @@ export class AuthService {
   setAccessToken(token: string) {
     localStorage.setItem('accessToken', token);
   }
+
+  public getAccessToken(): string | null {
+    return localStorage.getItem('accessToken'); 
+  }
+
+ 
 }

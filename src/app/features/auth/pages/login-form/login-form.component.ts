@@ -13,6 +13,7 @@ import { PasswordModule } from 'primeng/password';
 import { AuthService } from '../../../../core/services/auth.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { UiService } from '../../../../core/services/ui.service';
+import { LoginRequest } from '../../../../core/models/auth/login/login.model';
 
 @Component({
   selector: 'app-login-form',

@@ -1,0 +1,40 @@
+.add-stock-container {
+  animation: fadeIn 0.4s ease-in-out;
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-label {
+    @apply text-sm font-semibold text-gray-700 mb-2;
+  }
+
+  .input-field {
+    @apply border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none transition-all duration-200;
+
+    &:invalid.ng-touched {
+      border-color: #f87171;
+    }
+  }
+
+  .error-text {
+    @apply text-red-500 text-xs mt-1;
+  }
+
+  i.pi {
+    vertical-align: middle;
+  }
+}
+
+/* Animación de entrada suave */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

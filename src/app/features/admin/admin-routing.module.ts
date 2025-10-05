@@ -6,6 +6,7 @@ import { SettingsComponent } from '../customer/pages/settings/settings.component
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { DeliveryComponent } from './pages/delivery/delivery.component';
 import { FeedbackAndLoyaltyComponent } from './pages/feedback-and-loyalty/feedback-and-loyalty.component';
+import { DetailInventoryComponent } from './pages/inventory/detail-inventory/detail-inventory.component';
 import { InventoryComponent } from './pages/inventory/inventory.component';
 import { MenuComponent } from './pages/menu/menu.component';
 import { OrdersComponent } from './pages/orders/orders.component';
@@ -15,6 +16,7 @@ import { DetailStaffComponent } from './pages/staff/detail-staff/detail-staff.co
 import { EditStaffComponent } from './pages/staff/edit-staff/edit-staff.component';
 import { StaffComponent } from './pages/staff/staff.component';
 import { SuppliersComponent } from './pages/suppliers/suppliers.component';
+import { AddStockComponent } from './pages/inventory/add-stock/add-stock.component';
 
 export const adminRoutes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -28,6 +30,8 @@ export const adminRoutes: Routes = [
   { path: 'reports', component: ReportsComponent },
   { path: 'delivery', component: DeliveryComponent },
   { path: 'inventory', component: InventoryComponent },
+  { path: 'inventory/:id', component: DetailInventoryComponent },
+  { path: 'inventory/:id/add-stock', component: AddStockComponent },
   { path: 'menu', component: MenuComponent },
   { path: 'feedback-and-loyalty', component: FeedbackAndLoyaltyComponent },
 

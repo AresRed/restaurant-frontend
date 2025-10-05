@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { InventoryResponse } from '../../../../core/models/inventory.model';
-import { InventoryService } from '../../../../core/services/inventory.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { InventoryService } from '../../../../core/services/products/inventory/inventory.service';
 
 @Component({
   selector: 'app-inventory',
@@ -31,6 +32,7 @@ export class InventoryComponent implements OnInit {
   chartOptions: any;
 
   constructor(
+    private router: Router,
     private inventoryService: InventoryService,
     private notificationService: NotificationService
   ) {}
@@ -44,7 +46,7 @@ export class InventoryComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.inventories = res.data;
-          this.buildCharts(); // construir gráficas después de cargar inventario
+          this.buildCharts();
         }
       },
       error: (err) => this.notificationService.error('Error', err.message),
@@ -117,6 +119,7 @@ export class InventoryComponent implements OnInit {
       },
     };
   }
+
   getStockBadgeClass(item: InventoryResponse): string {
     if (item.currentStock === 0) return 'bg-red-100 text-red-800';
     if (item.currentStock < item.minimumStock)
@@ -125,15 +128,12 @@ export class InventoryComponent implements OnInit {
   }
 
   viewItem(item: InventoryResponse) {
-    console.log('Detalles del producto:', item);
+    this.router.navigate(['admin/inventory', item.id]);
   }
 
   orderMore(item: InventoryResponse) {
-    console.log(`Solicitar más stock de: ${item.ingredientName}`);
+    this.router.navigate(['admin/inventory', item.id, 'add-stock']);
   }
 
-  addInventory() {
-    // Aquí puedes abrir un modal o navegar a un formulario de creación de inventario
-    console.log('Abrir formulario para agregar nuevo inventario');
-  }
+
 }

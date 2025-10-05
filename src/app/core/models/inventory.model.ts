@@ -10,6 +10,19 @@ export interface InventoryResponse {
   updatedAt: Date;
 }
 
-export interface InventoryRequest {}
+export interface InventoryCreateRequest {
+  ingredientId: number;
+  currentStock: number;
+  minimumStock: number;
+}
 
+export interface InventoryUpdateRequest {
+  currentStock: number;
+  minimumStock: number;
+}
 
+export interface AddStockRequest {
+  quantity: number;
+  supplierId?: number;
+  reason?: string;
+}

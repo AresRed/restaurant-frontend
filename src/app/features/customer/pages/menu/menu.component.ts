@@ -8,11 +8,11 @@ import { ProductResponse } from '../../../../core/models/product.model';
 import { CartService } from '../../../../core/services/cart.service';
 import { CategoryService } from '../../../../core/services/category.service';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { ProductService } from '../../../../core/services/product.service';
 import { UiService } from '../../../../core/services/ui.service';
 import { UbicationComponent } from '../ubication/ubication.component';
 import { UbicationService } from '../../../../core/services/ubication.service';
 import { PaginatorModule } from 'primeng/paginator';  
+import { ProductService } from '../../../../core/services/products/product/product.service';
 @Component({
   selector: 'app-menu',
   standalone: true,
@@ -30,9 +30,9 @@ export class MenuComponent implements OnInit {
 
   categories: CategoryResponse[] = [];
 
-  products: ProductResponse[] = []; // productos paginados que se muestran
-  filteredProducts: ProductResponse[] = []; // productos filtrados por categoría
-  originalProducts: ProductResponse[] = []; // todos los productos del backend
+  products: ProductResponse[] = [];
+  filteredProducts: ProductResponse[] = [];
+  originalProducts: ProductResponse[] = []; 
 
   selectedCategoryId: number | null = null;
   total$!: Observable<number>;

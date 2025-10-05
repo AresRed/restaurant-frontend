@@ -1,9 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { ApiResponse } from '../models/base/api-response.model';
-import { InventoryRequest, InventoryResponse } from '../models/inventory.model';
+import { environment } from '../../../../../environments/environment';
+import { ApiResponse } from '../../../models/base/api-response.model';
+import {
+  AddStockRequest,
+  InventoryCreateRequest,
+  InventoryResponse,
+  InventoryUpdateRequest,
+} from '../../../models/inventory.model';
 
 @Injectable({
   providedIn: 'root',
@@ -32,7 +37,7 @@ export class InventoryService {
   }
 
   addInventory(
-    inventoryRequest: InventoryRequest
+    inventoryRequest: InventoryCreateRequest
   ): Observable<ApiResponse<InventoryResponse>> {
     return this.http.post<ApiResponse<InventoryResponse>>(
       `${environment.apiUrl}/api/v1//inventories`,
@@ -40,8 +45,18 @@ export class InventoryService {
     );
   }
 
+  addStock(
+    inventoryId: number,
+    addStockRequest: AddStockRequest
+  ): Observable<ApiResponse<InventoryResponse>> {
+    return this.http.post<ApiResponse<InventoryResponse>>(
+      `${environment.apiUrl}/api/v1/inventories/${inventoryId}/add-stock`,
+      addStockRequest
+    );
+  }
+
   updateInventory(
-    inventoryRequest: InventoryRequest,
+    inventoryRequest: InventoryUpdateRequest,
     inventoryId: number
   ): Observable<ApiResponse<InventoryResponse>> {
     return this.http.put<ApiResponse<InventoryResponse>>(
@@ -50,7 +65,6 @@ export class InventoryService {
     );
   }
 
-  // TODO: Aca devuelve not content
   deleteInventory(inventoryId: number) {
     return this.http.delete(`${environment.apiUrl}/inventories/${inventoryId}`);
   }

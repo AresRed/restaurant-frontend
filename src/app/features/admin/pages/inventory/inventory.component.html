@@ -8,11 +8,9 @@
       severity="success"
       [rounded]="true"
       [raised]="true"
-      (click)="addInventory()"
     ></p-button>
   </div>
 
-  <!-- Si no hay productos -->
   <ng-container *ngIf="inventories.length === 0; else tableSection">
     <div
       class="flex flex-col items-center justify-center bg-gray-50 border border-dashed border-gray-300 rounded-lg p-10 text-center shadow-sm"
@@ -28,7 +26,6 @@
   </ng-container>
 
   <ng-template #tableSection>
-    <!-- Tabla de inventario -->
     <p-table
       [value]="inventories"
       class="shadow-xl rounded-xl overflow-hidden"
@@ -71,20 +68,47 @@
               icon="pi pi-search"
               pTooltip="Ver detalle"
               [rounded]="true"
-              severity="info"
+              severity="secondary"
               [raised]="true"
               size="small"
               (click)="viewItem(item)"
-            ></p-button>
+            />
             <p-button
-              icon="pi pi-plus"
-              pTooltip="Agregar stock"
+              icon="pi pi-plus-circle"
+              pTooltip="Ajustar stock"
               [rounded]="true"
               size="small"
               [raised]="true"
               severity="success"
               (click)="orderMore(item)"
-            ></p-button>
+            />
+            <p-button
+              icon="pi pi-history"
+              pTooltip="Ver historial"
+              [rounded]="true"
+              size="small"
+              [raised]="true"
+              severity="help"
+              (click)="orderMore(item)"
+            />
+            <p-button
+              icon="pi pi-pencil"
+              pTooltip="Editar"
+              [rounded]="true"
+              size="small"
+              [raised]="true"
+              severity="info"
+              (click)="orderMore(item)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              pTooltip="Eliminar"
+              [rounded]="true"
+              size="small"
+              [raised]="true"
+              severity="danger"
+              (click)="orderMore(item)"
+            />
           </td>
         </tr>
       </ng-template>

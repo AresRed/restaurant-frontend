@@ -1,30 +1,16 @@
-<p-dialog 
-  header="Selecciona tu Ubicación" 
-  [(visible)]="displayDialog" 
-  [modal]="true" 
-  [style]="{width: '50vw'}"
-  class="!font-[tipo6] " 
-  [baseZIndex]="10000" 
-  [draggable]="false" 
-  [resizable]="false"
->
+<p-dialog header="Selecciona tu Ubicación" [(visible)]="displayDialog" [modal]="true" [style]="{width: '50vw'}"
+  styleClass="!bg-azul-titulo !border-0 !text-black" class="!font-[tipo6] " [baseZIndex]="10000" [draggable]="false" [resizable]="false">
   <div class="card flex justify-center ">
-    <p-selectbutton 
-      [options]="stateOptions" 
-      [(ngModel)]="value" 
-      optionLabel="label" 
-      optionValue="value"
-      [allowEmpty]="false"
-      (onOptionClick)="onSelectionChange($event)" 
-    />
+    <p-selectbutton [options]="stateOptions" [(ngModel)]="value" optionLabel="label" optionValue="value"
+      [allowEmpty]="false" (onOptionClick)="onSelectionChange($event)" />
   </div>
 
-  <div class="content-panel p-5 border-round surface-border">
-    
-    <div *ngIf="value === 'delivery'" [formGroup]="addressForm">
+  <div class="bg-azul-titulo p-5 border-round surface-border ">
+
+    <div *ngIf="value === 'delivery'" [formGroup]="addressForm" >
       <h3 class="text-xl font-bold mb-6">Detalles de Entrega</h3>
 
-   <!-- <div class="mb-4 mt-4" >
+      <!-- <div class="mb-4 mt-4" >
     <p-iconfield [iconPosition]="'left'" class="w-full">
       <p-inputicon styleClass="pi pi-search" />
       <input 
@@ -34,116 +20,92 @@
         class="w-full"
       />
     </p-iconfield>
-  </div> -->   
+  </div> -->
 
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      
+       <!--city-->
       <div class="mb-4">
+          <p-floatlabel variant="on" severiti="danger">
+            <input pInputText id="city" autocomplete="off" class="w-full" formControlName="city"
+              [ngClass]="{'ng-invalid ng-dirty': f['city'].invalid && f['city'].touched}" />
+            <label class="!t" for="city">Ciudad</label>
+          </p-floatlabel>
+          <small class="p-error" *ngIf="f['city'].invalid && f['city'].touched">
+            La ciudad es obligatoria.
+          </small>
+      </div>
+
+      <!--districts-->
+      <div class="mb-4">
+          <p-floatlabel variant="on">
+            <p-dropdown id="distrito" [options]="districts" optionLabel="name" optionValue="code"
+              formControlName="distrito" placeholder="Seleccione distrito" class="w-full" [showClear]="true"
+              [filter]="true" [ngClass]="{'ng-invalid ng-dirty': f['distrito'].invalid && f['distrito'].touched}" />
+
+          </p-floatlabel>
+          <small class="p-error" *ngIf="f['distrito'].invalid && f['distrito'].touched">
+            El distrito es obligatoria.
+          </small>
+      </div>
+
+      <!--zipcode-->
+      <div class="mb-4">
+          <p-floatlabel variant="on">
+            <p-inputnumber id="zipCode" autocomplete="off" class="w-full" formControlName="zipCode" [maxlength]="5"
+              [useGrouping]="false" [ngClass]="{'ng-invalid ng-dirty': f['zipCode'].invalid && f['zipCode'].touched}" />
+            <label for="zipCode">Código Postal</label>
+          </p-floatlabel>
+      </div>
+      </div>
+
+      <!--direction-->
+      <div class="mb-5">
         <p-floatlabel variant="on">
-          
-          <input 
-            pInputText 
-            id="street" 
-            autocomplete="off" 
-            class="w-full"
-            formControlName="street"
-            [ngClass]="{'ng-invalid ng-dirty': f['street'].invalid && f['street'].touched}"
-          />
-          <label for="street">Calle y Número (*)</label>
+          <input pInputText id="street" autocomplete="off" class="w-full" maxlength="100" formControlName="street"
+            [ngClass]="{'ng-invalid ng-dirty': f['street'].invalid && f['street'].touched}" />
+          <label for="street">Dirección de calle</label>
         </p-floatlabel>
         <small class="p-error" *ngIf="f['street'].invalid && f['street'].touched">
           La calle y número son obligatorios.
         </small>
       </div>
 
-      <div class="mb-4">
+      <!--references-->
+      <div class="mb-5">
         <p-floatlabel variant="on">
-          <input pInputText id="reference" autocomplete="off" class="w-full" formControlName="reference" />
+          <input pInputText id="reference" maxlength="150" autocomplete="off" class="w-full"
+            formControlName="reference" />
           <label for="reference">Referencia</label>
         </p-floatlabel>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="mb-4">
-          <p-floatlabel variant="on">
-            <input 
-              pInputText 
-              id="city" 
-              autocomplete="off" 
-              class="w-full" 
-              formControlName="city"
-              [ngClass]="{'ng-invalid ng-dirty': f['city'].invalid && f['city'].touched}"
-            />
-            <label for="city">Ciudad (*)</label>
-          </p-floatlabel>
-          <small class="p-error" *ngIf="f['city'].invalid && f['city'].touched">
-            La ciudad es obligatoria.
-          </small>
-        </div>
-
-        <div class="mb-4">
-          <p-floatlabel variant="on">
-            <input 
-              pInputText 
-              id="province" 
-              autocomplete="off" 
-              class="w-full" 
-              formControlName="province"
-              [ngClass]="{'ng-invalid ng-dirty': f['province'].invalid && f['province'].touched}"
-            />
-            <label for="province">Provincia (*)</label>
-          </p-floatlabel >
-          <small class="p-error" *ngIf="f['province'].invalid && f['province'].touched">
-            La provincia es obligatoria.
-          </small>
-        </div>
-      </div>
-
-      <div class="mb-4">
-        <p-floatlabel variant="on">
-          <input pInputText id="zipCode" autocomplete="off" class="w-full" formControlName="zipCode" />
-          <label for="zipCode">Código Postal</label>
-        </p-floatlabel>
-      </div>
-
+      <!--instructions-->
       <div class="mb-5">
         <p-floatlabel variant="on">
-          <textarea 
-            pInputTextarea 
-            id="instructions" 
-            rows="3" 
-            class="w-full" 
-            formControlName="instructions"
-          ></textarea>
+          <textarea pInputTextarea id="instructions" maxlength="150" rows="3" class="w-full"
+            formControlName="instructions"></textarea>
           <label for="instructions">Instrucciones de entrega</label>
         </p-floatlabel>
       </div>
 
-   
-
+      <!--Guardar-->
       <div class="flex justify-center ">
-        <p-button 
-          label="Guardar Dirección" 
-          icon="pi pi-check" 
-          iconPos="right"
-          (click)="saveAddress()" 
-          [disabled]="addressForm.invalid"
-        />
+        <p-button label="Guardar Dirección" icon="pi pi-check" iconPos="right" (click)="saveAddress()"
+          [disabled]="addressForm.invalid" />
       </div>
     </div>
 
+    <!--Opcion de casa-->
+
     <div *ngIf="value === 'retiro'" class="pickup-section">
-      <h3 class="text-xl font-semibold mb-4 text-orange-500">Detalles de Retiro</h3>
+      <h3 class="text-xl font-semibold mb-4 text-black">Detalles de Retiro</h3>
       <div class="p-field">
         <label for="localLocation" class="block font-medium mb-2 text-gray-700">
           Ubicación de nuestro local:
         </label>
-        <input 
-          id="localLocation" 
-          type="text" 
-          pInputText 
-          [value]="ubicacionLocal" 
-          [disabled]="true"
-          class="w-full bg-gray-100 cursor-not-allowed"
-        />
+        <input id="localLocation" type="text" pInputText [value]="ubicacionLocal" [disabled]="true"
+          class="w-full bg-gray-100 cursor-not-allowed" />
         <small class="p-error block mt-2">
           Su pedido estará listo para ser retirado en esta dirección.
         </small>
@@ -151,14 +113,10 @@
       </div>
       <div class="field mb-5">
         <div class="border surface-border border-1 w-full h-72 overflow-hidden border-round shadow-sm">
-          <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3870.0708211880283!2d-75.7275384!3d-14.0729952!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9110e290c34bb1f9%3A0x1e412d437f2dbfac!2sRestaurante%20San%20Isidro!5e0!3m2!1ses!2spe!4v1759274863103!5m2!1ses!2spe" 
-            width="100%" 
-            height="100%"
-            allowfullscreen="" 
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-          ></iframe>
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3870.0708211880283!2d-75.7275384!3d-14.0729952!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9110e290c34bb1f9%3A0x1e412d437f2dbfac!2sRestaurante%20San%20Isidro!5e0!3m2!1ses!2spe!4v1759274863103!5m2!1ses!2spe"
+            width="100%" height="100%" allowfullscreen="" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
       </div>
     </div>

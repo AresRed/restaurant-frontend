@@ -13,6 +13,8 @@ module.exports = {
         'rojo-principal':'rgb(204, 54, 54)',
         'rojo-fondo-claro':'rgb(254, 242, 242)',
         'azul-claro':'rgb(110, 157, 255)',
+        'azul-claro-2':'rgb(83, 118, 191)',
+        'azul-titulo':'rgb(194, 205, 229)',
       }
     },
   },

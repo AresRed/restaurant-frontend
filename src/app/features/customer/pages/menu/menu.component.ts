@@ -30,9 +30,9 @@ export class MenuComponent implements OnInit {
 
   categories: CategoryResponse[] = [];
 
-  products: ProductResponse[] = []; // productos paginados que se muestran
-  filteredProducts: ProductResponse[] = []; // productos filtrados por categoría
-  originalProducts: ProductResponse[] = []; // todos los productos del backend
+  products: ProductResponse[] = []; 
+  filteredProducts: ProductResponse[] = []; 
+  originalProducts: ProductResponse[] = []; 
 
   selectedCategoryId: number | null = null;
   total$!: Observable<number>;

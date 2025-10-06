@@ -6,7 +6,8 @@ import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
-import { InventoryResponse } from '../../../../core/models/inventory.model';
+import { InventoryResponse } from '../../../../core/models/products/inventory/inventory.model';
+import { ConfirmService } from '../../../../core/services/confirmation.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { InventoryService } from '../../../../core/services/products/inventory/inventory.service';
 
@@ -34,7 +35,8 @@ export class InventoryComponent implements OnInit {
   constructor(
     private router: Router,
     private inventoryService: InventoryService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private confirmationService: ConfirmService
   ) {}
 
   ngOnInit(): void {
@@ -135,5 +137,40 @@ export class InventoryComponent implements OnInit {
     this.router.navigate(['admin/inventory', item.id, 'add-stock']);
   }
 
+  async confirmDelete(event: Event, item: InventoryResponse) {
+    const confirmed = await this.confirmationService.confirm(
+      {
+        message: `¿Seguro que deseas eliminar el inventario de "${item.ingredientName}"?`,
+        acceptLabel: 'Sí, eliminar',
+        rejectLabel: 'Cancelar',
+        icon: 'pi pi-exclamation-triangle',
+        acceptClass: 'p-button-danger',
+      },
+      event
+    );
 
+    if (confirmed) {
+      this.deleteInventory(item);
+    }
+  }
+
+  private deleteInventory(item: InventoryResponse) {
+    this.inventoryService.deleteInventory(item.id).subscribe({
+      next: () => {
+        this.notificationService.success(
+          'Eliminado',
+          'Inventario eliminado correctamente'
+        );
+
+        this.inventories = this.inventories.filter((i) => i.id !== item.id);
+        this.buildCharts();
+      },
+      error: (err) => {
+        this.notificationService.error(
+          'Error',
+          err.error?.message || 'Error al eliminar inventario'
+        );
+      },
+    });
+  }
 }

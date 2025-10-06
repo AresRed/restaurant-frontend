@@ -1,1 +1,211 @@
-<p>detail-inventory works!</p>
+<div
+  class="p-6 flex flex-col items-center min-h-[80vh]"
+>
+  <!-- Spinner -->
+  <div *ngIf="loading" class="flex flex-col items-center text-gray-600 mt-24">
+    <p-progress-spinner styleClass="w-10 h-10 mb-3"></p-progress-spinner>
+    <span class="text-sm font-medium text-gray-500"
+      >Cargando detalles del inventario...</span
+    >
+  </div>
+
+  <!-- Tarjeta principal -->
+  <p-card
+    *ngIf="!loading && inventoryDetail"
+    class="w-full max-w-3xl bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden animate-fadeIn"
+  >
+    <!-- Encabezado -->
+    <div
+      class="flex flex-col md:flex-row items-center md:items-start gap-6 p-6"
+    >
+      <p-avatar
+        icon="pi pi-box"
+        shape="circle"
+        size="xlarge"
+        styleClass="bg-orange-100 text-orange-600 p-4 shadow-sm"
+      ></p-avatar>
+
+      <div class="flex-1 space-y-2 text-center md:text-left">
+        <h2 class="text-2xl font-semibold text-gray-800">
+          {{ inventoryDetail.inventory.ingredientName }}
+        </h2>
+
+        <div
+          class="flex justify-center md:justify-start items-center space-x-2"
+        >
+          <p-tag
+            [value]="inventoryDetail.inventory.unitSymbol"
+            severity="info"
+            rounded="true"
+          ></p-tag>
+          <span class="text-sm text-gray-600">
+            {{ inventoryDetail.inventory.unitName }}
+          </span>
+        </div>
+
+        <p class="text-gray-500 text-sm">
+          <span class="font-medium">ID Ingrediente:</span> #
+          {{ inventoryDetail.inventory.ingredientId }}
+        </p>
+      </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Detalles -->
+    <div class="p-6 space-y-4">
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div class="flex justify-between text-gray-700">
+          <span>Stock actual:</span>
+          <span class="font-semibold text-gray-900">
+            {{ inventoryDetail.inventory.currentStock | number : "1.0-2" }}
+            {{ inventoryDetail.inventory.unitSymbol }}
+          </span>
+        </div>
+
+        <div class="flex justify-between text-gray-700">
+          <span>Stock mínimo:</span>
+          <span class="font-semibold text-gray-900">
+            {{ inventoryDetail.inventory.minimumStock | number : "1.0-2" }}
+            {{ inventoryDetail.inventory.unitSymbol }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Progreso -->
+      <div class="pt-2">
+        <p-progressbar
+          [value]="
+            (inventoryDetail.inventory.currentStock /
+              inventoryDetail.inventory.minimumStock) *
+            100
+          "
+          [showValue]="false"
+          styleClass="h-3 rounded-md"
+        ></p-progressbar>
+
+        <div class="mt-3 flex justify-center md:justify-start">
+          <p-tag
+            [value]="
+              inventoryDetail.inventory.currentStock >
+              inventoryDetail.inventory.minimumStock
+                ? 'Stock adecuado'
+                : 'Bajo stock'
+            "
+            [severity]="
+              inventoryDetail.inventory.currentStock >
+              inventoryDetail.inventory.minimumStock
+                ? 'success'
+                : 'danger'
+            "
+            class="text-sm"
+          ></p-tag>
+        </div>
+      </div>
+
+      <!-- Fechas -->
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600 mt-4"
+      >
+        <p>
+          <span class="font-medium">Creado:</span>
+          {{ inventoryDetail.inventory.createdAt | date : "medium" }}
+        </p>
+        <p>
+          <span class="font-medium">Última actualización:</span>
+          {{ inventoryDetail.inventory.updatedAt | date : "medium" }}
+        </p>
+      </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Botones -->
+    <div class="flex justify-end gap-3 px-6 pb-5">
+      <p-button
+        label="Volver"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        outlined="true"
+        (click)="goBack()"
+      ></p-button>
+
+      <p-button
+        label="Agregar stock"
+        icon="pi pi-plus"
+        severity="success"
+        [routerLink]="[
+          '/admin/inventory/add-stock',
+          inventoryDetail.inventory.id
+        ]"
+      ></p-button>
+    </div>
+  </p-card>
+
+  <!-- Historial -->
+  <div
+    *ngIf="inventoryDetail.movements?.length; else noMovements"
+    class="mt-8 w-full max-w-4xl bg-white shadow-md rounded-2xl border border-gray-100 p-6 animate-fadeIn"
+  >
+    <h3
+      class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2"
+    >
+      <i class="pi pi-history text-orange-500"></i> Historial de movimientos
+    </h3>
+
+    <div class="overflow-x-auto">
+      <table
+        class="min-w-full border border-gray-200 text-sm rounded-xl overflow-hidden"
+      >
+        <thead class="bg-gray-100 text-gray-700">
+          <tr>
+            <th class="py-2 px-3 text-left">Fecha</th>
+            <th class="py-2 px-3 text-left">Tipo</th>
+            <th class="py-2 px-3 text-left">Cantidad</th>
+            <th class="py-2 px-3 text-left">Origen</th>
+            <th class="py-2 px-3 text-left">Razón</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let m of inventoryDetail.movements"
+            class="border-t hover:bg-orange-50 transition"
+          >
+            <td class="py-2 px-3">{{ m.date | date : "short" }}</td>
+            <td class="py-2 px-3">
+              <p-tag
+                [value]="m.type === 'ENTRY' ? 'Entrada' : 'Salida'"
+                [severity]="m.type === 'ENTRY' ? 'success' : 'danger'"
+              ></p-tag>
+            </td>
+            <td class="py-2 px-3 font-medium">
+              <span
+                [ngClass]="{
+                  'text-green-600': m.type === 'ENTRY',
+                  'text-red-600': m.type === 'EXIT'
+                }"
+              >
+                {{ m.quantity | number : "1.0-2" }} {{ m.unitSymbol }}
+              </span>
+            </td>
+            <td class="py-2 px-3">
+              <p-tag
+                [value]="getSourceLabel(m.source)"
+                [severity]="getSourceSeverity(m.source)"
+                rounded="true"
+              ></p-tag>
+            </td>
+            <td class="py-2 px-3 text-gray-700">{{ m.reason || "—" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <ng-template #noMovements>
+    <div class="text-gray-500 text-center py-6">
+      <i class="pi pi-info-circle mr-2 text-orange-400"></i>
+      No hay movimientos registrados para este ingrediente.
+    </div>
+  </ng-template>
+</div>

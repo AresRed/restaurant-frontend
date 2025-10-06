@@ -12,7 +12,8 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
-import { AddStockRequest } from '../../../../../core/models/inventory.model';
+import { TextareaModule } from 'primeng/textarea';
+import { AddStockRequest } from '../../../../../core/models/products/inventory/inventory.model';
 import { SupplierResponse } from '../../../../../core/models/supplier.model';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { InventoryService } from '../../../../../core/services/products/inventory/inventory.service';
@@ -28,6 +29,7 @@ import { SupplierService } from '../../../../../core/services/supplier/supplier.
     InputTextModule,
     InputNumberModule,
     DropdownModule,
+    TextareaModule,
   ],
   templateUrl: './add-stock.component.html',
   styleUrls: ['./add-stock.component.scss'],

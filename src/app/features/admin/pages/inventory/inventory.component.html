@@ -83,15 +83,6 @@
               (click)="orderMore(item)"
             />
             <p-button
-              icon="pi pi-history"
-              pTooltip="Ver historial"
-              [rounded]="true"
-              size="small"
-              [raised]="true"
-              severity="help"
-              (click)="orderMore(item)"
-            />
-            <p-button
               icon="pi pi-pencil"
               pTooltip="Editar"
               [rounded]="true"
@@ -107,8 +98,8 @@
               size="small"
               [raised]="true"
               severity="danger"
-              (click)="orderMore(item)"
-            />
+              (click)="confirmDelete($event, item)"
+            ></p-button>
           </td>
         </tr>
       </ng-template>

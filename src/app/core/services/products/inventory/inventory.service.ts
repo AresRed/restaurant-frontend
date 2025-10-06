@@ -3,12 +3,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { ApiResponse } from '../../../models/base/api-response.model';
-import {
-  AddStockRequest,
-  InventoryCreateRequest,
-  InventoryResponse,
-  InventoryUpdateRequest,
-} from '../../../models/inventory.model';
+import { AddStockRequest, InventoryCreateRequest, InventoryDetailResponse, InventoryResponse, InventoryUpdateRequest } from '../../../models/products/inventory/inventory.model';
+
 
 @Injectable({
   providedIn: 'root',
@@ -24,15 +20,15 @@ export class InventoryService {
 
   getInventoryById(
     inventoryId: number
-  ): Observable<ApiResponse<InventoryResponse>> {
-    return this.http.get<ApiResponse<InventoryResponse>>(
-      `${environment.apiUrl}/api/v1//inventories/${inventoryId}`
+  ): Observable<ApiResponse<InventoryDetailResponse>> {
+    return this.http.get<ApiResponse<InventoryDetailResponse>>(
+      `${environment.apiUrl}/api/v1/inventories/${inventoryId}`
     );
   }
 
   getInventoryByIngredientId(ingredientId: number) {
     return this.http.get<ApiResponse<InventoryResponse>>(
-      `${environment.apiUrl}/api/v1//inventories/ingredient/${ingredientId}`
+      `${environment.apiUrl}/api/v1/inventories/ingredient/${ingredientId}`
     );
   }
 
@@ -40,7 +36,7 @@ export class InventoryService {
     inventoryRequest: InventoryCreateRequest
   ): Observable<ApiResponse<InventoryResponse>> {
     return this.http.post<ApiResponse<InventoryResponse>>(
-      `${environment.apiUrl}/api/v1//inventories`,
+      `${environment.apiUrl}/api/v1/inventories`,
       inventoryRequest
     );
   }
@@ -60,12 +56,14 @@ export class InventoryService {
     inventoryId: number
   ): Observable<ApiResponse<InventoryResponse>> {
     return this.http.put<ApiResponse<InventoryResponse>>(
-      `${environment.apiUrl}/inventories/${inventoryId}`,
+      `${environment.apiUrl}/api/v1/inventories/${inventoryId}`,
       inventoryRequest
     );
   }
 
-  deleteInventory(inventoryId: number) {
-    return this.http.delete(`${environment.apiUrl}/inventories/${inventoryId}`);
+  deleteInventory(inventoryId: number): Observable<void> {
+    return this.http.delete<void>(
+      `${environment.apiUrl}/api/v1/inventories/${inventoryId}`
+    );
   }
 }

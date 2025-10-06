@@ -1,3 +1,5 @@
+import { InventoryMovementResponse } from './inventory_movement.model';
+
 export interface InventoryResponse {
   id: number;
   ingredientId: number;
@@ -8,6 +10,11 @@ export interface InventoryResponse {
   minimumStock: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface InventoryDetailResponse {
+  inventory: InventoryResponse;
+  movements: InventoryMovementResponse[];
 }
 
 export interface InventoryCreateRequest {

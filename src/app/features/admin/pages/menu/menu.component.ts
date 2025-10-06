@@ -1,21 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
 import { ToggleButtonModule } from 'primeng/togglebutton';
-
-interface MenuItem {
-  id: number;
-  name: string;
-  description: string;
-  category: string;
-  price: number;
-  image: string;
-  popular: boolean;
-}
+import { ProductResponse } from '../../../../core/models/products/product/product.model';
+import { CategoryService } from '../../../../core/services/category.service';
+import { ConfirmService } from '../../../../core/services/confirmation.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { ProductService } from '../../../../core/services/products/product/product.service';
 
 @Component({
   selector: 'app-menu',
@@ -32,46 +27,88 @@ interface MenuItem {
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss'],
 })
-export class MenuComponent {
+export class MenuComponent implements OnInit {
+  products: ProductResponse[] = [];
+  categories: string[] = [];
+  selectedCategory = '';
   showTable = false;
+  loading = false;
 
-  categories = ['Entradas', 'Platos Principales', 'Postres', 'Bebidas'];
-  selectedCategory = 'Entradas';
+  constructor(
+    private productService: ProductService,
+    private categoryService: CategoryService,
+    private notificationService: NotificationService,
+    private confirmService: ConfirmService
+  ) {}
 
-  menu: MenuItem[] = [
-    {
-      id: 1,
-      name: 'Ceviche Clásico',
-      description: 'Pescado fresco marinado en limón con cebolla y ají.',
-      category: 'Entradas',
-      price: 25,
-      image: 'https://images.unsplash.com/photo-1604908177097-f9d7ad8e0f5e',
-      popular: true,
-    },
-    {
-      id: 2,
-      name: 'Pollo a la Brasa',
-      description: 'Clásico pollo sazonado acompañado de papas fritas.',
-      category: 'Platos Principales',
-      price: 45,
-      image: 'https://images.unsplash.com/photo-1625940677659-2b4ecf9c5a32',
-      popular: false,
-    },
-  ];
-
-  getMenuByCategory(category: string): MenuItem[] {
-    return this.menu.filter((m) => m.category === category);
+  ngOnInit(): void {
+    this.loadCategories();
+    this.loadProducts();
   }
 
-  addToOrder(item: MenuItem) {
-    console.log('Añadir a orden:', item);
+  loadCategories() {
+    this.categoryService.getAllCategories().subscribe({
+      next: (res) => {
+        this.categories = res.data.map((c: any) => c.name);
+        if (this.categories.length > 0) {
+          this.selectedCategory = this.categories[0];
+        }
+      },
+      error: () =>
+        this.notificationService.error('Error', 'Error al cargar categorías'),
+    });
   }
 
-  viewDetails(item: MenuItem) {
-    console.log('Ver detalles:', item);
+  loadProducts() {
+    this.loading = true;
+    this.productService.getAllProducts().subscribe({
+      next: (res) => {
+        this.products = res.data;
+        this.loading = false;
+      },
+      error: () => {
+        this.notificationService.error('Error', 'Error al cargar productos');
+        this.loading = false;
+      },
+    });
   }
 
-  editItem(item: MenuItem) {
-    console.log('Editar item:', item);
+  getProductsByCategory(category: string) {
+    return this.products.filter((p) => p.categoryName === category);
+  }
+
+  viewDetails(item: ProductResponse) {
+    this.notificationService.info('Detalles', `Producto: ${item.name}`);
+  }
+
+  editItem(item: ProductResponse) {
+    this.notificationService.info('Editar', `Editando: ${item.name}`);
+  }
+
+  async confirmDelete(event: Event, item: ProductResponse) {
+    const confirmed = await this.confirmService.confirm(
+      {
+        message: `¿Seguro que deseas eliminar "${item.name}" del menú?`,
+        acceptLabel: 'Eliminar',
+        rejectLabel: 'Cancelar',
+        icon: 'pi pi-exclamation-triangle',
+        acceptClass: 'p-button-danger',
+      },
+      event
+    );
+
+    if (confirmed) {
+      this.productService.deleteProduct(item.id).subscribe({
+        next: () => {
+          this.notificationService.success(
+            'Eliminado',
+            'Producto eliminado correctamente'
+          );
+          this.products = this.products.filter((p) => p.id !== item.id);
+        },
+        error: () =>
+          this.notificationService.error('Error', 'Error al eliminar producto'),
+      });
+    }
   }
 }

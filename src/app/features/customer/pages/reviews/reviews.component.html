@@ -1,1 +1,106 @@
-<p>reviews works!</p>
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+  <!-- Título -->
+  <h2
+    class="text-4xl font-black text-gray-900 mb-12 tracking-tight text-center sm:text-left"
+  >
+    Mis Reseñas <span class="text-yellow-500">⭐</span>
+  </h2>
+
+  <!-- Nuevo sistema de Tabs -->
+  <p-tabs value="orders">
+    <p-tablist>
+      <p-tab value="orders">Órdenes</p-tab>
+      <p-tab value="reservations">Reservas</p-tab>
+      <p-tab value="products">Productos</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <!-- Órdenes -->
+      <p-tabpanel value="orders">
+        <div
+          *ngIf="(orderReviews?.length ?? 0) > 0; else noOrders"
+          class="space-y-6"
+        >
+          <div
+            *ngFor="let review of orderReviews"
+            class="bg-white rounded-2xl shadow-md hover:shadow-xl p-6 transition"
+          >
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="text-lg font-bold text-gray-800">
+                Orden #{{ review.orderId }}
+              </h3>
+              <span class="text-xs text-gray-400 italic">{{
+                review.createdAt | date : "mediumDate"
+              }}</span>
+            </div>
+            <p-rating [(ngModel)]="review.rating" [readonly]="true"></p-rating>
+            <p class="text-sm text-gray-600 mt-3">{{ review.comment }}</p>
+          </div>
+        </div>
+        <ng-template #noOrders>
+          <p class="text-center text-gray-400 italic py-10">
+            Aún no has hecho reseñas de órdenes.
+          </p>
+        </ng-template>
+      </p-tabpanel>
+
+      <!-- Reservas -->
+      <p-tabpanel value="reservations">
+        <div
+          *ngIf="(reservationReviews?.length ?? 0) > 0; else noReservations"
+          class="space-y-6"
+        >
+          <div
+            *ngFor="let review of reservationReviews"
+            class="bg-white rounded-2xl shadow-md hover:shadow-xl p-6 transition"
+          >
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="text-lg font-bold text-gray-800">
+                Reserva en {{ review.placeName }}
+              </h3>
+              <span class="text-xs text-gray-400 italic">{{
+                review.createdAt | date : "mediumDate"
+              }}</span>
+            </div>
+            <p-rating [(ngModel)]="review.rating" [readonly]="true"></p-rating>
+            <p class="text-sm text-gray-600 mt-3">{{ review.comment }}</p>
+          </div>
+        </div>
+        <ng-template #noReservations>
+          <p class="text-center text-gray-400 italic py-10">
+            Aún no has hecho reseñas de reservas.
+          </p>
+        </ng-template>
+      </p-tabpanel>
+
+      <!-- Productos -->
+      <p-tabpanel value="products">
+        <div
+          *ngIf="(productReviews?.length ?? 0) > 0; else noProducts"
+          class="space-y-6"
+        >
+          <div
+            *ngFor="let review of productReviews"
+            class="bg-white rounded-2xl shadow-md hover:shadow-xl p-6 transition"
+          >
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="text-lg font-bold text-gray-800">
+                {{ review.productName }}
+              </h3>
+              <span class="text-xs text-gray-400 italic">{{
+                review.createdAt | date : "mediumDate"
+              }}</span>
+            </div>
+            <p-rating [(ngModel)]="review.rating" [readonly]="true"></p-rating>
+            <p class="text-sm text-gray-600 mt-3">{{ review.comment }}</p>
+          </div>
+        </div>
+        <ng-template #noProducts>
+          <p class="text-center text-gray-400 italic py-10">
+            Aún no has hecho reseñas de productos.
+          </p>
+        </ng-template>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</div>

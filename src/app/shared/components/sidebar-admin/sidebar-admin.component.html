@@ -1,55 +1,44 @@
-<aside class="w-64 h-full bg-zinc-900 text-gray-200 flex flex-col">
-  <!-- Header con logo y nombre de la empresa -->
-  <div
-    class="h-20 flex items-center justify-center gap-3 px-4 border-b border-gray-700"
-  >
-    <img [src]="companyLogo" alt="Logo" class="w-10 h-10 object-contain" />
-    <h1 class="text-xl font-bold text-white">{{ companyName }}</h1>
+<aside class="sidebar" [ngClass]="{ open: isOpen, closed: !isOpen }">
+  <div class="sidebar-header">
+    <img [src]="companyLogo" alt="Logo" />
+    <h1>{{ companyName }}</h1>
   </div>
 
-  <!-- Navigation -->
-  <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-    <ng-container *ngFor="let item of sidebarItems; let i = index">
-      <!-- Item sin submenú -->
+  <nav class="sidebar-nav">
+    <ng-container *ngFor="let item of sidebarItems">
+      <!-- Item simple -->
       <a
         *ngIf="!item.children"
         routerLink="{{ item.route }}"
-        routerLinkActive="bg-gray-800 text-white font-semibold"
+        routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 hover:text-white transition-colors duration-200"
+        (click)="close()"
+        class="sidebar-link"
       >
         <i *ngIf="item.icon" class="{{ item.icon }}"></i>
         <span>{{ item.label }}</span>
       </a>
 
-      <!-- Item con submenú -->
-      <div *ngIf="item.children" class="flex flex-col">
-        <div
-          class="flex items-center justify-between gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-800 hover:text-white transition-all duration-300"
-          (click)="toggleSubmenu(item, submenuEl)"
-        >
-          <div class="flex items-center gap-3">
+      <div *ngIf="item.children" class="sidebar-submenu">
+        <div class="submenu-title" (click)="toggleSubmenu(item, submenuEl)">
+          <div class="submenu-label">
             <i *ngIf="item.icon" class="{{ item.icon }}"></i>
             <span>{{ item.label }}</span>
           </div>
-          <i
-            class="pi pi-chevron-down transform transition-transform duration-300"
-            [ngClass]="{ 'rotate-180': item.isOpen }"
-          ></i>
+          <i class="pi pi-chevron-down" [class.rotate]="item.isOpen"></i>
         </div>
 
         <ul
           #submenuEl
-          id="submenu-{{ i }}"
-          class="list-none p-0 m-0 overflow-hidden opacity-0"
-          [style.height]="'0px'"
+          class="submenu-list"
+          [style.opacity]="item.isOpen ? '1' : '0'"
         >
           <li *ngFor="let child of item.children">
             <a
               routerLink="{{ child.route }}"
-              routerLinkActive="bg-gray-800 text-white font-semibold"
+              routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: true }"
-              class="flex items-center gap-3 p-3 pl-10 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-300"
+              (click)="close()"
             >
               <i *ngIf="child.icon" class="{{ child.icon }}"></i>
               <span>{{ child.label }}</span>

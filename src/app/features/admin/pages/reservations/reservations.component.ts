@@ -79,20 +79,17 @@ export class ReservationsComponent implements OnInit {
     const lastDay = new Date(year, month + 1, 0);
     const days: Date[] = [];
 
-    // rellenar días vacíos hasta el primer día de la semana
     const startDay = firstDay.getDay(); // 0=Dom, 1=Lun
     for (let i = 0; i < startDay; i++) {
       days.push(null as any);
     }
 
-    // días del mes
     for (let i = 1; i <= lastDay.getDate(); i++) {
       days.push(new Date(year, month, i));
     }
     return days;
   }
 
-  // Comprobar si hay reservas en un día
   hasReservation(date: Date): boolean {
     if (!date) return false;
     return this.reservations.some(
@@ -100,7 +97,6 @@ export class ReservationsComponent implements OnInit {
     );
   }
 
-  // Seleccionar un día
   selectDate(date: Date) {
     if (!date) return;
     this.selectedDate = date;
@@ -109,14 +105,12 @@ export class ReservationsComponent implements OnInit {
     );
   }
 
-  // Navegar meses
   changeMonth(offset: number) {
     const year = this.currentMonth.getFullYear();
     const month = this.currentMonth.getMonth() + offset;
     this.currentMonth = new Date(year, month, 1);
   }
 
-  // Navegar años
   changeYear(offset: number) {
     const year = this.currentMonth.getFullYear() + offset;
     const month = this.currentMonth.getMonth();
@@ -137,7 +131,6 @@ export class ReservationsComponent implements OnInit {
     else this.filteredReservations = [...this.reservations];
   }
 
-  // Filtrar tabla manualmente
   filterByDate(event: any) {
     const value = event.target.value;
     if (!value) {

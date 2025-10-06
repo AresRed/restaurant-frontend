@@ -10,7 +10,8 @@ export interface TableAvailabilityResponse {
 
 export interface TableResponse {
   id: number;
-  name: string;
+  code: string;
+  alias: string;
   capacity: number;
   minCapacity: number;
   optimalCapacity: number;
@@ -23,3 +24,19 @@ export interface TableResponse {
   bufferAfterMinutes: number;
   status: TableStatus;
 }
+
+export type TableRequest = Pick<
+  TableResponse,
+  | 'code'
+  | 'alias'
+  | 'capacity'
+  | 'minCapacity'
+  | 'optimalCapacity'
+  | 'priority'
+  | 'description'
+  | 'openTime'
+  | 'closeTime'
+  | 'reservationDurationMinutes'
+  | 'bufferBeforeMinutes'
+  | 'bufferAfterMinutes'
+>;

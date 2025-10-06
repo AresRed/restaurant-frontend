@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  min-height: calc(100vh - 80px);
+  background: #f3f4f6; // Gris claro
+  padding-bottom: 2rem;
+
+  h2, h3 {
+    font-family: 'Inter', sans-serif;
+  }
+
+  p-avatar {
+    transition: transform 0.3s ease;
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  .shadow-lg:hover {
+    transition: all 0.3s ease;
+    transform: translateY(-2px);
+    border-color: rgba(99,102,241,0.3);
+  }
+}

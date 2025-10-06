@@ -1,33 +1,32 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { PaginatorModule } from 'primeng/paginator';
 import { Observable } from 'rxjs';
 import { CategoryResponse } from '../../../../core/models/category.model';
-import { ProductResponse } from '../../../../core/models/product.model';
+import { ProductResponse } from '../../../../core/models/products/product/product.model';
 import { CartService } from '../../../../core/services/cart.service';
 import { CategoryService } from '../../../../core/services/category.service';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { ProductService } from '../../../../core/services/product.service';
+import { ProductService } from '../../../../core/services/products/product/product.service';
+import { UbicationService } from '../../../../core/services/ubication.service';
 import { UiService } from '../../../../core/services/ui.service';
 import { UbicationComponent } from '../ubication/ubication.component';
-import { UbicationService } from '../../../../core/services/ubication.service';
-import { PaginatorModule } from 'primeng/paginator';  
 @Component({
   selector: 'app-menu',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     ButtonModule,
     InputTextModule,
     PaginatorModule,
-    UbicationComponent
+    UbicationComponent,
   ],
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss'],
 })
 export class MenuComponent implements OnInit {
-
   categories: CategoryResponse[] = [];
 
   products: ProductResponse[] = []; 
@@ -50,21 +49,16 @@ export class MenuComponent implements OnInit {
     private uiService: UiService
   ) {}
 
-  viewUbication(){
+  viewUbication() {
     this.ubicationService.open();
   }
-  
+
   ngOnInit(): void {
     this.loadCategories();
     this.loadProducts();
     this.total$ = this.cartService.total$;
     this.count$ = this.cartService.count$;
   }
-
-  
-
-    
-   
 
   loadCategories() {
     this.categoryService.getAllCategories().subscribe({

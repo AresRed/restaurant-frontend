@@ -1,147 +1,176 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
 import { TableModule } from 'primeng/table';
-
-interface InventoryItem {
-  id: number;
-  name: string;
-  category: string;
-  unit: string; // Ej: Kg, L, Unidades
-  stock: number;
-  minStock: number; // Stock mínimo requerido
-}
+import { TooltipModule } from 'primeng/tooltip';
+import { InventoryResponse } from '../../../../core/models/products/inventory/inventory.model';
+import { ConfirmService } from '../../../../core/services/confirmation.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { InventoryService } from '../../../../core/services/products/inventory/inventory.service';
 
 @Component({
   selector: 'app-inventory',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, BadgeModule, ChartModule],
+  imports: [
+    CommonModule,
+    TableModule,
+    ButtonModule,
+    BadgeModule,
+    ChartModule,
+    TooltipModule,
+  ],
   templateUrl: './inventory.component.html',
   styleUrls: ['./inventory.component.scss'],
 })
 export class InventoryComponent implements OnInit {
-  inventory: InventoryItem[] = [];
+  inventories: InventoryResponse[] = [];
 
   categoryChartData: any;
   statusChartData: any;
   chartOptions: any;
 
+  constructor(
+    private router: Router,
+    private inventoryService: InventoryService,
+    private notificationService: NotificationService,
+    private confirmationService: ConfirmService
+  ) {}
+
   ngOnInit(): void {
     this.loadInventory();
-    this.buildCharts();
   }
 
   loadInventory() {
-    // 🔥 Normalmente vendría del backend
-    this.inventory = [
-      {
-        id: 1,
-        name: 'Arroz',
-        category: 'Granos',
-        unit: 'Kg',
-        stock: 50,
-        minStock: 10,
+    this.inventoryService.getAllInventory().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.inventories = res.data;
+          this.buildCharts();
+        }
       },
-      {
-        id: 2,
-        name: 'Aceite Vegetal',
-        category: 'Aceites',
-        unit: 'L',
-        stock: 5,
-        minStock: 8,
-      },
-      {
-        id: 3,
-        name: 'Pechuga de Pollo',
-        category: 'Carnes',
-        unit: 'Kg',
-        stock: 0,
-        minStock: 5,
-      },
-      {
-        id: 4,
-        name: 'Papas',
-        category: 'Verduras',
-        unit: 'Kg',
-        stock: 20,
-        minStock: 15,
-      },
-      {
-        id: 5,
-        name: 'Lechuga',
-        category: 'Verduras',
-        unit: 'Kg',
-        stock: 8,
-        minStock: 5,
-      },
-    ];
+      error: (err) => this.notificationService.error('Error', err.message),
+    });
   }
 
   buildCharts() {
-    // 📦 Conteo por categoría
-    const categoryCounts: Record<string, number> = {};
-    this.inventory.forEach((i) => {
-      categoryCounts[i.category] = (categoryCounts[i.category] || 0) + 1;
+    const labels: string[] = [];
+    const stockEnBuenEstado: number[] = [];
+    const stockBajo: number[] = [];
+    const stockAgotado: number[] = [];
+
+    this.inventories.forEach((i) => {
+      const label = `${i.ingredientName} (${i.unitName})`;
+      labels.push(label);
+
+      if (i.currentStock === 0) {
+        stockEnBuenEstado.push(0);
+        stockBajo.push(0);
+        stockAgotado.push(i.currentStock);
+      } else if (i.currentStock < i.minimumStock) {
+        stockEnBuenEstado.push(0);
+        stockBajo.push(i.currentStock);
+        stockAgotado.push(0);
+      } else {
+        stockEnBuenEstado.push(i.currentStock);
+        stockBajo.push(0);
+        stockAgotado.push(0);
+      }
     });
 
     this.categoryChartData = {
-      labels: Object.keys(categoryCounts),
+      labels: labels,
       datasets: [
         {
-          data: Object.values(categoryCounts),
-          backgroundColor: [
-            '#4CAF50',
-            '#2196F3',
-            '#FF9800',
-            '#9C27B0',
-            '#E91E63',
-          ],
+          label: 'En buen stock',
+          data: stockEnBuenEstado,
+          backgroundColor: '#4CAF50',
+        },
+        {
+          label: 'Bajo stock',
+          data: stockBajo,
+          backgroundColor: '#FFC107',
+        },
+        {
+          label: 'Agotado',
+          data: stockAgotado,
+          backgroundColor: '#F44336',
         },
       ],
     };
 
-    // 📊 Estado del inventario
-    let enStock = 0;
-    let bajo = 0;
-    let agotado = 0;
-    this.inventory.forEach((i) => {
-      if (i.stock === 0) agotado++;
-      else if (i.stock < i.minStock) bajo++;
-      else enStock++;
-    });
-
-    this.statusChartData = {
-      labels: ['En buen stock', 'Bajo stock', 'Agotado'],
-      datasets: [
-        {
-          data: [enStock, bajo, agotado],
-          backgroundColor: ['#4CAF50', '#FFC107', '#F44336'],
-        },
-      ],
-    };
-
-    // 🎨 Opciones comunes
     this.chartOptions = {
       responsive: true,
       plugins: {
         legend: { position: 'bottom' },
+        tooltip: {
+          callbacks: {
+            label: (tooltipItem: any) => {
+              const i = tooltipItem.dataIndex;
+              const item = this.inventories[i];
+              return `${tooltipItem.dataset.label}: ${item.currentStock} / mínimo ${item.minimumStock}`;
+            },
+          },
+        },
+      },
+      scales: {
+        x: { stacked: true },
+        y: { stacked: true, beginAtZero: true },
       },
     };
   }
 
-  getStockBadgeClass(item: InventoryItem): string {
-    if (item.stock === 0) return 'bg-red-100 text-red-800';
-    if (item.stock < item.minStock) return 'bg-yellow-100 text-yellow-800';
+  getStockBadgeClass(item: InventoryResponse): string {
+    if (item.currentStock === 0) return 'bg-red-100 text-red-800';
+    if (item.currentStock < item.minimumStock)
+      return 'bg-yellow-100 text-yellow-800';
     return 'bg-green-100 text-green-800';
   }
 
-  viewItem(item: InventoryItem) {
-    console.log('Detalles del producto:', item);
+  viewItem(item: InventoryResponse) {
+    this.router.navigate(['admin/inventory', item.id]);
   }
 
-  orderMore(item: InventoryItem) {
-    console.log(`Solicitar más stock de: ${item.name}`);
+  orderMore(item: InventoryResponse) {
+    this.router.navigate(['admin/inventory', item.id, 'add-stock']);
+  }
+
+  async confirmDelete(event: Event, item: InventoryResponse) {
+    const confirmed = await this.confirmationService.confirm(
+      {
+        message: `¿Seguro que deseas eliminar el inventario de "${item.ingredientName}"?`,
+        acceptLabel: 'Sí, eliminar',
+        rejectLabel: 'Cancelar',
+        icon: 'pi pi-exclamation-triangle',
+        acceptClass: 'p-button-danger',
+      },
+      event
+    );
+
+    if (confirmed) {
+      this.deleteInventory(item);
+    }
+  }
+
+  private deleteInventory(item: InventoryResponse) {
+    this.inventoryService.deleteInventory(item.id).subscribe({
+      next: () => {
+        this.notificationService.success(
+          'Eliminado',
+          'Inventario eliminado correctamente'
+        );
+
+        this.inventories = this.inventories.filter((i) => i.id !== item.id);
+        this.buildCharts();
+      },
+      error: (err) => {
+        this.notificationService.error(
+          'Error',
+          err.error?.message || 'Error al eliminar inventario'
+        );
+      },
+    });
   }
 }

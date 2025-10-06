@@ -1,0 +1,40 @@
+:host {
+  display: block;
+
+  section {
+    transition: all 0.3s ease;
+    &:hover {
+      @apply shadow-lg;
+    }
+
+    label {
+      @apply text-gray-700 font-medium mb-1 block;
+    }
+
+    .p-inputtext,
+    .p-dropdown,
+    .p-calendar {
+      @apply rounded-lg shadow-sm border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200;
+    }
+  }
+
+  .user-info {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    &:hover {
+      background: #f3f4f6;
+    }
+  }
+
+  .employee-form {
+    background: #ffffff;
+  }
+
+  img {
+    @apply object-cover;
+  }
+
+  button {
+    @apply rounded-lg;
+  }
+}

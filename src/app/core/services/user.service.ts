@@ -7,6 +7,7 @@ import {
   PasswordChangeRequest,
   UpdateProfileRequest,
   UpdateProfileResponse,
+  UpdateUserRequest,
   UserResponse,
   UserSessionResponse,
 } from '../models/user.model';
@@ -26,6 +27,28 @@ export class UserService {
   getSessionsAuth(): Observable<ApiResponse<UserSessionResponse[]>> {
     return this.http.get<ApiResponse<UserSessionResponse[]>>(
       `${environment.apiUrl}/api/v1/users/sessions`
+    );
+  }
+
+  getAllPersonalForAdmin(): Observable<ApiResponse<UserResponse[]>> {
+    return this.http.get<ApiResponse<UserResponse[]>>(
+      `${environment.apiUrl}/api/v1/users/admin`
+    );
+  }
+
+  getUserById(userId: number): Observable<ApiResponse<UserResponse>> {
+    return this.http.get<ApiResponse<UserResponse>>(
+      `${environment.apiUrl}/api/v1/users/${userId}`
+    );
+  }
+
+  updateUserById(
+    userId: number,
+    userRequest: UpdateUserRequest
+  ): Observable<ApiResponse<UserResponse>> {
+    return this.http.put<ApiResponse<UserResponse>>(
+      `${environment.apiUrl}/api/v1/users/${userId}`,
+      userRequest
     );
   }
 

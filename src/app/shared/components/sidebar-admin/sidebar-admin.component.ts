@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import gsap from 'gsap';
 import { ButtonModule } from 'primeng/button';
@@ -20,7 +20,14 @@ interface SidebarItem {
   templateUrl: './sidebar-admin.component.html',
   styleUrls: ['./sidebar-admin.component.scss'],
 })
-export class SidebarAdminComponent implements AfterViewInit {
+export class SidebarAdminComponent {
+  @Input() isOpen = false;
+  @Input() isMobile = false;
+  @Output() closeSidebar = new EventEmitter<void>();
+
+  companyName = 'San Isidro';
+  companyLogo = 'favicon.ico';
+
   sidebarItems: SidebarItem[] = [
     { label: 'Dashboard', icon: 'pi pi-home', route: '/admin/dashboard' },
     {
@@ -35,6 +42,11 @@ export class SidebarAdminComponent implements AfterViewInit {
         },
         { label: 'Inventario', icon: 'pi pi-box', route: '/admin/inventory' },
         { label: 'Personal', icon: 'pi pi-users', route: '/admin/staff' },
+        {
+          label: 'Proveedores',
+          icon: 'pi pi-briefcase',
+          route: '/admin/suppliers',
+        },
       ],
     },
     {
@@ -63,45 +75,23 @@ export class SidebarAdminComponent implements AfterViewInit {
     },
   ];
 
-  companyName = 'San Isidro';
-  companyLogo = 'favicon.ico'; // ruta del logo
-
   constructor(public authService: AuthService) {}
 
-  ngAfterViewInit() {
-    // Animación inicial más suave
-    setTimeout(() => {
-      this.sidebarItems.forEach((item, index) => {
-        if (item.children && item.isOpen) {
-          const submenuEl = document.querySelectorAll<HTMLElement>(
-            '#submenu-' + index
-          )[0];
-          if (submenuEl) {
-            const fullHeight = submenuEl.scrollHeight;
-            gsap.set(submenuEl, { height: fullHeight, opacity: 1 });
-            submenuEl.style.height = 'auto';
-          }
-        }
-      });
-    }, 0);
-  }
-
   toggleSubmenu(item: SidebarItem, submenuEl: HTMLElement) {
+    const el = submenuEl;
     const isOpen = !!item.isOpen;
-    const fullHeight = submenuEl.scrollHeight;
+    const fullHeight = el.scrollHeight;
 
     if (isOpen) {
-      // Animación premium de cierre: slide + fade out + suavizado
-      gsap.to(submenuEl, {
+      gsap.to(el, {
         height: 0,
         opacity: 0,
         duration: 0.35,
         ease: 'power2.inOut',
       });
     } else {
-      // Animación premium de apertura: slide + fade in + suavizado
       gsap.fromTo(
-        submenuEl,
+        el,
         { height: 0, opacity: 0 },
         {
           height: fullHeight,
@@ -109,12 +99,15 @@ export class SidebarAdminComponent implements AfterViewInit {
           duration: 0.35,
           ease: 'power2.out',
           onComplete: () => {
-            submenuEl.style.height = 'auto';
+            el.style.height = 'auto';
           },
         }
       );
     }
 
     item.isOpen = !isOpen;
+  }
+  close() {
+    if (this.isMobile) this.closeSidebar.emit();
   }
 }

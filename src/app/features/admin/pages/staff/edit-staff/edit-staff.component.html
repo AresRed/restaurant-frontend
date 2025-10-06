@@ -1,0 +1,260 @@
+<div class="max-w-4xl mx-auto p-6 space-y-8">
+  <div class="flex justify-between items-center mb-4">
+    <button
+      pButton
+      label="Volver"
+      icon="pi pi-arrow-left"
+      class="p-button-text"
+      type="button"
+      (click)="backToStaff()"
+    ></button>
+  </div>
+  <!-- Información básica del empleado -->
+  <section
+    class="user-info p-6 rounded-2xl shadow-md flex flex-col md:flex-row md:items-center gap-6"
+  >
+    <div class="flex-shrink-0">
+      <img
+        [src]="employee?.profileImageUrl || 'default-avatar.jpg'"
+        alt="Imagen de perfil"
+        class="w-28 h-28 rounded-full border-2 border-gray-300 object-cover"
+      />
+    </div>
+    <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label>Nombre completo</label
+        ><input
+          pInputText
+          type="text"
+          [value]="employee?.fullName"
+          readonly
+          disabled
+          class="w-full bg-gray-100 cursor-not-allowed"
+        />
+      </div>
+      <div>
+        <label>Nombre de usuario</label
+        ><input
+          pInputText
+          type="text"
+          [value]="employee?.username"
+          readonly
+          disabled
+          class="w-full bg-gray-100 cursor-not-allowed"
+        />
+      </div>
+      <div>
+        <label>Correo electrónico</label
+        ><input
+          pInputText
+          type="text"
+          [value]="employee?.email"
+          readonly
+          disabled
+          class="w-full bg-gray-100 cursor-not-allowed"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- Formulario empleado -->
+  <section class="employee-form p-6 rounded-2xl shadow-md">
+    <ng-container *ngIf="!loading; else loadingTpl">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6">Editar Empleado</h2>
+      <form
+        [formGroup]="employeeForm"
+        (ngSubmit)="onSubmit()"
+        class="space-y-6"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label>Cargo</label>
+            <p-dropdown
+              [options]="positions"
+              optionLabel="name"
+              optionValue="id"
+              formControlName="positionId"
+              placeholder="Seleccione un cargo"
+              class="w-full"
+            >
+              <ng-template let-pos pTemplate="item">
+                <div>
+                  <div class="font-semibold">
+                    {{ pos.name | positionLabel }}
+                  </div>
+                  <div class="text-xs text-gray-500">{{ pos.description }}</div>
+                </div>
+              </ng-template>
+              <ng-template let-pos pTemplate="selectedItem">
+                <div class="font-semibold">{{ pos?.name | positionLabel }}</div>
+              </ng-template>
+            </p-dropdown>
+            <small
+              class="text-red-500"
+              *ngIf="
+                employeeForm.get('positionId')?.invalid &&
+                employeeForm.get('positionId')?.touched
+              "
+              >Campo obligatorio</small
+            >
+          </div>
+
+          <div>
+            <label>Sueldo</label>
+            <input
+              pInputText
+              type="number"
+              formControlName="salary"
+              class="w-full"
+            />
+          </div>
+
+          <div>
+            <label>Fecha de contratación</label>
+            <p-datepicker
+              formControlName="hireDate"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              class="w-full"
+              styleClass="w-full"
+            ></p-datepicker>
+          </div>
+
+          <div>
+            <label>Estado</label>
+            <p-dropdown
+              [options]="employmentStatuses"
+              formControlName="status"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full"
+            ></p-dropdown>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-4 mt-6">
+          <button
+            pButton
+            label="Cancelar"
+            class="p-button-text"
+            type="button"
+            (click)="backToStaff()"
+          ></button>
+          <button
+            pButton
+            label="Guardar cambios"
+            icon="pi pi-save"
+            type="submit"
+            [loading]="saving"
+          ></button>
+        </div>
+      </form>
+    </ng-container>
+    <ng-template #loadingTpl>
+      <div class="text-center py-10 text-gray-500">Cargando datos...</div>
+    </ng-template>
+  </section>
+
+  <section class="employee-schedules mt-8 bg-white p-6 rounded-2xl shadow-md">
+    <h3 class="text-lg font-semibold mb-4">Horarios del Empleado</h3>
+    <button
+      pButton
+      type="button"
+      label="Agregar horario"
+      icon="pi pi-plus"
+      (click)="openScheduleDialog()"
+    ></button>
+
+    <p-table [value]="schedules" class="mt-4">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Día</th>
+          <th>Hora inicio</th>
+          <th>Hora fin</th>
+          <th>Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-schedule>
+        <tr>
+          <td>{{ schedule.dayOfWeek }}</td>
+          <td>{{ schedule.startTime }}</td>
+          <td>{{ schedule.endTime }}</td>
+          <td>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-pencil"
+              class="p-button-text"
+              (click)="openScheduleDialog(schedule)"
+            ></button>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-trash"
+              class="p-button-text text-red-600"
+              (click)="deleteSchedule(schedule.id)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </section>
+
+  <p-dialog
+    header="{{ editingSchedule ? 'Editar Horario' : 'Agregar Horario' }}"
+    [(visible)]="displayScheduleDialog"
+    [modal]="true"
+    [closable]="false"
+  >
+    <form
+      [formGroup]="scheduleForm"
+      (ngSubmit)="saveSchedule()"
+      class="space-y-4"
+    >
+      <div>
+        <label>Día de la semana</label>
+        <p-dropdown
+          [options]="daysOfWeek"
+          formControlName="dayOfWeek"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        ></p-dropdown>
+      </div>
+      <div class="flex flex-col">
+        <label>Hora inicio</label>
+        <p-datepicker
+          [timeOnly]="true"
+          [hourFormat]="'12'"
+          formControlName="startTime"
+          class="w-full"
+        />
+      </div>
+      <div class="flex flex-col">
+        <label>Hora fin</label>
+        <p-datepicker
+          [timeOnly]="true"
+          [hourFormat]="'12'"
+          formControlName="endTime"
+          appendTo="body"
+          class="w-full"
+        />
+      </div>
+      <div class="flex justify-end gap-2 mt-4">
+        <button
+          pButton
+          type="button"
+          label="Cancelar"
+          class="p-button-text"
+          (click)="displayScheduleDialog = false"
+        ></button>
+        <button
+          pButton
+          type="submit"
+          label="Guardar"
+          icon="pi pi-save"
+        ></button>
+      </div>
+    </form>
+  </p-dialog>
+</div>

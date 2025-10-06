@@ -1,1 +1,191 @@
-<p>addresses works!</p>
+<div class="p-6 space-y-6">
+  <!-- Encabezado -->
+  <div class="flex justify-between items-center">
+    <h2 class="text-2xl font-semibold text-gray-800">Mis direcciones</h2>
+    <button
+      *ngIf="!isEditing"
+      pButton
+      label="Agregar dirección"
+      icon="pi pi-plus"
+      class="p-button-success"
+      (click)="isEditing = true"
+    ></button>
+  </div>
+
+  <!-- Lista de direcciones -->
+  <div
+    *ngIf="addresses.length > 0; else noAddresses"
+    class="grid md:grid-cols-2 gap-4"
+  >
+    <div
+      *ngFor="let address of addresses"
+      class="p-4 bg-white shadow rounded-lg border border-gray-200"
+    >
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="font-medium text-gray-900">{{ address.street }}</p>
+          <p class="text-gray-600 text-sm">
+            {{ address.city }}, {{ address.province }}
+          </p>
+          <p class="text-gray-500 text-sm">
+            {{ address.reference || "-" }}
+          </p>
+          <p class="text-gray-500 text-sm">
+            Código Postal: {{ address.zipCode || "-" }}
+          </p>
+          <p class="text-gray-500 text-sm">
+            {{ address.instructions || "" }}
+          </p>
+        </div>
+
+        <div class="flex space-x-2">
+          <p-button
+            icon="pi pi-pencil"
+            [rounded]="true"
+            severity="info"
+            size="small"
+            (click)="startEdit(address)"
+          ></p-button>
+          <p-button
+            icon="pi pi-trash"
+            [rounded]="true"
+            severity="danger"
+            size="small"
+            (click)="confirmDelete($event, address.id)"
+          ></p-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sin direcciones -->
+  <ng-template #noAddresses>
+    <div class="p-6 text-center bg-gray-50 rounded-lg border border-gray-200">
+      <p class="text-gray-500">Aún no tienes direcciones guardadas.</p>
+    </div>
+  </ng-template>
+
+  <!-- Formulario -->
+  <div
+    *ngIf="isEditing"
+    class="p-6 bg-white rounded-lg shadow-lg border border-gray-200"
+  >
+    <h3 class="text-lg font-semibold mb-4 text-gray-800">
+      {{ editingAddressId ? "Editar dirección" : "Nueva dirección" }}
+    </h3>
+
+    <form
+      [formGroup]="addressForm"
+      (ngSubmit)="saveAddress()"
+      class="space-y-4"
+    >
+      <!-- Calle -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Calle</label>
+        <input
+          pInputText
+          formControlName="street"
+          placeholder="Ej. Av. Los Olivos 123"
+          class="w-full"
+        />
+        <small
+          *ngIf="f['street'].touched && f['street'].invalid"
+          class="text-red-500"
+        >
+          La calle es obligatoria (mínimo 5 caracteres).
+        </small>
+      </div>
+
+      <!-- Ciudad -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Ciudad</label>
+        <input
+          pInputText
+          formControlName="city"
+          placeholder="Ej. Lima"
+          class="w-full"
+        />
+        <small
+          *ngIf="f['city'].touched && f['city'].invalid"
+          class="text-red-500"
+        >
+          La ciudad es obligatoria.
+        </small>
+      </div>
+
+      <!-- Provincia -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Provincia</label>
+        <input
+          pInputText
+          formControlName="province"
+          placeholder="Ej. Lima Metropolitana"
+          class="w-full"
+        />
+        <small
+          *ngIf="f['province'].touched && f['province'].invalid"
+          class="text-red-500"
+        >
+          La provincia es obligatoria.
+        </small>
+      </div>
+
+      <!-- Código Postal -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700"
+          >Código Postal</label
+        >
+        <input
+          pInputText
+          formControlName="zipCode"
+          placeholder="Ej. 15001"
+          class="w-full"
+        />
+      </div>
+
+      <!-- Referencia -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700"
+          >Referencia</label
+        >
+        <input
+          pInputText
+          formControlName="reference"
+          placeholder="Ej. Frente al parque"
+          class="w-full"
+        />
+      </div>
+
+      <!-- Instrucciones -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700"
+          >Instrucciones</label
+        >
+        <textarea
+          pTextarea
+          formControlName="instructions"
+          placeholder="Ej. Dejar en portería"
+          rows="2"
+          class="w-full"
+        ></textarea>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex justify-end gap-2 pt-4">
+        <button
+          type="button"
+          pButton
+          label="Cancelar"
+          class="p-button-secondary"
+          (click)="cancelEdit()"
+        ></button>
+        <button
+          type="submit"
+          pButton
+          label="{{ editingAddressId ? 'Actualizar' : 'Guardar' }}"
+          class="p-button-success"
+        ></button>
+      </div>
+    </form>
+  </div>
+</div>

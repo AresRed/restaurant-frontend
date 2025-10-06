@@ -1,21 +1,77 @@
 <header
   class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-10 shadow-sm"
 >
+  <p-button
+    icon="pi pi-bars"
+    [rounded]="true"
+    variant="outlined"
+    [raised]="true"
+    severity="secondary"
+    class="xl:hidden"
+    (click)="toggleSidebar.emit()"
+  />
+
   <h2 class="text-lg font-semibold text-gray-700">Panel de Administración</h2>
 
   <div class="flex items-center space-x-4">
+    <!-- Botón de Notificaciones -->
     <p-button
       icon="pi pi-bell"
       [rounded]="true"
       [text]="true"
       severity="secondary"
+      (click)="toggleNotifications($event)"
+      class="relative"
     ></p-button>
 
+    <p-popover #notificationPopover>
+      <h4 class="text-gray-800 font-semibold mb-4 border-b">Notificaciones</h4>
+
+      <div class="flex flex-col gap-2 max-h-72 overflow-y-auto">
+        <div
+          *ngFor="let notification of notifications"
+          class="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
+        >
+          <div
+            class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full text-white font-bold text-sm"
+            [ngClass]="{
+              'bg-blue-500': notification.title.includes('Mensaje'),
+              'bg-green-500': notification.title.includes('Pedido'),
+              'bg-yellow-500': notification.title.includes('Sistema')
+            }"
+          >
+            {{ notification.title[0] }}
+          </div>
+
+          <div class="flex-1 flex flex-col">
+            <div class="flex justify-between items-start">
+              <p class="text-gray-800 font-medium text-sm">
+                {{ notification.title }}
+              </p>
+              <span class="text-gray-400 text-xs">{{
+                notification.date | date : "shortTime"
+              }}</span>
+            </div>
+            <p class="text-gray-500 text-xs mt-1">
+              {{ notification.message }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 text-center border-t pt-2">
+        <button
+          class="text-blue-600 font-semibold text-sm hover:underline"
+          (click)="viewAllNotifications()"
+        >
+          Ver todas
+        </button>
+      </div>
+    </p-popover>
+
+    <!-- Avatar Usuario -->
     <p-avatar
-      [image]="
-        currentUser?.profileImageUrl || 'default-avatar.jpg'
-      "
-      class="mr-2"
+      [image]="currentUser?.profileImageUrl || 'default-avatar.jpg'"
       size="normal"
       shape="circle"
       (click)="menu.toggle($event)"

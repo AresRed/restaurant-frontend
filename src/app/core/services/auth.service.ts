@@ -11,6 +11,7 @@ import {
 import { RegisterRequest } from '../models/auth/register/register.model';
 import { ApiResponse } from '../models/base/api-response.model';
 import { UserResponse } from '../models/user.model';
+import { Roles } from '../models/base/roles.model';
 
 @Injectable({
   providedIn: 'root',
@@ -54,13 +55,17 @@ export class AuthService {
     return this.http
       .post<ApiResponse<UserLoginResponse>>(
         `${environment.apiUrl}/api/v1/auth/refresh`,
-        { sessionId }, // enviamos sessionId al backend
+        { sessionId },
         { withCredentials: true }
       )
       .pipe(
         tap((res) => {
           if (res.success && res.data.accessToken) {
             this.storeSession(res.data);
+          } else {
+            console.warn(
+              'Refresh token inválido o sin accessToken en respuesta'
+            );
           }
         })
       );
@@ -70,6 +75,7 @@ export class AuthService {
     const id = sessionId || localStorage.getItem('sessionId');
 
     if (!id) {
+      this.forceLogout();
       return new Observable((observer) => {
         observer.next({
           success: false,
@@ -88,8 +94,7 @@ export class AuthService {
       .pipe(
         tap(() => {
           if (!sessionId) {
-            this.clearSession();
-            this.router.navigate(['/']);
+            this.forceLogout();
           }
         })
       );
@@ -145,6 +150,11 @@ export class AuthService {
     });
   }
 
+  forceLogout() {
+    this.clearSession();
+    this.router.navigate(['/login']);
+  }
+
   getCurrentUser(): Observable<ApiResponse<UserResponse>> {
     return this.http
       .get<ApiResponse<UserResponse>>(`${environment.apiUrl}/api/v1/users/me`)
@@ -153,6 +163,8 @@ export class AuthService {
           if (res.success && res.data) {
             localStorage.setItem('currentUser', JSON.stringify(res.data));
             this.currentUserSubject.next(res.data);
+          } else {
+            this.forceLogout();
           }
         })
       );
@@ -187,7 +199,7 @@ export class AuthService {
 
   private redirectAfterLogin(user: UserResponse) {
     const roles = user.roles || [];
-    if (roles.includes('ROLE_ADMIN')) {
+    if (roles.includes(Roles.ROLE_ADMIN)) {
       this.router.navigate(['/admin/dashboard']);
     } else {
       this.router.navigate(['/home']);

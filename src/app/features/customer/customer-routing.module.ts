@@ -6,7 +6,6 @@ import { FavoritesComponent } from './pages/favorites/favorites.component';
 import { MyReservationsComponent } from './pages/my-reservations/my-reservations.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 import { OrdersComponent } from './pages/orders/orders.component';
-import { PaymentComponent } from './pages/payment/payment.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { PromotionsComponent } from './pages/promotions/promotions.component';
 import { ReviewsComponent } from './pages/reviews/reviews.component';
@@ -110,7 +109,6 @@ export const customerRoutes: Routes = [
       { path: 'addresses', component: AddressesComponent },
       { path: 'orders', component: OrdersComponent },
       { path: 'reservations', component: MyReservationsComponent },
-      { path: 'payment', component: PaymentComponent },
       { path: 'favorites', component: FavoritesComponent },
       { path: 'reviews', component: ReviewsComponent },
       { path: 'promotions', component: PromotionsComponent },

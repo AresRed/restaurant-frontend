@@ -1,0 +1,95 @@
+<div
+  class="add-stock-container bg-white rounded-2xl shadow-lg p-8 max-w-2xl mx-auto mt-10 animate-fadeIn"
+  [formGroup]="addStockForm"
+>
+  <h2
+    class="text-3xl font-bold text-gray-800 text-center mb-6 flex items-center justify-center gap-2"
+  >
+    <i class="pi pi-box text-green-600 text-3xl"></i>
+    Registrar compra / Agregar stock
+  </h2>
+
+  <p class="text-gray-600 text-center mb-8">
+    Complete los siguientes campos para registrar el ingreso de productos al
+    inventario.
+  </p>
+
+  <div class="space-y-6">
+    <!-- Cantidad -->
+    <div class="form-group">
+      <label class="form-label flex items-center gap-2">
+        <i class="pi pi-sort-amount-up text-green-600"></i>
+        Cantidad a agregar
+      </label>
+      <p-inputNumber
+        formControlName="quantity"
+        mode="decimal"
+        [minFractionDigits]="2"
+        [min]="1"
+        [showButtons]="true"
+        styleClass="w-full"
+      ></p-inputNumber>
+      <small
+        class="error-text"
+        *ngIf="
+          formControls['quantity'].invalid && formControls['quantity'].touched
+        "
+      >
+        La cantidad debe ser mayor a 0.
+      </small>
+    </div>
+
+    <!-- Proveedor -->
+    <div class="form-group">
+      <label class="form-label flex items-center gap-2">
+        <i class="pi pi-truck text-green-600"></i>
+        Proveedor (opcional)
+      </label>
+      <p-dropdown
+        [options]="suppliers"
+        optionLabel="companyName"
+        optionValue="id"
+        placeholder="Seleccionar proveedor"
+        formControlName="supplierId"
+        styleClass="w-full"
+      ></p-dropdown>
+    </div>
+
+    <!-- Razón del ajuste -->
+    <div class="form-group">
+      <label class="form-label flex items-center gap-2">
+        <i class="pi pi-pencil text-green-600"></i>
+        Razón del ajuste
+      </label>
+      <div class="relative">
+        <textarea
+          formControlName="reason"
+          placeholder="Ej. Compra de emergencia, corrección de inventario..."
+          class="input-field pl-10 w-full"
+        ></textarea>
+      </div>
+      <small
+        class="error-text"
+        *ngIf="formControls['reason'].invalid && formControls['reason'].touched"
+      >
+        La razón es obligatoria y debe tener al menos 5 caracteres.
+      </small>
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-4 pt-8 border-t mt-8">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      severity="secondary"
+      (click)="cancel()"
+    ></p-button>
+    <p-button
+      label="Guardar"
+      icon="pi pi-check"
+      severity="success"
+      (click)="onSubmit()"
+      [disabled]="addStockForm.invalid"
+    ></p-button>
+  </div>
+</div>

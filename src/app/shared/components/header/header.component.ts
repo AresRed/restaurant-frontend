@@ -40,6 +40,11 @@ export class HeaderComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // const token = localStorage.getItem('accessToken');
+    // if (token && this.authService.isTokenExpired(token)) {
+    //   this.authService.forceLogout();
+    // }
+    
     this.currentUser$ = this.authService.currentUser$;
 
     this.itemsUserMenu = [
@@ -96,8 +101,12 @@ export class HeaderComponent implements OnInit {
         );
         this.router.navigate(['/']);
       },
-      error: (err) => {
-        this.notify.error('Error', 'No se pudo cerrar la sesión');
+      error: () => {
+        this.notify.warn(
+          'Sesión cerrada localmente',
+          'El backend no respondió'
+        );
+        this.router.navigate(['/']);
       },
     });
   }

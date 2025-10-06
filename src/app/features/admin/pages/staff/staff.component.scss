@@ -4,6 +4,10 @@
   ::ng-deep .p-card {
     border-radius: 1rem;
     overflow: hidden;
+    transition: transform 0.2s ease;
+    &:hover {
+      transform: translateY(-2px) scale(1.02);
+    }
   }
 
   ::ng-deep .p-table {

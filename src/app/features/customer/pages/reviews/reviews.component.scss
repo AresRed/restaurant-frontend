@@ -1,0 +1,30 @@
+:host {
+  display: block;
+
+  // Personalización nueva API de Tabs
+  ::ng-deep .p-tablist {
+    @apply flex gap-6 border-b border-gray-200;
+
+    .p-tab {
+      @apply px-4 py-2 font-semibold text-gray-600 cursor-pointer transition;
+
+      &:hover {
+        @apply text-yellow-600;
+      }
+
+      &.p-tab-active {
+        @apply text-yellow-600 border-b-2 border-yellow-500;
+      }
+    }
+  }
+
+  // Personalización Rating
+  ::ng-deep .p-rating .p-rating-icon {
+    color: #facc15; // Amarillo
+    font-size: 1.25rem;
+
+    &.pi-star-o {
+      color: #d1d5db; // Gris
+    }
+  }
+}

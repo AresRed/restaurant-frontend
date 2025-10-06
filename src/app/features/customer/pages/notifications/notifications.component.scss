@@ -1,0 +1,12 @@
+:host {
+  display: block;
+
+  // Ajustes para hover
+  ::ng-deep .p-button {
+    transition: all 0.2s ease-in-out;
+  }
+
+  ::ng-deep .p-button:hover {
+    transform: scale(1.1);
+  }
+}

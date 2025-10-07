@@ -1,0 +1,14 @@
+export const ICA_DISTRICTS = [
+    { "name": "Ica", "code": "110101" },
+    { "name": "La Tinguiña", "code": "110106" },
+    { "name": "Los Aquijes", "code": "110108" },
+    { "name": "Parcona", "code": "110111" },
+    { "name": "Pueblo Nuevo", "code": "110112" },
+    { "name": "Salas", "code": "110113" },
+    { "name": "San José de los Molinos", "code": "110115" },
+    { "name": "San Juan Bautista", "code": "110116" },
+    { "name": "Santiago", "code": "110117" },
+    { "name": "Subtanjalla", "code": "110119" },
+    { "name": "Tate", "code": "110121" },
+    { "name": "Yauca del Rosario", "code": "110122" }
+  ];

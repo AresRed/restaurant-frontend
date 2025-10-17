@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  OnInit,
-  ViewEncapsulation,
-} from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -29,7 +24,7 @@ import { AuthenticatedReservationRequest } from '../../../../core/models/reserva
 import { TableAvailabilityResponse } from '../../../../core/models/table.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ReservationService } from '../../../../core/services/reservation.service';
-import { TableService } from '../../../../core/services/table.service';
+import { TableService } from '../../../../core/services/restaurant/table.service';
 
 export interface TableUI extends TableAvailabilityResponse {
   selected: boolean;

@@ -1,13 +1,13 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { ApiResponse } from '../models/base/api-response.model';
+import { environment } from '../../../../environments/environment';
+import { ApiResponse } from '../../models/base/api-response.model';
 import {
   TableAvailabilityResponse,
   TableRequest,
   TableResponse,
-} from '../models/table.model';
+} from '../../models/table.model';
 
 @Injectable({
   providedIn: 'root',

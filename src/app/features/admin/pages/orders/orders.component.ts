@@ -7,7 +7,7 @@ import {
   AutoCompleteModule,
 } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
-import { Dialog, DialogModule } from 'primeng/dialog';
+import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
@@ -19,17 +19,17 @@ import {
 } from '../../../../core/models/table.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { OrderService } from '../../../../core/services/orders/order.service';
-import { TableService } from '../../../../core/services/table.service';
+import { TableService } from '../../../../core/services/restaurant/table.service';
 
 import { Router } from '@angular/router';
+import { AvatarModule } from 'primeng/avatar';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { PanelModule } from 'primeng/panel';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { PanelModule } from 'primeng/panel';
 import { environment } from '../../../../../environments/environment';
-import { AvatarModule } from 'primeng/avatar';
 
 interface TableMap {
   label: string;

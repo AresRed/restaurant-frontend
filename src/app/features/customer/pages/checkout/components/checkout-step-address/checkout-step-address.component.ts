@@ -15,7 +15,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DeliveryAddressRequest } from '../../../../../../core/models/order.model';
 import { TableResponse } from '../../../../../../core/models/table.model';
 import { NotificationService } from '../../../../../../core/services/notification.service';
-import { TableService } from '../../../../../../core/services/table.service';
+import { TableService } from '../../../../../../core/services/restaurant/table.service';
 import { AddressFormComponent } from '../address-form/address-form.component';
 
 declare var google: any;
@@ -285,15 +285,21 @@ export class CheckoutStepAddressComponent implements AfterViewInit, OnChanges {
 
   onNext() {
     if (this.isDelivery() && !this.isMarkerInsideZone) {
-      this.notificationService.warn('La ubicación seleccionada está fuera de nuestra zona de reparto.');
+      this.notificationService.warn(
+        'La ubicación seleccionada está fuera de nuestra zona de reparto.'
+      );
       return;
     }
     if (this.isDelivery() && !this.currentDeliveryAddress.street) {
-      this.notificationService.warn('Por favor, selecciona una ubicación válida en el mapa.');
+      this.notificationService.warn(
+        'Por favor, selecciona una ubicación válida en el mapa.'
+      );
       return;
     }
     if (this.isDineIn() && !this.selectedTable) {
-      this.notificationService.warn('Por favor, selecciona una mesa disponible.');
+      this.notificationService.warn(
+        'Por favor, selecciona una mesa disponible.'
+      );
       return;
     }
 

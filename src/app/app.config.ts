@@ -3,7 +3,7 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from '@angular/common/http';
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, LOCALE_ID, provideZoneChangeDetection } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import Aura from '@primeng/themes/aura';
@@ -12,6 +12,10 @@ import { providePrimeNG } from 'primeng/config';
 
 import { routes } from './app.routes';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { registerLocaleData } from '@angular/common';
+import localeEsPe from '@angular/common/locales/es-PE'
+
+registerLocaleData(localeEsPe)
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -43,5 +47,6 @@ export const appConfig: ApplicationConfig = {
       useClass: AuthInterceptor,
       multi: true,
     },
+    {provide: LOCALE_ID, useValue: 'es-PE'}
   ],
 };

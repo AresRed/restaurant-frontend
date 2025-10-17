@@ -5,12 +5,11 @@ import { ProductResponse } from '../models/products/product/product.model';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
+  private readonly IGV_RATE = 0.18;
   private itemsSubject = new BehaviorSubject<CartItem[]>(this.loadCart());
   items$ = this.itemsSubject.asObservable();
 
-  total$ = this.items$.pipe(
-    map((items) => items.reduce((sum, i) => sum + i.price * i.quantity, 0))
-  );
+  total$ = this.items$.pipe(map((items) => this.getTotal()));
 
   count$ = this.items$.pipe(
     map((items) => items.reduce((sum, i) => sum + i.quantity, 0))
@@ -64,7 +63,18 @@ export class CartService {
   }
 
   getTotal(): number {
+    return this.items.reduce(
+      (sum, i) => sum + i.price * (1 + this.IGV_RATE) * i.quantity,
+      0
+    );
+  }
+
+  getSubtotal(): number {
     return this.items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  }
+
+  getIGV(): number {
+    return this.getTotal() - this.getSubtotal();
   }
 
   clear() {

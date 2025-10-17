@@ -3,6 +3,7 @@
   (ngSubmit)="onRegister()"
   class="space-y-6 w-full"
 >
+  <!-- Nombres -->
   <p-float-label>
     <label for="firstName">Nombres</label>
     <input
@@ -13,7 +14,13 @@
       class="w-full"
     />
   </p-float-label>
+  <small
+    *ngIf="signupForm.get('firstName')?.invalid && signupForm.get('firstName')?.touched"
+    class="text-red-500"
+    >Campo obligatorio</small
+  >
 
+  <!-- Apellidos -->
   <p-float-label>
     <label for="lastName">Apellidos</label>
     <input
@@ -24,7 +31,13 @@
       class="w-full"
     />
   </p-float-label>
+  <small
+    *ngIf="signupForm.get('lastName')?.invalid && signupForm.get('lastName')?.touched"
+    class="text-red-500"
+    >Campo obligatorio</small
+  >
 
+  <!-- Usuario -->
   <p-float-label>
     <label for="username">Nombre de usuario</label>
     <input
@@ -35,7 +48,13 @@
       class="w-full"
     />
   </p-float-label>
+  <small
+    *ngIf="signupForm.get('username')?.invalid && signupForm.get('username')?.touched"
+    class="text-red-500"
+    >Campo obligatorio</small
+  >
 
+  <!-- Email -->
   <p-float-label>
     <label for="email">Email</label>
     <input
@@ -46,9 +65,20 @@
       class="w-full"
     />
   </p-float-label>
+  <small
+    *ngIf="signupForm.get('email')?.hasError('required') && signupForm.get('email')?.touched"
+    class="text-red-500"
+    >Campo obligatorio</small
+  >
+  <small
+    *ngIf="signupForm.get('email')?.hasError('email') && signupForm.get('email')?.touched"
+    class="text-red-500"
+    >Formato de correo inválido</small
+  >
 
+  <!-- Password -->
   <p-float-label>
-    <label for="password">Password</label>
+    <label for="password">Contraseña</label>
     <p-password
       formControlName="password"
       placeholder="Password"
@@ -57,18 +87,38 @@
       styleClass="w-full"
     ></p-password>
   </p-float-label>
+  <small
+    *ngIf="signupForm.get('password')?.hasError('required') && signupForm.get('password')?.touched"
+    class="text-red-500"
+    >Campo obligatorio</small
+  >
+  <small
+    *ngIf="signupForm.get('password')?.hasError('minlength') && signupForm.get('password')?.touched"
+    class="text-red-500"
+    >Debe tener al menos 8 caracteres</small
+  >
 
+  <!-- Confirmar contraseña -->
   <p-float-label>
-    <label for="confirmPassword">Confrmar Contraseña</label>
+    <label for="confirmPassword">Confirmar Contraseña</label>
     <p-password
       formControlName="confirmPassword"
-      placeholder="confirmPassword"
+      placeholder="Confirmar Contraseña"
       toggleMask="true"
       inputStyleClass="w-full"
       styleClass="w-full"
     ></p-password>
   </p-float-label>
+  <small
+    *ngIf="
+      signupForm.hasError('mismatch') &&
+      signupForm.get('confirmPassword')?.touched
+    "
+    class="text-red-500"
+    >Las contraseñas no coinciden</small
+  >
 
+  <!-- Botón de registro -->
   <p-button
     type="submit"
     label="Registrarse"
@@ -76,14 +126,16 @@
     styleClass="w-full mt-8"
     [loading]="loading"
     [disabled]="loading || signupForm.invalid"
-  />
+  ></p-button>
 
+  <!-- Divider -->
   <div class="flex items-center my-4">
     <hr class="flex-grow border-gray-600" />
     <span class="px-2 text-gray-400 text-sm">o</span>
     <hr class="flex-grow border-gray-600" />
   </div>
 
+  <!-- Google -->
   <p-button
     type="button"
     (click)="onGoogleSignup()"

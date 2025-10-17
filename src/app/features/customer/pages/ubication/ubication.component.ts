@@ -1,23 +1,25 @@
+import { CommonModule, NgIf } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DialogModule } from 'primeng/dialog';
-import { CommonModule } from '@angular/common';
-import { FormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { SelectButtonModule } from 'primeng/selectbutton';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { NgIf } from '@angular/common';
+import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { ReactiveFormsModule } from '@angular/forms';
+import { InputNumber } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextarea } from 'primeng/inputtextarea';
-import { Router } from '@angular/router';
-import { UbicationService } from '../../../../core/services/ubication.service';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { TextareaModule } from 'primeng/textarea';
 import { AuthService } from '../../../../core/services/auth.service';
-import { InputNumber } from "primeng/inputnumber";
-import { DropdownModule } from "primeng/dropdown";
+import { UbicationService } from '../../../../core/services/ubication.service';
 import { ICA_DISTRICTS } from './IcaDistricts';
-
 
 @Component({
   selector: 'app-ubication',
@@ -34,20 +36,18 @@ import { ICA_DISTRICTS } from './IcaDistricts';
     CommonModule,
     ButtonModule,
     NgIf,
-    InputTextarea,
+    TextareaModule,
     InputNumber,
-    DropdownModule
-],
+    DropdownModule,
+  ],
   templateUrl: './ubication.component.html',
-  styleUrl: './ubication.component.scss'
+  styleUrl: './ubication.component.scss',
 })
-
 export class UbicationComponent implements OnInit, OnDestroy {
-
   displayDialog: boolean = false;
   private subscription: any;
-   districts: any[] = ICA_DISTRICTS;
-  private readonly city = 'Ica'; 
+  districts: any[] = ICA_DISTRICTS;
+  private readonly city = 'Ica';
 
   addressForm!: FormGroup;
 
@@ -56,27 +56,27 @@ export class UbicationComponent implements OnInit, OnDestroy {
     { label: 'Retiro', value: 'retiro' },
   ];
   value: string = 'delivery';
-  ubicacionLocal: string = 'Av San Martin 1149, Ica 11001 Horarios: 12 p. m.–12 a. m.';
+  ubicacionLocal: string =
+    'Av San Martin 1149, Ica 11001 Horarios: 12 p. m.–12 a. m.';
 
   constructor(
     private ubicationService: UbicationService,
     private fb: FormBuilder,
-    private authService: AuthService,    
+    private authService: AuthService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
-    this.subscription = this.ubicationService.dialogState$.subscribe(open => {
+    this.subscription = this.ubicationService.dialogState$.subscribe((open) => {
       this.displayDialog = open;
     });
 
-
     this.addressForm = this.fb.group({
-      street: ['', ],
-      reference: ['', ],
-      city: [{value: this.city,disabled: true}],
+      street: [''],
+      reference: [''],
+      city: [{ value: this.city, disabled: true }],
       distrito: [null],
-      zipCode: ['' ],
+      zipCode: [''],
       instructions: [''],
     });
   }
@@ -96,24 +96,18 @@ export class UbicationComponent implements OnInit, OnDestroy {
   }
 
   saveAddress() {
-
-
     if (this.addressForm.valid) {
       const addressData = this.addressForm.value;
 
       this.ubicationService.createAddress(addressData).subscribe({
         next: (response) => {
-
           this.displayDialog = false;
           this.addressForm.reset();
         },
-        error: (err) => console.error('Error al guardar la direccion')
-
+        error: (err) => console.error('Error al guardar la direccion'),
       });
     } else {
       this.addressForm.markAllAsTouched();
     }
-
-
   }
 }

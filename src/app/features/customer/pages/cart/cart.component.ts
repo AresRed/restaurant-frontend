@@ -56,7 +56,14 @@ export class CartComponent implements OnInit, OnDestroy {
     return this.cartService.getTotal();
   }
 
-  // Abre el modal del checkout
+  get subtotal(): number {
+    return this.cartService.getSubtotal();
+  }
+
+  get igv(): number {
+    return this.cartService.getIGV();
+  }
+
   finalizeOrder() {
     if (!this.items.length) {
       this.notificationService.error('Tu carrito está vacío');

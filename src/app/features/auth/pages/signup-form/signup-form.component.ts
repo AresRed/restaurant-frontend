@@ -11,6 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
+import { ApiError } from '../../../../core/models/base/api-response.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { UiService } from '../../../../core/services/ui.service';
@@ -45,18 +46,19 @@ export class SignupFormComponent {
         lastName: ['', Validators.required],
         username: ['', Validators.required],
         email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
+        password: ['', [Validators.required, Validators.minLength(8)]],
         confirmPassword: ['', Validators.required],
       },
       { validators: this.passwordMatchValidator }
     );
   }
 
-  passwordMatchValidator(group: FormGroup) {
+  // ✅ Arrow function — mantiene el contexto correctamente
+  passwordMatchValidator = (group: FormGroup) => {
     const pass = group.get('password')?.value;
     const confirm = group.get('confirmPassword')?.value;
     return pass === confirm ? null : { mismatch: true };
-  }
+  };
 
   onRegister() {
     if (this.signupForm.invalid) return;
@@ -75,19 +77,31 @@ export class SignupFormComponent {
       },
       error: (err) => {
         this.loading = false;
-        this.notificationService.error(
-          err?.error?.message || 'Error inesperado al registrar'
-        );
+
+        const apiError: ApiError = err?.error;
+        const generalMessage =
+          apiError?.message || 'Error inesperado al registrar';
+
+        this.notificationService.error(generalMessage);
+
+        if (apiError?.data) {
+          Object.entries(apiError.data).forEach(([field, message]) => {
+            const control = this.signupForm.get(field);
+            if (control) {
+              control.setErrors({ apiError: message });
+              control.markAsTouched();
+            }
+          });
+        }
       },
     });
   }
 
-  
   onGoogleSignup() {
     this.loading = true;
 
     this.authService.loginWithGoogle().subscribe({
-      next: (user) => {
+      next: () => {
         this.uiService.closeSignup();
         this.notificationService.success('Registro con Google exitoso');
         this.signupForm.reset();

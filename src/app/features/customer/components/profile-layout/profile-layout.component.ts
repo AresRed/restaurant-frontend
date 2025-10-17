@@ -77,11 +77,6 @@ export class ProfileLayoutComponent implements OnInit, AfterViewInit {
         { key: '', label: 'Perfil', icon: 'pi pi-user' },
         { key: 'security', label: 'Seguridad', icon: 'pi pi-shield' },
         { key: 'settings', label: 'Configuración', icon: 'pi pi-cog' },
-        {
-          key: 'admin-settings',
-          label: 'Admin Settings',
-          icon: 'pi pi-briefcase',
-        },
       ];
     } else {
       this.sections = [

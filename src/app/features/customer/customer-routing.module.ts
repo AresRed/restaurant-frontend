@@ -34,22 +34,6 @@ export const customerRoutes: Routes = [
       ),
   },
   {
-    path: 'my-reservations',
-    loadComponent: () =>
-      import('./pages/my-reservations/my-reservations.component').then(
-        (m) => m.MyReservationsComponent
-      ),
-    canActivate: [AuthGuard],
-  },
-  {
-    path: 'my-reservations/:id',
-    loadComponent: () =>
-      import(
-        './pages/my-reservations/reservation-detail/reservation-detail.component'
-      ).then((m) => m.ReservationDetailComponent),
-    canActivate: [AuthGuard],
-  },
-  {
     path: 'contact',
     loadComponent: () =>
       import('./pages/contact/contact.component').then(
@@ -80,24 +64,6 @@ export const customerRoutes: Routes = [
     data: { roles: ['ROLE_CLIENT'] },
   },
   {
-    path: 'orders',
-    loadComponent: () =>
-      import('./pages/orders/orders.component').then((m) => m.OrdersComponent),
-    canActivate: [AuthGuard],
-    data: { roles: ['ROLE_CLIENT'] },
-  },
-
- 
-  {
-    path: 'orders/:id',
-    loadComponent: () =>
-      import('./pages/orders/order-detail/order-detail.component').then(
-        (m) => m.OrderDetailComponent
-      ),
-    canActivate: [AuthGuard],
-    data: { roles: ['ROLE_CLIENT'] },
-  },
-  {
     path: 'profile',
     component: ProfileLayoutComponent,
     canActivate: [AuthGuard],
@@ -107,8 +73,25 @@ export const customerRoutes: Routes = [
       { path: 'security', component: SecurityComponent },
       { path: 'settings', component: SettingsComponent },
       { path: 'addresses', component: AddressesComponent },
+
       { path: 'orders', component: OrdersComponent },
+      {
+        path: 'orders/:id',
+        loadComponent: () =>
+          import('./pages/orders/order-detail/order-detail.component').then(
+            (m) => m.OrderDetailComponent
+          ),
+      },
+
       { path: 'reservations', component: MyReservationsComponent },
+      {
+        path: 'reservations/:id',
+        loadComponent: () =>
+          import(
+            './pages/my-reservations/reservation-detail/reservation-detail.component'
+          ).then((m) => m.ReservationDetailComponent),
+      },
+
       { path: 'favorites', component: FavoritesComponent },
       { path: 'reviews', component: ReviewsComponent },
       { path: 'promotions', component: PromotionsComponent },

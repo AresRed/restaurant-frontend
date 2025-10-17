@@ -6,19 +6,42 @@ export interface OrderDetailRequest {
 export interface OrderRequest {
   statusId: number;
   typeId: number;
-  addressId: number;
+  deliveryAddress?: DeliveryAddressRequest;
   details: OrderDetailRequest[];
+  tableId?: number
+}
+
+export interface DeliveryAddressRequest {
+  street?: string;
+  reference?: string;
+  city?: string;
+  instructions?: string;
+  province?: string;
+  zipCode?: string;
+  latitude: number;
+  longitude: number
 }
 
 export interface OrderResponse {
   id: number;
   customerId: number;
   customerName: string;
-  employeeId: number;
-  employeeName: string;
-  addressId: number;
-  addressDescription: string;
-  date: Date;
+  employeeId: number | null;
+  employeeName: string | null;
+
+  deliveryStreet: string;
+  deliveryReference: string;
+  deliveryCity: string;
+  deliveryInstructions: string;
+  deliveryProvince: string | null;
+  deliveryZipCode: string | null;
+  deliveryLatitude: number;
+  deliveryLongitude: number;
+
+  tableId: number;
+  tableCode: string;
+
+  date: string;
   statusId: number;
   statusName: string;
   typeId: number;
@@ -26,12 +49,10 @@ export interface OrderResponse {
   total: number;
   details: OrderDetailResponse[];
 }
-
 export interface OrderDetailResponse {
   id: number;
   productId: number;
   productName: string;
   quantity: number;
-  unitPrice: number
+  unitPrice: number;
 }
-

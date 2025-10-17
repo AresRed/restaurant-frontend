@@ -7,7 +7,7 @@ import {
   AutoCompleteModule,
 } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
+import { Dialog, DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
@@ -21,11 +21,15 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { OrderService } from '../../../../core/services/orders/order.service';
 import { TableService } from '../../../../core/services/table.service';
 
-import { FloatLabel } from 'primeng/floatlabel';
+import { Router } from '@angular/router';
+import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { PanelModule } from 'primeng/panel';
+import { environment } from '../../../../../environments/environment';
+import { AvatarModule } from 'primeng/avatar';
 
 interface TableMap {
   label: string;
@@ -39,7 +43,7 @@ interface TableMap {
     CommonModule,
     TableModule,
     ButtonModule,
-    Dialog,
+    DialogModule,
     FormsModule,
     DropdownModule,
     InputTextModule,
@@ -47,7 +51,9 @@ interface TableMap {
     AutoCompleteModule,
     InputGroupModule,
     InputGroupAddonModule,
-    FloatLabel,
+    PanelModule,
+    AvatarModule,
+    FloatLabelModule,
     TagModule,
     TooltipModule,
   ],
@@ -59,6 +65,7 @@ export class OrdersComponent implements OnInit {
   tables: TableResponse[] = [];
   dialogTableVisible = false;
   selectedTable: TableResponse = {} as TableResponse;
+  googleMapsApiKey = environment.googleMapsApiKey;
 
   statusOptions: TableMap[] = [
     { label: 'Libre', value: 'FREE' },
@@ -70,7 +77,8 @@ export class OrdersComponent implements OnInit {
   constructor(
     private orderService: OrderService,
     private tableService: TableService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -125,5 +133,38 @@ export class OrdersComponent implements OnInit {
     this.filteredStatusOptions = this.statusOptions.filter((option) =>
       option.label.toLowerCase().includes(query)
     );
+  }
+
+  getStatusSeverity(
+    status: string
+  ): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
+    const statusUpper = status.toUpperCase();
+    switch (statusUpper) {
+      case 'COMPLETADA':
+      case 'CONFIRMADA':
+        return 'success';
+      case 'PENDIENTE':
+        return 'warn';
+      case 'CANCELADA':
+        return 'danger';
+      case 'EN PROGRESO':
+        return 'info';
+      default:
+        return 'secondary';
+    }
+  }
+
+  viewOrderDetail(orderId: number) {
+    this.router.navigate(['/admin/orders', orderId]);
+  }
+
+  getInitials(name: string): string {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
   }
 }

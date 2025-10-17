@@ -12,6 +12,7 @@
   </div>
 
   <div *ngIf="items.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- 🛍️ LISTA DE PRODUCTOS -->
     <div class="md:col-span-2 flex flex-col space-y-6">
       <div
         *ngFor="let item of items; trackBy: trackById"
@@ -70,6 +71,7 @@
       </div>
     </div>
 
+    <!-- 💰 RESUMEN DEL PEDIDO -->
     <div
       class="bg-white rounded-xl shadow-md p-6 flex flex-col space-y-4 h-fit sticky top-6"
     >
@@ -77,12 +79,12 @@
 
       <div class="flex justify-between text-gray-600">
         <span>Subtotal</span>
-        <span>S/{{ total / 1.18 | number : "1.2-2" }}</span>
+        <span>S/{{ subtotal | number : "1.2-2" }}</span>
       </div>
 
       <div class="flex justify-between text-gray-600">
         <span>IGV (18%)</span>
-        <span>S/{{ (total * 0.18) / 1.18 | number : "1.2-2" }}</span>
+        <span>S/{{ igv | number : "1.2-2" }}</span>
       </div>
 
       <div

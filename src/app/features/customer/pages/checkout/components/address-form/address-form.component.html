@@ -1,78 +1,84 @@
-<form
+<div
   [formGroup]="form"
-  (ngSubmit)="onSave()"
-  class="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-xl p-4 mt-4 bg-gray-50"
+  class="grid grid-cols-1 md:grid-cols-2 gap-8 border rounded-xl px-4 py-8 mt-4 bg-gray-50"
 >
-  <!-- Calle -->
   <div class="col-span-2">
-    <input
-      type="text"
-      formControlName="street"
-      placeholder="Calle y número"
-      class="p-inputtext p-component w-full"
-    />
-    <div *ngIf="f.street.touched && f.street.invalid" class="text-red-500 text-sm">
-      La calle es obligatoria
-    </div>
+    <p-floatlabel >
+      <input
+        id="street"
+        type="text"
+        formControlName="street"
+        pInputText
+        class="w-full"
+      />
+      <label for="street">Calle y número</label>
+    </p-floatlabel>
   </div>
 
-  <!-- Ciudad -->
   <div>
-    <input
-      type="text"
-      formControlName="city"
-      placeholder="Ciudad"
-      class="p-inputtext p-component w-full"
-    />
-    <div *ngIf="f.city.touched && f.city.invalid" class="text-red-500 text-sm">
-      La ciudad es obligatoria
-    </div>
+    <p-floatlabel >
+      <input
+        id="city"
+        type="text"
+        formControlName="city"
+        pInputText
+        class="w-full"
+      />
+      <label for="city">Ciudad</label>
+    </p-floatlabel>
   </div>
 
-  <!-- Provincia -->
   <div>
-    <input
-      type="text"
-      formControlName="province"
-      placeholder="Provincia"
-      class="p-inputtext p-component w-full"
-    />
-    <div *ngIf="f.province.touched && f.province.invalid" class="text-red-500 text-sm">
-      La provincia es obligatoria
-    </div>
+    <p-floatlabel>
+      <input
+        id="province"
+        type="text"
+        formControlName="province"
+        pInputText
+        class="w-full"
+      />
+      <label for="province">Provincia / Región</label>
+    </p-floatlabel>
   </div>
 
-  <!-- Código postal -->
   <div>
-    <input
-      type="text"
-      formControlName="zipCode"
-      placeholder="Código postal"
-      class="p-inputtext p-component w-full"
-    />
-    <div *ngIf="f.zipCode.touched && f.zipCode.invalid" class="text-red-500 text-sm">
-      Debe ser un código postal válido (5 dígitos)
-    </div>
+    <p-floatlabel>
+      <input
+        id="zipCode"
+        type="text"
+        formControlName="zipCode"
+        pInputText
+        class="w-full"
+      />
+      <label for="zipCode">Código postal</label>
+    </p-floatlabel>
   </div>
 
-  <!-- Referencia -->
   <div class="col-span-2">
-    <input
-      type="text"
-      formControlName="reference"
-      placeholder="Referencia (opcional)"
-      class="p-inputtext p-component w-full"
-    />
+    <p-floatlabel>
+      <input
+        id="reference"
+        type="text"
+        formControlName="reference"
+        pInputText
+        class="w-full"
+      />
+      <label for="reference"
+        >Referencia (Ej: Casa con rejas negras, Apto 3B)</label
+      >
+    </p-floatlabel>
   </div>
 
-  <!-- Botones -->
-  <div class="flex gap-2 col-span-2">
-    <p-button label="Guardar" icon="pi pi-check" type="submit"></p-button>
-    <p-button
-      label="Cancelar"
-      severity="secondary"
-      type="button"
-      (click)="onCancel()"
-    ></p-button>
+  <div class="col-span-2">
+    <p-floatlabel>
+      <input
+        id="instructions"
+        type="text"
+        formControlName="instructions"
+        pInputText
+        class="w-full"
+      />
+      <label for="instructions">Instrucciones de entrega (Opcional)</label>
+    </p-floatlabel>
   </div>
-</form>
+</div>

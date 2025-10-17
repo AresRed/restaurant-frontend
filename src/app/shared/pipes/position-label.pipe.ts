@@ -9,7 +9,6 @@ export class PositionLabelPipe implements PipeTransform {
     MANAGER: 'Gerente',
     WAITER: 'Mesero',
     CHEF: 'Cocinero',
-    SUPPLIER: "Proveedor",
     CLIENT: "Cliente",
     CASHIER: "Cajero",
   };

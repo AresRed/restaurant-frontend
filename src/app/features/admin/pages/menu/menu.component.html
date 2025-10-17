@@ -1,7 +1,12 @@
-<div class="menu-container">
+<div class="menu-container w-full p-6 bg-gray-50 min-h-screen">
   <!-- HEADER -->
-  <div class="menu-header">
-    <h2>📖 Menú del Restaurante</h2>
+  <div
+    class="menu-header flex flex-col md:flex-row justify-between items-center gap-4 mb-6 border-b border-gray-300 pb-4"
+  >
+    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+      📖 Menú del Restaurante
+    </h2>
+
     <p-toggleButton
       onLabel="Tabla"
       offLabel="Cards"
@@ -15,58 +20,72 @@
   <!-- CATEGORÍAS -->
   <div class="menu-tabs">
     <p-tabs [(value)]="selectedCategory">
-      <p-tablist>
-        <p-tab *ngFor="let cat of categories" [value]="cat">
+      <!-- TAB LIST -->
+      <p-tablist class="flex flex-wrap gap-2 mb-6">
+        <p-tab
+          *ngFor="let cat of categories"
+          [value]="cat"
+          class="px-4 py-2 rounded-md cursor-pointer transition-colors duration-200 text-gray-700 font-medium hover:bg-blue-100 data-[selected=true]:bg-blue-600 data-[selected=true]:text-white"
+        >
           {{ cat }}
         </p-tab>
       </p-tablist>
 
+      <!-- TAB PANELS -->
       <p-tabpanels>
         <p-tabpanel *ngFor="let cat of categories" [value]="cat">
           <!-- CARDS -->
-          <div *ngIf="!showTable; else tableView" class="menu-grid">
+          <div
+            *ngIf="!showTable; else tableView"
+            class="menu-grid grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+          >
             <div
               *ngFor="let item of getProductsByCategory(cat)"
-              class="menu-card"
+              class="menu-card bg-white shadow-md rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300"
             >
-              <div class="image-container">
+              <div class="image-container w-full h-40 bg-gray-100">
                 <img
                   [src]="item.imageUrl || 'assets/images/no-image.jpg'"
                   alt="{{ item.name }}"
+                  class="w-full h-full object-cover"
                 />
               </div>
 
-              <div class="menu-info">
-                <div class="menu-top">
-                  <h3>{{ item.name }}</h3>
-                  <span class="price">S/. {{ item.price }}</span>
+              <div class="menu-info p-4 flex flex-col justify-between">
+                <div class="menu-top mb-2">
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    {{ item.name }}
+                  </h3>
+                  <span class="price text-blue-600 font-bold">
+                    S/. {{ item.price }}
+                  </span>
                 </div>
 
-                <div class="menu-bottom">
-                  <span class="category">{{ item.categoryName }}</span>
-
-                  <div class="actions">
-                    <button
-                      pButton
-                      icon="pi pi-eye"
-                      class="btn-icon info"
-                      (click)="viewDetails(item)"
-                    ></button>
-
-                    <button
-                      pButton
-                      icon="pi pi-pencil"
-                      class="btn-icon warning"
-                      (click)="editItem(item)"
-                    ></button>
-
-                    <button
-                      pButton
-                      icon="pi pi-trash"
-                      class="btn-icon danger"
-                      (click)="confirmDelete($event, item)"
-                    ></button>
-                  </div>
+                <div class="flex justify-end gap-4">
+                  <p-button
+                    icon="pi pi-eye"
+                    [rounded]="true"
+                    severity="secondary"
+                    pTooltip="Ver detalle"
+                    size="small"
+                    (click)="viewDetails(item)"
+                  ></p-button>
+                  <p-button
+                    icon="pi pi-pencil"
+                    [rounded]="true"
+                    severity="info"
+                    pTooltip="Editar"
+                    size="small"
+                    (click)="editItem(item)"
+                  ></p-button>
+                  <p-button
+                    icon="pi pi-trash"
+                    [rounded]="true"
+                    severity="danger"
+                    pTooltip="Eliminar"
+                    size="small"
+                    (click)="confirmDelete($event, item)"
+                  ></p-button>
                 </div>
               </div>
             </div>
@@ -74,45 +93,68 @@
 
           <!-- TABLE -->
           <ng-template #tableView>
-            <p-table
-              [value]="getProductsByCategory(cat)"
-              class="menu-table"
-              [loading]="loading"
+            <div
+              class="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200 mt-4"
             >
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>Producto</th>
-                  <th>Categoría</th>
-                  <th class="text-right">Precio</th>
-                  <th class="text-center">Acciones</th>
-                </tr>
-              </ng-template>
+              <p-table
+                [value]="getProductsByCategory(cat)"
+                class="menu-table w-full"
+                [loading]="loading"
+              >
+                <ng-template pTemplate="header">
+                  <tr class="bg-gray-100 text-gray-800">
+                    <th class="py-3 px-4 text-left font-semibold">Producto</th>
+                    <th class="py-3 px-4 text-left font-semibold">Categoría</th>
+                    <th class="py-3 px-4 text-right font-semibold">Precio</th>
+                    <th class="py-3 px-4 text-center font-semibold">
+                      Acciones
+                    </th>
+                  </tr>
+                </ng-template>
 
-              <ng-template pTemplate="body" let-item>
-                <tr>
-                  <td>{{ item.name }}</td>
-                  <td>{{ item.categoryName }}</td>
-                  <td class="text-right">S/. {{ item.price }}</td>
-                  <td class="text-center">
-                    <p-button
-                      icon="pi pi-eye"
-                      class="btn-icon info"
-                      (click)="viewDetails(item)"
-                    ></p-button>
-                    <p-button
-                      icon="pi pi-pencil"
-                      class="btn-icon warning"
-                      (click)="editItem(item)"
-                    ></p-button>
-                    <p-button
-                      icon="pi pi-trash"
-                      class="btn-icon danger"
-                      (click)="confirmDelete($event, item)"
-                    ></p-button>
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
+                <ng-template pTemplate="body" let-item>
+                  <tr
+                    class="border-b border-gray-200 hover:bg-gray-50 transition"
+                  >
+                    <td class="py-3 px-4 text-gray-700 flex gap-2 items-center">
+                      <img [src]="item.imageUrl" [alt]="item.name" class="w-12 h-12 rounded-full" />
+                      {{ item.name }}
+                    </td>
+                    <td class="py-3 px-4 text-gray-700">
+                      {{ item.categoryName }}
+                    </td>
+                    <td
+                      class="py-3 px-4 text-right text-gray-500 font-semibold"
+                    >
+                      S/. {{ item.price }}
+                    </td>
+                    <td class="py-3 px-4 space-x-4 text-center">
+                      <p-button
+                        icon="pi pi-eye"
+                        [rounded]="true"
+                        severity="secondary"
+                        size="small"
+                        (click)="viewDetails(item)"
+                      ></p-button>
+                      <p-button
+                        icon="pi pi-pencil"
+                        [rounded]="true"
+                        severity="info"
+                        size="small"
+                        (click)="editItem(item)"
+                      ></p-button>
+                      <p-button
+                        icon="pi pi-trash"
+                        [rounded]="true"
+                        severity="danger"
+                        size="small"
+                        (click)="confirmDelete($event, item)"
+                      ></p-button>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
           </ng-template>
         </p-tabpanel>
       </p-tabpanels>

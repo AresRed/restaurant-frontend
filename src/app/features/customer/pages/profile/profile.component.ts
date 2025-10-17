@@ -67,7 +67,7 @@ export class ProfileComponent implements OnInit {
           { value: user?.username || '', disabled: true },
           [
             Validators.required,
-            Validators.minLength(1),
+            Validators.minLength(3),
             Validators.maxLength(30),
           ],
         ],
@@ -88,6 +88,8 @@ export class ProfileComponent implements OnInit {
     this.isEditing = !this.isEditing;
     if (this.isEditing) {
       this.profileForm.enable();
+      // Email no editable directamente
+      this.profileForm.get('email')?.disable();
     } else {
       this.profileForm.disable();
       if (this.user) this.profileForm.patchValue(this.user);
@@ -106,29 +108,24 @@ export class ProfileComponent implements OnInit {
 
     const updatedUser: UserResponse = {
       ...this.user!,
-      ...this.profileForm.value,
+      ...this.profileForm.getRawValue(), // getRawValue para obtener email aunque esté disabled
     };
 
-    // Validación para usuarios OAuth sin contraseña
+    // Caso especial: usuarios OAuth sin password
     const needsPasswordSetup =
       this.user?.provider !== 'LOCAL' && !this.user?.hasPassword;
 
-    if (needsPasswordSetup && !this.profileForm.get('newPassword')?.value) {
+    const newPassword = this.profileForm.get('newPassword')?.value;
+
+    // Si el usuario es OAuth y quiere cambiar email => debe tener password
+    if (needsPasswordSetup && newPassword && newPassword.trim().length < 6) {
       this.notificationService.warn(
-        'Debes establecer una contraseña antes de cambiar tu correo o username.'
+        'La contraseña debe tener al menos 6 caracteres.'
       );
       return;
     }
 
-    const newPassword = this.profileForm.get('newPassword')?.value;
-
-    const passwordObservable = newPassword
-      ? this.userService.updatePasswordAuth({
-          newPassword: newPassword,
-          currentPassword: '', // string vacío para usuarios OAuth
-        })
-      : null;
-
+    // Ejecutar actualización
     const executeUpdate = () => {
       this.userService.updateProfileAuth(updatedUser).subscribe({
         next: (response) => {
@@ -137,13 +134,11 @@ export class ProfileComponent implements OnInit {
 
           this.user = updated;
           this.profileForm.patchValue(updated);
-
           this.profileForm.disable();
           this.avatarPreview = null;
           this.isEditing = false;
 
           this.authService.setCurrentUser(updated);
-
           if (newToken) this.authService.setAccessToken(newToken);
 
           this.notificationService.success('Perfil actualizado correctamente');
@@ -167,18 +162,24 @@ export class ProfileComponent implements OnInit {
       });
     };
 
-    if (passwordObservable) {
-      passwordObservable.subscribe({
-        next: () => {
-          this.notificationService.success(
-            'Contraseña establecida correctamente'
-          );
-          executeUpdate();
-        },
-        error: () => {
-          this.notificationService.error('Error al establecer la contraseña');
-        },
-      });
+    // Si el usuario necesita establecer contraseña primero (OAuth)
+    if (needsPasswordSetup && newPassword) {
+      this.userService
+        .updatePasswordAuth({
+          newPassword,
+          currentPassword: '',
+        })
+        .subscribe({
+          next: () => {
+            this.notificationService.success(
+              'Contraseña establecida correctamente'
+            );
+            executeUpdate();
+          },
+          error: () => {
+            this.notificationService.error('Error al establecer la contraseña');
+          },
+        });
     } else {
       executeUpdate();
     }

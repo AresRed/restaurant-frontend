@@ -1,0 +1,23 @@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div
+    *ngFor="let type of orderTypes"
+    class="checkout-option-card cursor-pointer p-4 rounded-xl border transition-all"
+    [ngClass]="{
+      'border-blue-500 bg-blue-50 shadow-md': selectedOrderType?.id === type.id
+    }"
+    (click)="selectType.emit(type)"
+  >
+    <i class="{{ getOrderTypeIcon(type.code).icon }} {{ getOrderTypeIcon(type.code).color }} text-4xl mb-2"></i>
+    <p class="font-semibold text-gray-800">{{ type.name }}</p>
+  </div>
+</div>
+
+<div class="flex justify-end mt-6">
+  <p-button
+    label="Siguiente"
+    size="small"
+    icon="pi pi-arrow-right"
+    [disabled]="!selectedOrderType"
+    (click)="next.emit()"
+  ></p-button>
+</div>

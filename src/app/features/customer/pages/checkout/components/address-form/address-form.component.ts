@@ -1,73 +1,48 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
 import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
-import { AddressCustomerRequest } from '../../../../../../core/models/address.model';
+import { DeliveryAddressRequest } from '../../../../../../core/models/order.model';
+import { FloatLabelModule } from 'primeng/floatlabel';
 
 @Component({
   selector: 'app-address-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule],
+  imports: [CommonModule, ReactiveFormsModule, InputTextModule, FloatLabelModule],
   templateUrl: './address-form.component.html',
-  styleUrl: './address-form.component.scss',
+  styleUrls: ['./address-form.component.scss'],
 })
-export class AddressFormComponent {
-  @Output() save = new EventEmitter<AddressCustomerRequest>();
-  @Output() cancel = new EventEmitter<void>();
+export class AddressFormComponent implements OnChanges {
+  @Input() initialData: Partial<DeliveryAddressRequest> | null = null;
+  @Output() addressChange = new EventEmitter<Partial<DeliveryAddressRequest>>();
 
-  // 👇 tipamos los controles
-  form: FormGroup<{
-    street: FormControl<string>;
-    city: FormControl<string>;
-    province: FormControl<string>;
-    zipCode: FormControl<string>;
-    reference: FormControl<string>;
-  }>;
+  form: FormGroup;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      street: this.fb.control('', {
-        validators: Validators.required,
-        nonNullable: true,
-      }),
-      city: this.fb.control('', {
-        validators: Validators.required,
-        nonNullable: true,
-      }),
-      province: this.fb.control('', {
-        validators: Validators.required,
-        nonNullable: true,
-      }),
-      zipCode: this.fb.control('', {
-        validators: [Validators.required, Validators.pattern(/^[0-9]{5}$/)],
-        nonNullable: true,
-      }),
-      reference: this.fb.control('', { nonNullable: true }),
+      street: [{ value: '', disabled: true }],
+      city: [{ value: '', disabled: true }],
+      province: [{ value: '', disabled: true }],
+      zipCode: [{ value: '', disabled: true }],
+      reference: [''],
+      instructions: [''],
+    });
+
+    this.form.valueChanges.subscribe(() => {
+      this.addressChange.emit(this.form.getRawValue());
     });
   }
 
-  onSave() {
-    if (this.form.valid) {
-      this.save.emit(this.form.getRawValue());
-      this.form.reset();
-    } else {
-      this.form.markAllAsTouched();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initialData'] && this.initialData) {
+      this.form.patchValue(this.initialData, { emitEvent: false });
     }
-  }
-
-  onCancel() {
-    this.cancel.emit();
-    this.form.reset();
-  }
-
-  get f() {
-    return this.form.controls;
   }
 }

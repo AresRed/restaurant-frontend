@@ -1,0 +1,29 @@
+<div class="space-y-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <label class="flex items-center gap-3 p-4 border rounded-xl cursor-pointer"
+           [ngClass]="{'border-blue-500 bg-blue-50 shadow-md': paymentMethod === 'card'}">
+      <p-radiobutton name="payment" value="card" [(ngModel)]="paymentMethod"></p-radiobutton>
+      <i class="pi pi-credit-card text-2xl text-blue-600"></i>
+      Tarjeta de crédito/débito
+    </label>
+
+    <label class="flex items-center gap-3 p-4 border rounded-xl cursor-pointer"
+           [ngClass]="{'border-green-500 bg-green-50 shadow-md': paymentMethod === 'cash'}">
+      <p-radiobutton name="payment" value="cash" [(ngModel)]="paymentMethod"></p-radiobutton>
+      <i class="pi pi-money-bill text-2xl text-green-600"></i>
+      Efectivo contra entrega
+    </label>
+  </div>
+
+  <div *ngIf="paymentMethod === 'card'" class="mt-6">
+    <app-payment-brick
+      [amount]="total"
+      [publicKey]="mercadoPagoPublicKey"
+      (token)="token.emit($event)">
+    </app-payment-brick>
+  </div>
+
+  <div class="flex justify-start mt-6">
+    <p-button label="Volver" icon="pi pi-arrow-left" (click)="back.emit()"></p-button>
+  </div>
+</div>

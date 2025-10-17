@@ -11,6 +11,7 @@ import { CategoryService } from '../../../../core/services/category.service';
 import { ConfirmService } from '../../../../core/services/confirmation.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ProductService } from '../../../../core/services/products/product/product.service';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-menu',
@@ -22,6 +23,7 @@ import { ProductService } from '../../../../core/services/products/product/produ
     ButtonModule,
     TableModule,
     ToggleButtonModule,
+    TooltipModule,
     TabsModule,
   ],
   templateUrl: './menu.component.html',

@@ -40,10 +40,6 @@ export class HeaderComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // const token = localStorage.getItem('accessToken');
-    // if (token && this.authService.isTokenExpired(token)) {
-    //   this.authService.forceLogout();
-    // }
     
     this.currentUser$ = this.authService.currentUser$;
 
@@ -120,10 +116,10 @@ export class HeaderComponent implements OnInit {
   }
 
   goToOrders() {
-    this.router.navigate(['/orders']);
+    this.router.navigate(['/profile/orders']);
   }
 
   goToReservations() {
-    this.router.navigate(['/my-reservations']);
+    this.router.navigate(['/profile/reservations']);
   }
 }

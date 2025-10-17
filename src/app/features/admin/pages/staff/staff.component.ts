@@ -18,7 +18,6 @@ import { EmployeeService } from '../../../../core/services/employee/employee.ser
 import { ScheduleService } from '../../../../core/services/employee/schedule.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { PositionLabelPipe } from '../../../../shared/pipes/position-label.pipe';
-import { RoleLabelPipe } from '../../../../shared/pipes/role-label.pipe';
 
 interface ScheduleByDay {
   day: string;
@@ -37,18 +36,23 @@ interface ScheduleByDay {
     TableModule,
     ToggleButtonModule,
     ChartModule,
-    RoleLabelPipe,
     TooltipModule,
     PositionLabelPipe,
   ],
   templateUrl: './staff.component.html',
   styleUrls: ['./staff.component.scss'],
+  providers: [PositionLabelPipe], // 👈 agrega esto
 })
 export class StaffComponent implements OnInit {
   staffList: EmployeeResponse[] = [];
   schedules: ScheduleResponse[] = [];
   schedulesByDay: ScheduleByDay[] = [];
   hours = Array.from({ length: 13 }, (_, i) => i + 8);
+  showTable = false;
+
+  chartData: any;
+  chartOptions: any;
+
   dayNamesMap: Record<DayOfWeekEnum, string> = {
     MONDAY: 'Lunes',
     TUESDAY: 'Martes',
@@ -59,21 +63,34 @@ export class StaffComponent implements OnInit {
     SUNDAY: 'Domingo',
   };
 
-  showTable = false;
-
-  chartData: any;
-  chartOptions: any;
-
   constructor(
     private employeeService: EmployeeService,
     private notificationService: NotificationService,
     private scheduleService: ScheduleService,
-    private router: Router
+    private router: Router,
+    private positionLabelPipe: PositionLabelPipe // 👈 inyección del pipe
   ) {
     this.chartOptions = {
       responsive: true,
       plugins: {
-        legend: { position: 'bottom' },
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: '#374151',
+            font: { size: 14, family: 'Inter, sans-serif' },
+          },
+        },
+        tooltip: {
+          callbacks: {
+            label: (context: any) => {
+              const label = context.label || '';
+              const value = context.raw || 0;
+              const total = context.chart._metasets[0].total;
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${label}: ${value} (${percentage}%)`;
+            },
+          },
+        },
       },
     };
   }
@@ -89,15 +106,19 @@ export class StaffComponent implements OnInit {
         if (res.success) {
           this.staffList = res.data;
 
-          // Generar gráfico: distribución por cargo
           const positionCounts: Record<string, number> = {};
           this.staffList.forEach((s) => {
-            const label = s.positionName || 'Sin cargo';
-            positionCounts[label] = (positionCounts[label] || 0) + 1;
+            const key = s.positionName || 'Sin cargo';
+            positionCounts[key] = (positionCounts[key] || 0) + 1;
           });
 
+          // 👇 aplicar el pipe aquí
+          const labels = Object.keys(positionCounts).map((key) =>
+            this.positionLabelPipe.transform(key)
+          );
+
           this.chartData = {
-            labels: Object.keys(positionCounts),
+            labels,
             datasets: [
               {
                 data: Object.values(positionCounts),
@@ -109,6 +130,8 @@ export class StaffComponent implements OnInit {
                   '#9C27B0',
                   '#FFC107',
                 ],
+                borderColor: '#fff',
+                borderWidth: 2,
               },
             ],
           };
@@ -147,10 +170,6 @@ export class StaffComponent implements OnInit {
   editStaff(employee: EmployeeResponse) {
     if (!employee.id) return;
     this.router.navigate(['/admin/staff', employee.id, 'edit']);
-  }
-
-  capitalizeDay(day: string): string {
-    return day.charAt(0).toUpperCase() + day.slice(1).toLowerCase();
   }
 
   formatHour(time: string): string {

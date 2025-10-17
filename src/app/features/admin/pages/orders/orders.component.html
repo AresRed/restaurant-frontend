@@ -22,59 +22,205 @@
     ></button>
   </div>
   } @else {
-  <p-table [value]="orders" class="shadow-lg rounded-lg overflow-hidden">
-    <ng-template pTemplate="header">
-      <tr>
-        <th class="text-left"># Orden</th>
-        <th class="text-left">Cliente</th>
-        <th class="text-left">Dirección</th>
-        <th class="text-left">Fecha</th>
-        <th class="text-right">Total</th>
-        <th class="text-center">Estado</th>
-        <th class="text-center">Acciones</th>
-      </tr>
-    </ng-template>
+  <div class="card p-4 bg-white shadow-xl rounded-2xl border border-gray-100">
+    <p-table
+      #dt
+      [value]="orders"
+      styleClass="p-datatable-gridlines p-datatable-sm p-datatable-hover"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [globalFilterFields]="[
+        'id',
+        'customerName',
+        'deliveryStreet',
+        'statusName'
+      ]"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="flex flex-col sm:flex-row justify-between items-center gap-4 py-3 px-1 border-b border-gray-200"
+        >
+          <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <i class="pi pi-list text-primary-500"></i>
+            Órdenes Recientes
+          </h3>
+          <div class="p-input-icon-left w-full flex items-center justify-center gap-2 sm:w-64">
+            <i class="pi pi-search text-gray-400"></i>
+            <input
+              pInputText
+              type="text"
+              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+              placeholder="Buscar orden..."
+              class="w-full pl-8 py-2 border rounded-full focus:ring-2 focus:ring-primary-300 focus:border-primary-500 transition duration-200"
+            />
+          </div>
+        </div>
+      </ng-template>
 
-    <ng-template pTemplate="body">
-      @for (order of orders; track order.id) {
-      <tr>
-        <td>{{ order.id }}</td>
-        <td>{{ order.customerName }}</td>
-        <td>{{ order.addressDescription }}</td>
-        <td>{{ order.date | date : "short" }}</td>
-        <td class="text-right">S/. {{ order.total | number : "1.2-2" }}</td>
-        <td class="text-center">
-          <p-tag [value]="order.statusName" />
-        </td>
-        <td class="text-center space-x-2">
-          <p-button
-            type="button"
-            icon="pi pi-search"
-            size="small"
-            pTooltip="Ver detalle"
-            [rounded]="true"
-            [raised]="true"
-            severity="info"
-          ></p-button>
+      <ng-template pTemplate="header">
+        <tr class="bg-gray-50 text-gray-600 font-semibold text-sm">
+          <th pSortableColumn="id" class="!w-[5%] text-left p-3">ID</th>
+          <th pSortableColumn="customerName" class="text-left p-3">Cliente</th>
+          <th class="!w-[28%] text-left p-3">Entrega / Tipo</th>
+          <th pSortableColumn="date" class="text-left p-3">Fecha</th>
+          <th pSortableColumn="total" class="text-right p-3">Total</th>
+          <th class="text-center !w-[12%] p-3">Estado</th>
+          <th class="text-center !w-[10%] p-3">Acciones</th>
+        </tr>
+      </ng-template>
 
-          <p-button
-            type="button"
-            icon="pi pi-times"
-            size="small"
-            pTooltip="Cancelar orden"
-            [raised]="true"
-            [rounded]="true"
-            severity="danger"
-            [disabled]="
-              order.statusName === 'DELIVERED' ||
-              order.statusName === 'CANCELLED'
-            "
-          ></p-button>
-        </td>
-      </tr>
-      }
-    </ng-template>
-  </p-table>
+      <ng-template pTemplate="body" let-order>
+        <tr class="hover:bg-gray-50 transition-colors duration-150">
+          <td class="p-3">
+            <span class="font-bold text-gray-700">#{{ order.id }}</span>
+          </td>
+
+          <td class="p-3">
+            <div class="flex items-center gap-3">
+              <p-avatar
+                [label]="getInitials(order.customerName)"
+                shape="circle"
+                styleClass="bg-blue-100 text-blue-700 font-bold text-sm border-2 border-blue-200"
+              ></p-avatar>
+              <span class="font-medium text-gray-800">{{
+                order.customerName
+              }}</span>
+            </div>
+          </td>
+
+          <td class="p-3">
+            <div
+              *ngIf="order.deliveryStreet; else noDelivery"
+              class="flex items-center justify-between gap-2"
+            >
+              <div>
+                <p
+                  class="font-semibold text-gray-800 truncate max-w-[150px]"
+                  [pTooltip]="order.deliveryStreet"
+                >
+                  {{ order.deliveryStreet }}
+                </p>
+                <p class="text-xs text-gray-500">
+                  {{ order.deliveryReference || order.deliveryCity }}
+                </p>
+              </div>
+              <p-button
+                icon="pi pi-map-marker"
+                [text]="true"
+                [rounded]="true"
+                severity="secondary"
+                pTooltip="Ver mapa de entrega"
+                (click)="op.toggle($event)"
+                styleClass="!min-w-[auto]"
+              ></p-button>
+              <p-panel #op [style]="{ width: '320px' }">
+                <div class="p-2">
+                  <p class="font-semibold text-gray-800 mb-2">
+                    Ubicación de Entrega
+                  </p>
+                  <img
+                    class="rounded-lg border border-gray-200 shadow-sm"
+                    width="300"
+                    height="200"
+                    [src]="
+                      'https://maps.googleapis.com/maps/api/staticmap?center=' +
+                      order.deliveryLatitude +
+                      ',' +
+                      order.deliveryLongitude +
+                      '&zoom=16&size=300x200&markers=color:red%7C' +
+                      order.deliveryLatitude +
+                      ',' +
+                      order.deliveryLongitude +
+                      '&key=' +
+                      googleMapsApiKey
+                    "
+                    alt="Mapa de la ubicación de entrega"
+                  />
+                  <p class="text-sm text-gray-700 mt-3">
+                    {{ order.deliveryStreet }}, {{ order.deliveryCity }}
+                  </p>
+                  <p
+                    *ngIf="order.deliveryReference"
+                    class="text-xs text-gray-500"
+                  >
+                    Ref: {{ order.deliveryReference }}
+                  </p>
+                </div>
+              </p-panel>
+            </div>
+            <ng-template #noDelivery>
+              <p-tag
+                [value]="order.typeName"
+                icon="pi pi-building"
+                severity="info"
+                class="text-sm"
+              ></p-tag>
+            </ng-template>
+          </td>
+
+          <td class="p-3">
+            <span class="text-gray-600 text-sm">{{
+              order.date | date : "dd/MM/yy"
+            }}</span
+            ><br />
+            <span class="text-gray-500 text-xs">{{
+              order.date | date : "h:mm a"
+            }}</span>
+          </td>
+
+          <td class="p-3 text-right">
+            <span class="font-extrabold text-xl text-green-600"
+              >S/. {{ order.total | number : "1.2-2" }}</span
+            >
+          </td>
+
+          <td class="p-3 text-center">
+            <p-tag
+              [value]="order.statusName"
+              [severity]="getStatusSeverity(order.statusName)"
+              [rounded]="true"
+              class="text-xs font-semibold px-2 py-1"
+            ></p-tag>
+          </td>
+
+          <td class="p-3 text-center">
+            <p-button
+              type="button"
+              icon="pi pi-eye"
+              size="small"
+              pTooltip="Ver detalle"
+              [rounded]="true"
+              severity="info"
+              (click)="viewOrderDetail(order.id)"
+              class="mr-2"
+            ></p-button>
+            <p-button
+              type="button"
+              icon="pi pi-times"
+              size="small"
+              pTooltip="Cancelar orden"
+              [rounded]="true"
+              severity="danger"
+              [disabled]="
+                order.statusName.toUpperCase() === 'COMPLETADA' ||
+                order.statusName.toUpperCase() === 'CANCELADA'
+              "
+            ></p-button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center p-6 text-gray-500">
+            No se encontraron órdenes que coincidan con la búsqueda.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
   }
 
   <div class="mt-10">

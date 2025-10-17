@@ -2,11 +2,15 @@ import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
+  ElementRef,
   EventEmitter,
   Input,
+  NgZone,
   OnChanges,
+  OnDestroy,
   Output,
   SimpleChanges,
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -14,6 +18,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DeliveryAddressRequest } from '../../../../../../core/models/order.model';
 import { TableResponse } from '../../../../../../core/models/table.model';
+import { MapsLoaderService } from '../../../../../../core/services/maps-loader.service';
 import { NotificationService } from '../../../../../../core/services/notification.service';
 import { TableService } from '../../../../../../core/services/restaurant/table.service';
 import { AddressFormComponent } from '../address-form/address-form.component';
@@ -40,15 +45,27 @@ export interface CheckoutStep2Data {
   templateUrl: './checkout-step-address.component.html',
   styleUrl: './checkout-step-address.component.scss',
 })
-export class CheckoutStepAddressComponent implements AfterViewInit, OnChanges {
+export class CheckoutStepAddressComponent
+  implements AfterViewInit, OnChanges, OnDestroy
+{
+  private _mapContainerRef!: ElementRef<HTMLDivElement>;
+  @ViewChild('mapContainer') set mapContainerRef(
+    elRef: ElementRef<HTMLDivElement> | undefined
+  ) {
+    if (elRef) {
+      this._mapContainerRef = elRef;
+      console.log('Div #mapContainer encontrado por ViewChild.');
+      this.initializeMapIfNeeded();
+    }
+  }
+
   @Input() selectedOrderTypeCode: string = '';
   @Output() next = new EventEmitter<CheckoutStep2Data>();
   @Output() back = new EventEmitter<void>();
 
-  map!: google.maps.Map;
-  marker!: google.maps.marker.AdvancedMarkerElement;
+  map!: google.maps.Map | null;
+  marker!: google.maps.marker.AdvancedMarkerElement | null;
   geocoder!: google.maps.Geocoder;
-
   deliveryZoneCoords = [
     { lat: -14.0663821, lng: -75.7398385 },
     { lat: -14.0713358, lng: -75.7383365 },
@@ -64,6 +81,9 @@ export class CheckoutStepAddressComponent implements AfterViewInit, OnChanges {
   ];
   deliveryZonePolygon!: google.maps.Polygon;
   isMarkerInsideZone = true;
+  mapReady = false;
+  apiLoading = false;
+  mapInitialized = false;
 
   currentDeliveryAddress: DeliveryAddressRequest = {
     latitude: -14.0674,
@@ -80,35 +100,106 @@ export class CheckoutStepAddressComponent implements AfterViewInit, OnChanges {
   selectedTable: TableResponse | null = null;
   tablesLoading = false;
 
+  private mapInstanceListener: google.maps.MapsEventListener | null = null;
+
   constructor(
     private tableService: TableService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private mapsLoader: MapsLoaderService,
+    private zone: NgZone
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['selectedOrderTypeCode']) {
-      this.selectedTable = null;
-      this.isMarkerInsideZone = true;
+      const typeCode = changes['selectedOrderTypeCode'].currentValue;
+      this.resetStepState();
 
-      if (this.isDineIn()) {
+      if (typeCode === 'DINE_IN') {
+        this.destroyMap();
         this.loadAvailableTables();
-      }
-      if (this.isDelivery() && this.map) {
-        this.initializeMapIfNeeded();
+      } else if (typeCode === 'DELIVERY') {
+        this.loadMapApiIfNeeded();
+      } else {
+        this.destroyMap();
       }
     }
   }
 
-  async ngAfterViewInit() {
-    if (this.isDelivery()) {
-      await this.initializeMapIfNeeded();
+  async ngAfterViewInit() {}
+
+  ngOnDestroy(): void {
+    this.destroyMap();
+  }
+
+  private resetStepState(): void {
+    this.selectedTable = null;
+    this.isMarkerInsideZone = true;
+  }
+
+  private destroyMap(): void {
+    console.log('Intentando destruir mapa...');
+    if (this.mapInstanceListener) {
+      google.maps.event.removeListener(this.mapInstanceListener);
+      this.mapInstanceListener = null;
+      console.log('Listener del marcador eliminado.');
+    }
+    if (this.marker) {
+      this.marker.map = null;
+      this.marker = null;
+      console.log('Marcador eliminado del mapa.');
+    }
+    if (this.deliveryZonePolygon) {
+      this.deliveryZonePolygon.setMap(null);
+      console.log('Polígono eliminado del mapa.');
+    }
+    if (this.map) {
+      this.map = null;
+      console.log('Referencia al mapa eliminada.');
+    }
+  }
+
+  private async loadMapApiIfNeeded() {
+    if (this.mapReady || this.apiLoading) {
+      return;
+    }
+    this.apiLoading = true;
+    try {
+      console.log('Cargando Google Maps API...');
+      await this.mapsLoader.load();
+      console.log('Google Maps API cargada.');
+
+      this.zone.run(() => {
+        this.mapReady = true;
+
+        this.initializeMapIfNeeded();
+      });
+    } catch (error) {
+      console.error('Fallo al cargar Google Maps API:', error);
+      this.notificationService.error(
+        'Error',
+        'No se pudo cargar el servicio de mapas.'
+      );
+      this.zone.run(() => {
+        this.mapReady = false;
+        this.apiLoading = false;
+      });
+    } finally {
+      this.zone.run(() => {
+        this.apiLoading = false;
+      });
     }
   }
 
   private async initializeMapIfNeeded() {
-    if (!this.map) {
-      await this.initMap();
-    } else {
+    if (
+      this.isDelivery() &&
+      this.mapReady &&
+      this._mapContainerRef &&
+      !this.map
+    ) {
+      console.log('API lista y Div encontrado, llamando a initMap...');
+      await this.initMap(this._mapContainerRef.nativeElement);
+    } else if (this.mapReady && this.map) {
       const currentPos = this.marker?.position || {
         lat: this.currentDeliveryAddress.latitude,
         lng: this.currentDeliveryAddress.longitude,
@@ -117,35 +208,64 @@ export class CheckoutStepAddressComponent implements AfterViewInit, OnChanges {
       if (this.isMarkerInsideZone) {
         this.geocodeLatLng(currentPos as google.maps.LatLngLiteral);
       }
+    } else {
+      console.log('initializeMapIfNeeded: Condiciones NO cumplidas.', {
+        isDelivery: this.isDelivery(),
+        mapReady: this.mapReady,
+        hasMapContainer: !!this.mapContainerRef?.nativeElement,
+        mapExists: !!this.map,
+      });
     }
   }
 
-  private async initMap() {
-    const mapDiv = document.getElementById('map');
-    if (!mapDiv) return;
+  private async initMap(mapDivElement: HTMLDivElement) {
+    console.log('Initializing map...');
+
+    if (!google || !google.maps) {
+      console.error('Error crítico: El objeto base google.maps no existe.');
+      this.notificationService.error(
+        'Error',
+        'No se pudo cargar la base de Google Maps.'
+      );
+      this.destroyMap();
+      return;
+    }
 
     try {
-      const { Map } = await google.maps.importLibrary('maps');
-      const { AdvancedMarkerElement } = await google.maps.importLibrary(
+      const { Map, Polygon } = (await google.maps.importLibrary(
+        'maps'
+      )) as google.maps.MapsLibrary;
+      const { AdvancedMarkerElement } = (await google.maps.importLibrary(
         'marker'
-      );
-      const { Geocoder } = await google.maps.importLibrary('geocoding');
-      const { geometry } = await google.maps.importLibrary('geometry');
+      )) as google.maps.MarkerLibrary;
+      const { Geocoder } = (await google.maps.importLibrary(
+        'geocoding'
+      )) as google.maps.GeocodingLibrary;
+      await google.maps.importLibrary('geometry');
+
+      console.log('Librerías importadas correctamente.');
+
+      if (!google.maps.geometry || !google.maps.geometry.poly) {
+        throw new Error(
+          'La librería google.maps.geometry.poly no se cargó correctamente.'
+        );
+      }
 
       this.geocoder = new Geocoder();
       const initialPosition = {
         lat: this.currentDeliveryAddress.latitude,
         lng: this.currentDeliveryAddress.longitude,
       };
-      this.map = new Map(mapDiv, {
+
+      this.map = new Map(mapDivElement, {
         center: initialPosition,
         zoom: 15,
         mapId: 'YOUR_CUSTOM_MAP_ID',
         mapTypeControl: false,
-        streeViewControl: false,
+        streetViewControl: false,
       });
 
-      this.deliveryZonePolygon = new google.maps.Polygon({
+      this.deliveryZonePolygon = new Polygon({
         paths: this.deliveryZoneCoords,
         strokeColor: '#007BFF',
         strokeOpacity: 0.8,
@@ -161,7 +281,11 @@ export class CheckoutStepAddressComponent implements AfterViewInit, OnChanges {
         gmpDraggable: true,
       });
 
+      if (this.mapInstanceListener)
+        google.maps.event.removeListener(this.mapInstanceListener);
+
       this.checkMarkerPosition(initialPosition);
+
       if (this.isMarkerInsideZone) {
         this.geocodeLatLng(initialPosition);
       } else {
@@ -173,39 +297,63 @@ export class CheckoutStepAddressComponent implements AfterViewInit, OnChanges {
         });
       }
 
-      this.marker.addListener('dragend', (e: google.maps.MapMouseEvent) => {
-        const newPosition = this.marker.position as google.maps.LatLngLiteral;
-        this.currentDeliveryAddress.latitude = newPosition.lat;
-        this.currentDeliveryAddress.longitude = newPosition.lng;
+      this.marker?.addListener('dragend', (e: google.maps.MapMouseEvent) => {
+        this.zone.run(() => {
+          const newPosition = this.marker!
+            .position as google.maps.LatLngLiteral;
+          this.currentDeliveryAddress.latitude = newPosition.lat;
+          this.currentDeliveryAddress.longitude = newPosition.lng;
 
-        this.checkMarkerPosition(newPosition);
+          this.checkMarkerPosition(newPosition);
 
-        if (this.isMarkerInsideZone) {
-          this.geocodeLatLng(newPosition);
-        } else {
-          this.updateAddressFromForm({
-            street: '',
-            city: '',
-            province: '',
-            zipCode: '',
-          });
-        }
+          if (this.isMarkerInsideZone) this.geocodeLatLng(newPosition);
+          else
+            this.updateAddressFromForm({
+              street: '',
+              city: '',
+              province: '',
+              zipCode: '',
+            });
+        });
       });
+
+      this.checkMarkerPosition(initialPosition);
+      if (this.isMarkerInsideZone) this.geocodeLatLng(initialPosition);
+      else
+        this.updateAddressFromForm({
+          street: '',
+          city: '',
+          province: '',
+          zipCode: '',
+        });
+
+      console.log('Map initialized successfully.');
+      
     } catch (error) {
-      console.error('Error initializing Google Maps:', error);
+      console.error('Error durante la inicialización del mapa:', error);
+      this.notificationService.error(
+        'Error',
+        'No se pudieron inicializar los componentes del mapa.'
+      );
+      this.destroyMap();
     }
   }
 
   private checkMarkerPosition(position: google.maps.LatLngLiteral) {
     if (!google?.maps?.geometry?.poly) {
-      console.warn('Google Maps Geometry library not loaded yet.');
+      console.warn('checkMarkerPosition: geometry.poly no disponible.');
       this.isMarkerInsideZone = true;
       return;
     }
-    this.isMarkerInsideZone = google.maps.geometry.poly.containsLocation(
-      position,
-      this.deliveryZonePolygon
-    );
+    try {
+      this.isMarkerInsideZone = google.maps.geometry.poly.containsLocation(
+        position,
+        this.deliveryZonePolygon
+      );
+    } catch (e) {
+      console.error('Error en containsLocation:', e);
+      this.isMarkerInsideZone = true;
+    }
   }
 
   private geocodeLatLng(position: { lat: number; lng: number }) {

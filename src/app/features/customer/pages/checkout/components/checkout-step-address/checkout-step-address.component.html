@@ -3,10 +3,26 @@
     <h3 class="font-semibold text-gray-700">
       Arrastra el marcador a tu ubicación de entrega:
     </h3>
-    <div id="map" class="w-full h-64 rounded-xl border mb-4"></div>
 
     <div
-      *ngIf="!isMarkerInsideZone"
+      *ngIf="!mapReady"
+      class="flex justify-center items-center h-64 border rounded-xl bg-gray-100"
+    >
+      <p-progressSpinner
+        styleClass="w-16 h-16"
+        strokeWidth="4"
+      ></p-progressSpinner>
+    </div>
+
+    <div
+      *ngIf="mapReady"
+      #mapContainer
+      id="map"
+      class="w-full h-64 rounded-xl border mb-4"
+    ></div>
+    
+    <div
+      *ngIf="mapReady && !isMarkerInsideZone"
       class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-100 border border-red-200"
       role="alert"
     >
@@ -16,6 +32,7 @@
     </div>
 
     <app-address-form
+      *ngIf="mapReady"
       [initialData]="currentDeliveryAddress"
       (addressChange)="updateAddressFromForm($event)"
     >

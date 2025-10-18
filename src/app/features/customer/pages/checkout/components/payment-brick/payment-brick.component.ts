@@ -33,8 +33,8 @@ export interface MercadoPagoCardToken {
 })
 export class PaymentBrickComponent implements AfterViewInit, OnDestroy {
   @Input() amount = 0;
-  @Input() publicKey = ''; // Public key (frontend)
-  @Output() token = new EventEmitter<MercadoPagoCardToken>(); // emite cardFormData tokenizado
+  @Input() publicKey = '';
+  @Output() token = new EventEmitter<MercadoPagoCardToken>();
   @Output() ready = new EventEmitter<void>();
   @Output() brickError = new EventEmitter<any>();
 

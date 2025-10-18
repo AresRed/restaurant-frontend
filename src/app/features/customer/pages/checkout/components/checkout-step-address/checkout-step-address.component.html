@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<!-- <div class="space-y-6">
   <div *ngIf="isDelivery()">
     <h3 class="font-semibold text-gray-700">
       Arrastra el marcador a tu ubicación de entrega:
@@ -105,4 +105,23 @@
       "
     ></p-button>
   </div>
+</div> -->
+<div class="space-y-6">
+  <app-delivery-mode
+    *ngIf="isDelivery()"
+    (next)="onNext($event)"
+    (back)="back.emit()"
+  ></app-delivery-mode>
+
+  <app-dine-in-mode
+    *ngIf="isDineIn()"
+    (next)="onNext($event)"
+    (back)="back.emit()"
+  ></app-dine-in-mode>
+
+  <app-take-away-mode
+    *ngIf="isTakeAway()"
+    (next)="onNext($event)"
+    (back)="back.emit()"
+  ></app-take-away-mode>
 </div>

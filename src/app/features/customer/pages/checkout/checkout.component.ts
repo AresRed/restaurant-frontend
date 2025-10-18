@@ -52,6 +52,8 @@ export class CheckoutComponent implements OnInit {
   selectedDeliveryAddress: DeliveryAddressRequest | null = null;
   selectedTableId: number | null = null;
 
+  selectedPickupStoreId: number | null = null;
+
   constructor(
     private cartService: CartService,
     private paymentService: PaymentService,
@@ -119,6 +121,14 @@ export class CheckoutComponent implements OnInit {
         return;
       }
 
+      if (this.isTakeAway() && !this.selectedPickupStoreId) {
+        this.notificationService.error(
+          'Error',
+          'Por favor, selecciona una tienda para recoger.'
+        );
+        return;
+      }
+
       const orderPayload: OrderRequest = {
         statusId: 1,
         typeId: this.selectedOrderType!.id,
@@ -132,6 +142,8 @@ export class CheckoutComponent implements OnInit {
         orderPayload.deliveryAddress = this.selectedDeliveryAddress!;
       } else if (this.isDineIn()) {
         orderPayload.tableId = this.selectedTableId!;
+      } else if (this.isTakeAway()) {
+        orderPayload.pickupStoreId = this.selectedPickupStoreId!;
       }
 
       const orderResponse = await firstValueFrom(
@@ -157,7 +169,7 @@ export class CheckoutComponent implements OnInit {
         'Tu orden ha sido creada y pagada.'
       );
       this.cartService.clear();
-      this.router.navigate(['/orders', orderResponse.data.id]);
+      this.router.navigate(['/profile/orders', orderResponse.data.id]);
     } catch (error: any) {
       console.error('Error al procesar el pago:', error);
       this.notificationService.error(
@@ -170,12 +182,16 @@ export class CheckoutComponent implements OnInit {
   handleStep2Data(data: CheckoutStep2Data) {
     this.selectedDeliveryAddress = null;
     this.selectedTableId = null;
+    this.selectedPickupStoreId = null;
 
     if (data.deliveryAddress) {
       this.selectedDeliveryAddress = data.deliveryAddress;
     }
     if (data.dineIn) {
       this.selectedTableId = data.dineIn.tableId;
+    }
+    if (data.takeAway) {
+      this.selectedPickupStoreId = data.takeAway.storeId;
     }
 
     console.log('Data del paso 2 recibida:', data);
@@ -184,4 +200,5 @@ export class CheckoutComponent implements OnInit {
 
   isDelivery = (): boolean => this.selectedOrderType?.code === 'DELIVERY';
   isDineIn = (): boolean => this.selectedOrderType?.code === 'DINE_IN';
+  isTakeAway = (): boolean => this.selectedOrderType?.code === 'TAKE_AWAY';
 }

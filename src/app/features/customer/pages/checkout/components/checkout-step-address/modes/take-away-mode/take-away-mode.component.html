@@ -1,1 +1,46 @@
-<p>take-away-mode works!</p>
+<div class="text-center">
+  <h3 class="text-xl font-semibold mb-4">Selecciona una tienda para recoger</h3>
+
+  <div class="mb-4 flex justify-center">
+    <input
+      type="text"
+      pInputText
+      placeholder="Buscar tienda..."
+      [(ngModel)]="searchTerm"
+      (input)="onSearchChange()"
+      class="w-3/4 md:w-1/2"
+    />
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+    <div
+      *ngFor="let store of filteredStores"
+      (click)="selectedStoreId = store.id"
+      class="cursor-pointer border rounded-xl p-4 flex flex-col items-center hover:shadow-md transition duration-200"
+      [class.bg-blue-100]="selectedStoreId === store.id"
+    >
+      <img
+        src="default-store.png"
+        alt="Tienda"
+        class="w-24 h-24 object-cover rounded-lg mb-3 shadow-sm"
+      />
+
+      <p class="font-medium text-lg">{{ store.name }}</p>
+      <p class="text-sm text-gray-500 mt-1">{{ store.address }}</p>
+    </div>
+  </div>
+
+  <div class="flex justify-between">
+    <p-button
+      label="Volver"
+      icon="pi pi-arrow-left"
+      (click)="back.emit()"
+    ></p-button>
+    <p-button
+      label="Siguiente"
+      icon="pi pi-arrow-right"
+      [disabled]="!selectedStoreId"
+      (click)="onNext()"
+    ></p-button>
+  </div>
+</div>

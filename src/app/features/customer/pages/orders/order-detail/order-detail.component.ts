@@ -55,7 +55,7 @@ export class OrderDetailComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/orders']);
+    this.router.navigate(['/profile/orders']);
   }
 
   getStatusColor(status?: string) {

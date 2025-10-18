@@ -1,1 +1,34 @@
-<p>dine-in-mode works!</p>
+<div *ngIf="loading" class="flex justify-center p-10">
+  <p-progressSpinner></p-progressSpinner>
+</div>
+
+<div *ngIf="!loading" class="space-y-6 text-center">
+  <h3 class="text-xl font-semibold">Selecciona una mesa disponible</h3>
+
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <div
+      *ngFor="let table of availableTables"
+      (click)="selectTable(table)"
+      class="cursor-pointer p-4 border rounded-xl transition-all"
+      [class.bg-green-100]="selectedTable?.id === table.id"
+    >
+      <i class="pi pi-table text-2xl text-green-500"></i>
+      <p class="font-medium mt-2">Mesa {{ table.code }}</p>
+      <p class="text-xs text-gray-500">Capacidad: {{ table.capacity }}</p>
+    </div>
+  </div>
+
+  <div class="flex justify-between">
+    <p-button
+      label="Volver"
+      icon="pi pi-arrow-left"
+      (click)="back.emit()"
+    ></p-button>
+    <p-button
+      label="Siguiente"
+      icon="pi pi-arrow-right"
+      [disabled]="!selectedTable"
+      (click)="onNext()"
+    ></p-button>
+  </div>
+</div>

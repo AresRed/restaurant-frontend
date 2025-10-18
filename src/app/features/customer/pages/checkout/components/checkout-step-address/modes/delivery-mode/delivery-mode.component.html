@@ -1,1 +1,25 @@
-<p>delivery-mode works!</p>
+<div *ngIf="loading" class="flex justify-center p-10">
+  <p-progressSpinner></p-progressSpinner>
+</div>
+
+<div *ngIf="!loading && mapReady" class="space-y-6">
+  <div #mapContainer class="w-full h-96 rounded-xl shadow-sm border"></div>
+
+  <app-address-form
+    [initialData]="currentDeliveryAddress"
+    (addressChange)="onAddressFormChange($event)"
+  ></app-address-form>
+
+  <div class="flex justify-between">
+    <p-button
+      label="Volver"
+      icon="pi pi-arrow-left"
+      (click)="back.emit()"
+    ></p-button>
+    <p-button
+      label="Siguiente"
+      icon="pi pi-arrow-right"
+      (click)="onNext()"
+    ></p-button>
+  </div>
+</div>

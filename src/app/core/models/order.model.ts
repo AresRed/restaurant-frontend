@@ -8,7 +8,8 @@ export interface OrderRequest {
   typeId: number;
   deliveryAddress?: DeliveryAddressRequest;
   details: OrderDetailRequest[];
-  tableId?: number
+  tableId?: number;
+  pickupStoreId?: number;
 }
 
 export interface DeliveryAddressRequest {
@@ -19,7 +20,7 @@ export interface DeliveryAddressRequest {
   province?: string;
   zipCode?: string;
   latitude: number;
-  longitude: number
+  longitude: number;
 }
 
 export interface OrderResponse {

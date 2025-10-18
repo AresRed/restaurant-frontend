@@ -328,7 +328,6 @@ export class CheckoutStepAddressComponent
         });
 
       console.log('Map initialized successfully.');
-      
     } catch (error) {
       console.error('Error durante la inicialización del mapa:', error);
       this.notificationService.error(

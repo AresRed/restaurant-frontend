@@ -1,4 +1,4 @@
-import { apiKeys } from "./api-keys";
+import { apiKeys } from "./api-keys.example"; 
 
 export const environment = {
   production: true,

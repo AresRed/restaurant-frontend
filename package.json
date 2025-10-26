@@ -20,6 +20,7 @@
     "@fortawesome/fontawesome-free": "^7.0.1",
     "@mercadopago/sdk-js": "^0.0.3",
     "@primeng/themes": "^19.1.0",
+    "@turf/turf": "^7.2.0",
     "angular-oauth2-oidc": "^16.0.0",
     "chart.js": "^4.5.0",
     "gsap": "^3.13.0",

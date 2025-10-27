@@ -6,7 +6,7 @@ import { NotificationKitchenComponent } from "./component/notification-kitchen/n
 export const chefPage: Routes = [
 
     {
-        path:'chef',
+        path:'',
         component:ChefLayoutComponent,
         children:[
             {path: '',component:KitchenOrdersComponent,pathMatch:'full'},

@@ -1,1 +1,52 @@
-<p>tables works!</p>
+<div class="p-4">
+  <!-- Buscador de Mesas -->
+
+<div class="mb-6">
+  <p-inputgroup>
+    <input
+        type="text"
+        pInputText
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="filterTables()"
+        placeholder="Buscar mesa por nombre o código"
+        class="w-full"
+      />
+    <p-inputgroup-addon>
+        <p-button icon="pi pi-search" severity="secondary" variant="text" />
+    </p-inputgroup-addon>
+</p-inputgroup>
+
+</div>
+
+
+
+
+  <!-- Contenedor de las Mesas -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+    <div *ngFor="let table of filteredTables">
+      <p-card
+        (click)="selectTable(table)"
+        [ngClass]="getTableStatusClass(table.status)"
+        styleClass="cursor-pointer transition-transform duration-200 hover:scale-105"
+      >
+        <ng-template pTemplate="header" class="justify-center">
+          <div class="relative flex justify-center ">
+            <img
+              src="table.svg"
+              alt="Mesa"
+              class="w-[50%] h-auto p-4"
+            />
+            <p-tag
+              [value]="table.code"
+              [severity]="getTagSeverity(table.status)"
+              styleClass="absolute top-2 left-2"
+            ></p-tag>
+          </div>
+        </ng-template>
+        <div class="text-center font-semibold">
+          {{ table.alias }}
+        </div>
+      </p-card>
+    </div>
+  </div>
+</div>

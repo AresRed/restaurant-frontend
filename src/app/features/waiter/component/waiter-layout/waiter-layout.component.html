@@ -1,1 +1,21 @@
-<p>waiter-layout works!</p>
+<header>
+  <div class="card">
+    <p-menubar [model]="menuItems" />
+  </div>
+</header>
+
+<main>
+  <router-outlet></router-outlet>
+</main>
+
+<!-- Drawer para Notificaciones -->
+<p-drawer
+  [(visible)]="isNotificationsDrawerVisible"
+  header="Notificaciones de Pedidos"
+  position="right"
+  styleClass="w-full md:w-1/2 lg:w-1/3"
+>
+  <ng-template pTemplate="content">
+    <app-notification-orders></app-notification-orders>
+  </ng-template>
+</p-drawer>

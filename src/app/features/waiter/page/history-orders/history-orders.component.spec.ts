@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { WaiterLayoutComponent } from './waiter-layout.component';
+import { HistoryOrdersComponent } from './history-orders.component';
 
-describe('WaiterLayoutComponent', () => {
-  let component: WaiterLayoutComponent;
-  let fixture: ComponentFixture<WaiterLayoutComponent>;
+describe('HistoryOrdersComponent', () => {
+  let component: HistoryOrdersComponent;
+  let fixture: ComponentFixture<HistoryOrdersComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [WaiterLayoutComponent]
+      imports: [HistoryOrdersComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(WaiterLayoutComponent);
+    fixture = TestBed.createComponent(HistoryOrdersComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

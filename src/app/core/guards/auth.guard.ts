@@ -17,7 +17,7 @@ interface RouteData {
 @Injectable({
   providedIn: 'root',
 })
-export class AuthGuard implements CanActivate {
+ export class AuthGuard implements CanActivate {
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -36,7 +36,7 @@ export class AuthGuard implements CanActivate {
         }
 
         if (allowedRoles.length === 0) {
-          return true;
+         return true;
         }
 
         const hasRole = user.roles.some((role) => allowedRoles.includes(role));

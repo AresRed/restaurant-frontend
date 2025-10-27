@@ -18,5 +18,30 @@ export const routes: Routes = [
     data: { roles: ['ROLE_ADMIN'] },
     children: adminRoutes,
   },
+  {
+    path: 'chef',
+    loadChildren: () => import('./features/chef/chef-routing.module').then(m => m.chefPage),
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_CHEF'] }
+  },
+  {
+    path: 'waiter',
+    loadChildren: () => import('./features/waiter/waiter-routing.module').then(m => m.waiterPage),
+    data: { roles: ['ROLE_WAITER'] }
+  },
+
+  {
+    path: 'cashier',
+    loadChildren: () => import('./features/cashier/cashier-routing.module').then(m => m.cashierPage),
+    data:{roles:['ROLE_CASHIER']}
+  },
+
+
+
+
+
+
+
+
   { path: '**', redirectTo: '/home' },
 ];

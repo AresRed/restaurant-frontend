@@ -201,6 +201,12 @@ export class AuthService {
     const roles = user.roles || [];
     if (roles.includes(Roles.ROLE_ADMIN)) {
       this.router.navigate(['/admin/dashboard']);
+    } else if (roles.includes(Roles.ROLE_WAITER)) {
+      this.router.navigate(['/waiter']);
+    } else if (roles.includes(Roles.ROLE_CHEF)) {
+      this.router.navigate(['/chef']);
+    } else if (roles.includes(Roles.ROLE_CASHIER)) {
+      this.router.navigate(['/cashier']);
     } else {
       this.router.navigate(['/home']);
     }

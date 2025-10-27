@@ -9,6 +9,7 @@ export interface TableAvailabilityResponse {
 }
 
 export interface TableResponse {
+  imageUrl?: string; // La imagen es opcional
   id: number;
   code: string;
   alias: string;

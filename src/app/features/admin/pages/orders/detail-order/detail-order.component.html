@@ -1,0 +1,142 @@
+<div *ngIf="loading" class="flex justify-center items-center h-64">
+  <p-progressSpinner></p-progressSpinner>
+</div>
+
+<div *ngIf="!loading && order" class="space-y-8 p-6 bg-gray-50 min-h-screen">
+  <div class="flex items-center justify-between">
+    <h2 class="text-2xl font-semibold text-gray-800">
+      🧾 Detalle de la Orden #{{ order.id }}
+    </h2>
+    <p-button
+      routerLink="/admin/orders"
+      label="← Volver al listado"
+      severity="info"
+    />
+  </div>
+
+  <p-card class="shadow-md rounded-2xl border border-gray-200">
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="space-y-2">
+        <p><strong>👤 Cliente:</strong> {{ order.customerName }}</p>
+        <p>
+          <strong>👨‍🍳 Empleado:</strong>
+          {{ order.employeeName || "No asignado" }}
+        </p>
+        <p><strong>📦 Tipo de orden:</strong> {{ order.typeName }}</p>
+        <p><strong>📅 Fecha:</strong> {{ order.date | date : "medium" }}</p>
+        <p>
+          <strong>💰 Total:</strong>
+          <span class="text-green-600 font-semibold text-lg">
+            S/ {{ order.total | number : "1.2-2" }}
+          </span>
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        <p><strong>🪑 Mesa:</strong> {{ order.tableCode || "N/A" }}</p>
+        <p><strong>🏬 Tienda:</strong> {{ order.pickupStoreName || "N/A" }}</p>
+        <p>
+          <strong>📍 Dirección Tienda:</strong>
+          {{ order.pickupStoreAddress || "N/A" }}
+        </p>
+        <p><strong>⏱ Tiempo estimado:</strong> {{ order.estimatedTime }} min</p>
+        <p>
+          <strong>🚗 Distancia estimada:</strong> {{ order.estimatedDistance }}
+        </p>
+        <p>
+          <strong>⌛ Duración estimada:</strong> {{ order.estimatedDuration }}
+        </p>
+      </div>
+    </div>
+  </p-card>
+
+  <p-card
+    header="🚚 Información de Entrega"
+    *ngIf="order.typeName === 'Entrega a domicilio'"
+    class="shadow-md rounded-2xl border border-gray-200"
+  >
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="space-y-2">
+        <p><strong>Calle:</strong> {{ order.deliveryStreet }}</p>
+        <p>
+          <strong>Referencia:</strong>
+          {{ order.deliveryReference || "Ninguna" }}
+        </p>
+        <p>
+          <strong>Instrucciones:</strong>
+          {{ order.deliveryInstructions || "Ninguna" }}
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        <p><strong>Ciudad:</strong> {{ order.deliveryCity }}</p>
+        <p><strong>Provincia:</strong> {{ order.deliveryProvince }}</p>
+        <p><strong>Código Postal:</strong> {{ order.deliveryZipCode }}</p>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <p class="font-semibold mb-2 text-gray-700">📍 Ubicación del Cliente</p>
+
+      <img
+        *ngIf="order.deliveryLatitude && order.deliveryLongitude"
+        class="w-full h-72 rounded-xl shadow-sm border border-gray-200"
+        [src]="
+          'https://maps.googleapis.com/maps/api/staticmap?center=' +
+          order.deliveryLatitude +
+          ',' +
+          order.deliveryLongitude +
+          '&zoom=15&size=600x300&markers=color:red%7C' +
+          order.deliveryLatitude +
+          ',' +
+          order.deliveryLongitude +
+          '&key=' +
+          googleMapsKey
+        "
+        alt="Mapa de ubicación"
+      />
+
+      <p class="text-gray-500 text-sm mt-2">
+        Latitud: {{ order.deliveryLatitude }} | Longitud:
+        {{ order.deliveryLongitude }}
+      </p>
+    </div>
+  </p-card>
+
+  <p-card
+    header="🧾 Detalles de Productos"
+    class="shadow-md rounded-2xl border border-gray-200"
+  >
+    <p-table
+      [value]="order.details"
+      styleClass="p-datatable-sm"
+      responsiveLayout="scroll"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="w-1/2">Producto</th>
+          <th class="text-center">Cantidad</th>
+          <th class="text-center">Precio Unitario</th>
+          <th class="text-center">Subtotal</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-detail>
+        <tr>
+          <td>{{ detail.productName }}</td>
+          <td class="text-center">{{ detail.quantity }}</td>
+          <td class="text-center">
+            S/ {{ detail.unitPrice | number : "1.2-2" }}
+          </td>
+          <td class="text-center font-semibold">
+            S/ {{ detail.unitPrice * detail.quantity | number : "1.2-2" }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<div *ngIf="!loading && !order" class="text-center text-gray-500 mt-10">
+  <p>No se encontró la orden solicitada.</p>
+</div>

@@ -56,4 +56,11 @@ export class OrderService {
   ): Promise<ApiResponse<OrderResponse>> {
     return await firstValueFrom(this.createOrder(request));
   }
+
+  cancelOrder(orderId: number) {
+    return this.http.put<ApiResponse<OrderResponse>>(
+      `${environment.apiUrl}/api/v1/orders/${orderId}/cancel`,
+      null
+    );
+  }
 }

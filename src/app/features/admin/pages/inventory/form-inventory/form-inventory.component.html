@@ -1,0 +1,83 @@
+<div class="p-6 max-w-2xl mx-auto bg-white rounded-xl shadow-md">
+  <h2 class="text-2xl font-bold mb-6">
+    {{ isEdit ? "Editar Inventario" : "Registrar Nuevo Inventario" }}
+  </h2>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
+    <div *ngIf="!isEdit">
+      <label class="block text-sm font-medium mb-1">Ingrediente</label>
+      <p-select
+        formControlName="ingredientId"
+        [options]="ingredients"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Seleccione un ingrediente"
+        styleClass="w-full"
+      />
+    </div>
+
+    <div *ngIf="isEdit">
+      <label class="block text-sm font-medium mb-1">Ingrediente</label>
+      <input
+        pInputText
+        formControlName="ingredientName"
+        class="w-full"
+        readonly
+      />
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Unidad</label>
+        <input pInputText formControlName="unitName" class="w-full" readonly />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Símbolo</label>
+        <input
+          pInputText
+          formControlName="unitSymbol"
+          class="w-full"
+          readonly
+        />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Stock mínimo</label>
+        <p-inputNumber
+          formControlName="minimumStock"
+          class="w-full"
+          mode="decimal"
+          [min]="0"
+        ></p-inputNumber>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Stock actual</label>
+        <p-inputNumber
+          formControlName="currentStock"
+          class="w-full"
+          mode="decimal"
+          [min]="0"
+        ></p-inputNumber>
+      </div>
+    </div>
+
+    <div class="flex justify-end space-x-3 mt-6">
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        [rounded]="true"
+        (click)="backToInventory()"
+      ></p-button>
+
+      <p-button
+        [label]="isEdit ? 'Actualizar' : 'Guardar'"
+        severity="success"
+        [rounded]="true"
+        [disabled]="form.invalid"
+        type="submit"
+      ></p-button>
+    </div>
+  </form>
+</div>

@@ -1,17 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
 import { ToggleButtonModule } from 'primeng/togglebutton';
+import { TooltipModule } from 'primeng/tooltip';
 import { ProductResponse } from '../../../../core/models/products/product/product.model';
 import { CategoryService } from '../../../../core/services/category.service';
 import { ConfirmService } from '../../../../core/services/confirmation.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ProductService } from '../../../../core/services/products/product/product.service';
-import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-menu',
@@ -30,13 +31,15 @@ import { TooltipModule } from 'primeng/tooltip';
   styleUrls: ['./menu.component.scss'],
 })
 export class MenuComponent implements OnInit {
+  selectedProduct: ProductResponse | null = null;
   products: ProductResponse[] = [];
   categories: string[] = [];
   selectedCategory = '';
-  showTable = false;
+  showTable = true;
   loading = false;
 
   constructor(
+    private router: Router,
     private productService: ProductService,
     private categoryService: CategoryService,
     private notificationService: NotificationService,
@@ -80,11 +83,15 @@ export class MenuComponent implements OnInit {
   }
 
   viewDetails(item: ProductResponse) {
-    this.notificationService.info('Detalles', `Producto: ${item.name}`);
+    this.router.navigate(['admin/menu', item.id]);
   }
 
   editItem(item: ProductResponse) {
-    this.notificationService.info('Editar', `Editando: ${item.name}`);
+    this.router.navigate(['admin/menu', item.id, 'edit']);
+  }
+
+  goToCreate() {
+    this.router.navigate(['admin/menu/create']);
   }
 
   async confirmDelete(event: Event, item: ProductResponse) {

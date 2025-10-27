@@ -46,7 +46,9 @@
             <i class="pi pi-list text-primary-500"></i>
             Órdenes Recientes
           </h3>
-          <div class="p-input-icon-left w-full flex items-center justify-center gap-2 sm:w-64">
+          <div
+            class="p-input-icon-left w-full flex items-center justify-center gap-2 sm:w-64"
+          >
             <i class="pi pi-search text-gray-400"></i>
             <input
               pInputText
@@ -171,7 +173,7 @@
           </td>
 
           <td class="p-3 text-right">
-            <span class="font-extrabold text-xl text-green-600"
+            <span class="font-extrabold"
               >S/. {{ order.total | number : "1.2-2" }}</span
             >
           </td>
@@ -203,9 +205,10 @@
               pTooltip="Cancelar orden"
               [rounded]="true"
               severity="danger"
+              (click)="cancelOrder(order.id)"
               [disabled]="
-                order.statusName.toUpperCase() === 'COMPLETADA' ||
-                order.statusName.toUpperCase() === 'CANCELADA'
+                order.statusName === 'Completada' ||
+                order.statusName === 'Cancelado'
               "
             ></p-button>
           </td>
@@ -241,7 +244,7 @@
       >
         <i class="pi pi-table text-3xl mb-2"></i>
         <span class="font-semibold">Mesa {{ table.code }}</span>
-        <small class="text-gray-700">{{ table.status }}</small>
+        <small class="text-gray-700">{{ getStatusLabel(table.status) }}</small>
       </div>
 
       <p-dialog
@@ -293,12 +296,28 @@
             <p-autocomplete
               id="status"
               [suggestions]="filteredStatusOptions"
-              [(ngModel)]="selectedTable.status"
+              [(ngModel)]="selectedStatusOption"
               (completeMethod)="searchTableState($event)"
               [dropdown]="true"
               appendTo="body"
+              [optionLabel]="'label'"
               styleClass="w-full"
-            />
+              (onSelect)="onStatusSelect($event)"
+            >
+              <ng-template let-option pTemplate="item">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="w-3 h-3 rounded-full"
+                    [ngClass]="{
+                      'bg-green-500': option.value === 'FREE',
+                      'bg-yellow-500': option.value === 'OCCUPIED',
+                      'bg-red-500': option.value === 'OUT_OF_SERVICE'
+                    }"
+                  ></span>
+                  <span>{{ option.label }}</span>
+                </div>
+              </ng-template>
+            </p-autocomplete>
           </div>
 
           <div class="flex justify-end gap-2">

@@ -1,10 +1,9 @@
 
 
 export interface IngredientResponse {
-  ingredientId: number;
-  ingredientName: string;
+  id: number;
+  name: string;
+  unitId: number;
   unitName: string;
   unitSymbol: string;
-  quantity: number
 }
-

@@ -1,18 +1,27 @@
-:host {
-  display: block;
+.stat-card {
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  color: white;
+  transition: transform 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
-  ::ng-deep .p-chart {
-    height: 100% !important;
-    width: 100% !important;
-
-    > div {
-      height: 100% !important;
-      width: 100% !important;
-    }
-
-    canvas {
-      height: 100% !important;
-      width: 100% !important;
-    }
+  &:hover {
+    transform: scale(1.02);
   }
+}
+
+.stat-blue {
+  background: linear-gradient(to right, #3b82f6, #2563eb);
+}
+
+.stat-cyan {
+  background: linear-gradient(to right, #931313, #dc2626);
+}
+
+.stat-pink {
+  background: linear-gradient(to right, #ec4899, #db2777);
+}
+
+.stat-yellow {
+  background: linear-gradient(to right, #facc15, #f59e0b);
 }

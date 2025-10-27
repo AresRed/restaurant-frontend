@@ -1,0 +1,138 @@
+<div *ngIf="!loading && product; else loadingTpl" class="max-w-6xl mx-auto p-6">
+  <!-- Botón Volver -->
+  <div class="mb-6">
+    <p-button
+      icon="pi pi-arrow-left"
+      label="Volver al Menú"
+      (click)="goToMenu()"
+      severity="secondary"
+      styleClass="p-button-text"
+    ></p-button>
+  </div>
+
+  <!-- Contenedor principal -->
+  <div
+    class="bg-white rounded-2xl shadow-lg overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 border border-gray-100"
+  >
+    <!-- Imagen -->
+    <div class="flex justify-center items-center bg-gray-50 rounded-xl p-4">
+      <img
+        [src]="product.imageUrl || 'assets/images/no-image.jpg'"
+        alt="{{ product.name }}"
+        class="w-full h-[400px] object-contain rounded-xl"
+      />
+    </div>
+
+    <!-- Información -->
+    <div class="flex flex-col justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+          {{ product.name }}
+        </h1>
+        <p class="text-gray-600 mb-4">{{ product.description }}</p>
+
+        <div class="flex flex-wrap gap-4 mb-6">
+          <p-tag
+            value="{{ product.categoryName }}"
+            icon="pi pi-tag"
+            severity="info"
+          ></p-tag>
+
+          <p-tag
+            [value]="product.active ? 'Activo' : 'Inactivo'"
+            [severity]="product.active ? 'success' : 'danger'"
+            icon="pi pi-check-circle"
+          ></p-tag>
+        </div>
+
+        <div class="space-y-3">
+          <p class="text-lg">
+            💲
+            <span class="font-semibold text-gray-700">Precio: </span>
+            <span class="font-bold">S/. {{ product.price }}</span>
+          </p>
+
+          <p class="text-lg">
+            🕒
+            <span class="font-semibold text-gray-700"
+              >Tiempo de preparación:</span
+            >
+            {{ product.preparationTimeMinutes }} minutos
+          </p>
+
+          <p class="text-lg">
+            🧾
+            <span class="font-semibold text-gray-700">ID del Producto:</span>
+            #{{ product.id }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 mt-8">
+        <p-button
+          icon="pi pi-pencil"
+          label="Editar"
+          severity="info"
+          [raised]="true"
+          (click)="goToEdit(product.id)"
+        ></p-button>
+        <p-button
+          icon="pi pi-trash"
+          label="Eliminar"
+          severity="danger"
+          [raised]="true"
+          (click)="deleteProduct(product, $event)"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ingredientes -->
+  <div class="mt-10 bg-white rounded-2xl shadow-md p-6 border border-gray-100">
+    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+      <i class="pi pi-list text-blue-500"></i> Ingredientes del producto
+    </h2>
+
+    <div *ngIf="product.ingredients.length > 0; else noIngredients">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-100 text-left">
+            <th class="py-3 px-4 font-semibold">Ingrediente</th>
+            <th class="py-3 px-4 font-semibold">Cantidad</th>
+            <th class="py-3 px-4 font-semibold">Unidad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let ing of product.ingredients"
+            class="border-b hover:bg-gray-50 transition"
+          >
+            <td class="py-3 px-4">{{ ing.ingredientName }}</td>
+            <td class="py-3 px-4">{{ ing.quantity }}</td>
+            <td class="py-3 px-4">{{ ing.unitSymbol }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #noIngredients>
+      <div
+        class="text-center text-gray-500 py-6 border border-dashed border-gray-300 rounded-lg"
+      >
+        <i class="pi pi-info-circle text-blue-500 text-xl mr-2"></i>
+        Este producto no tiene ingredientes registrados.
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- Loading -->
+<ng-template #loadingTpl>
+  <div class="flex justify-center items-center h-96">
+    <p-progressSpinner
+      styleClass="w-10 h-10"
+      strokeWidth="4"
+      animationDuration=".8s"
+    ></p-progressSpinner>
+  </div>
+</ng-template>

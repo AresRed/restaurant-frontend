@@ -1,0 +1,222 @@
+<div
+  class="max-w-4xl mx-auto mt-6 bg-white rounded-2xl shadow-md border overflow-hidden"
+>
+  <div class="bg-blue-600 text-white py-3 px-6 text-lg font-semibold">
+    {{ title }}
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="p-6 grid gap-8">
+    <!-- Imagen -->
+    <div class="flex flex-col items-center gap-4">
+      <div
+        class="relative group w-52 h-52 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shadow-sm flex items-center justify-center cursor-pointer hover:shadow-md transition-all"
+      >
+        <!-- Imagen cargada -->
+        <img
+          *ngIf="selectedImageUrl; else uploadPlaceholder"
+          [src]="selectedImageUrl"
+          alt="Vista previa"
+          class="object-cover w-full h-full group-hover:opacity-80 transition-all"
+        />
+
+        <!-- Placeholder cuando no hay imagen -->
+        <ng-template #uploadPlaceholder>
+          <div class="flex flex-col items-center text-gray-400">
+            <i class="pi pi-image text-3xl mb-1"></i>
+            <span class="text-sm text-center">Sube una imagen</span>
+          </div>
+        </ng-template>
+
+        <!-- Botones flotantes -->
+        <div
+          *ngIf="selectedImageUrl"
+          class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all"
+        >
+          <button
+            type="button"
+            pButton
+            icon="pi pi-refresh"
+            class="!bg-blue-500 hover:!bg-blue-600 !text-white !p-2 rounded-full shadow"
+            (click)="triggerFileInput()"
+          ></button>
+          <button
+            type="button"
+            pButton
+            icon="pi pi-times"
+            class="!bg-red-500 hover:!bg-red-600 !text-white !p-2 rounded-full shadow"
+            (click)="onRemoveImage()"
+          ></button>
+        </div>
+      </div>
+
+      <!-- Input invisible de subida -->
+      <input
+        #fileInput
+        type="file"
+        accept="image/*"
+        (change)="onImageUpload($event)"
+        hidden
+      />
+
+      <p-button
+        *ngIf="!selectedImageUrl"
+        icon="pi pi-upload"
+        label="Subir imagen"
+        class="!bg-blue-600 hover:!bg-blue-700 !text-white"
+        (click)="triggerFileInput()"
+        type="button"
+      ></p-button>
+    </div>
+
+    <!-- Campos principales -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1"
+          >Nombre *</label
+        >
+        <input
+          pInputText
+          formControlName="name"
+          placeholder="Ej. Lomo Saltado"
+          class="w-full"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1"
+          >Categoría *</label
+        >
+        <p-dropdown
+          [options]="categories"
+          formControlName="categoryName"
+          placeholder="Seleccionar categoría"
+          [showClear]="true"
+          class="w-full"
+        ></p-dropdown>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-1"
+        >Descripción</label
+      >
+      <textarea
+        pTextarea
+        formControlName="description"
+        rows="3"
+        placeholder="Breve descripción del producto"
+        class="w-full"
+      ></textarea>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1"
+          >Precio (S/.) *</label
+        >
+        <p-inputNumber
+          formControlName="price"
+          mode="currency"
+          currency="PEN"
+          locale="es-PE"
+          class="w-full"
+        ></p-inputNumber>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1"
+          >Tiempo de preparación (min) *</label
+        >
+        <p-inputNumber
+          formControlName="preparationTimeMinutes"
+          [min]="1"
+          [showButtons]="true"
+          class="w-full"
+        ></p-inputNumber>
+      </div>
+    </div>
+
+    <div class="mt-2">
+      <h3
+        class="font-semibold text-gray-800 mb-3 flex items-center justify-between"
+      >
+        Ingredientes
+        <p-button
+          icon="pi pi-plus"
+          label="Agregar"
+          size="small"
+          class="!bg-green-600 hover:!bg-green-700 !text-white"
+          (click)="addIngredient()"
+          type="button"
+        ></p-button>
+      </h3>
+
+      <div formArrayName="ingredients">
+        <div
+          class="grid grid-cols-3 gap-3 text-sm font-semibold text-gray-600 mb-2"
+        >
+          <div>Ingrediente</div>
+          <div>Cantidad</div>
+          <div>Unidad</div>
+        </div>
+
+        <div
+          *ngFor="let ing of ingredients.controls; let i = index"
+          [formGroupName]="i"
+          class="border border-gray-200 p-3 rounded-lg mb-3 grid grid-cols-1 md:grid-cols-3 gap-3 items-center"
+        >
+          <p-select
+            [options]="ingredientsList"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Seleccionar ingrediente"
+            formControlName="ingredientId"
+            (onChange)="onIngredientSelect($event, i)"
+            class="w-full"
+          ></p-select>
+
+          <!-- Cantidad editable -->
+          <p-inputNumber
+            formControlName="quantity"
+            [min]="0.1"
+            [showButtons]="true"
+            class="w-full"
+          ></p-inputNumber>
+
+          <!-- Unidad -->
+          <div class="flex items-center gap-2">
+            <input
+              pInputText
+              formControlName="unitName"
+              placeholder="Unidad"
+              readonly
+              class="flex-1 bg-gray-100 text-gray-600"
+            />
+            <p-button
+              type="button"
+              icon="pi pi-trash"
+              severity="danger"
+              (click)="removeIngredient(i)"
+            ></p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+      <p-button
+        type="button"
+        label="Cancelar"
+        class="p-button-secondary"
+        (click)="onCancel()"
+      ></p-button>
+      <p-button
+        type="submit"
+        label="Guardar"
+        icon="pi pi-save"
+        class="p-button-primary"
+      ></p-button>
+    </div>
+  </form>
+</div>

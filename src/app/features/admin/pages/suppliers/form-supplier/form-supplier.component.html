@@ -1,0 +1,68 @@
+<div class="p-6 max-w-xl mx-auto bg-white rounded-2xl shadow-lg space-y-6">
+  <h2 class="text-2xl font-bold text-gray-800">
+    {{ isEdit ? "Editar Proveedor" : "Registrar Proveedor" }}
+  </h2>
+
+  <form (ngSubmit)="saveSupplier()" class="space-y-4">
+    <div>
+      <label class="block text-gray-700 mb-1">Empresa</label>
+      <input
+        pInputText
+        [(ngModel)]="supplier.companyName"
+        name="companyName"
+        required
+        class="w-full"
+      />
+    </div>
+
+    <div>
+      <label class="block text-gray-700 mb-1">Contacto</label>
+      <input
+        pInputText
+        [(ngModel)]="supplier.contactName"
+        name="contactName"
+        required
+        class="w-full"
+      />
+    </div>
+
+    <div>
+      <label class="block text-gray-700 mb-1">Teléfono</label>
+      <input
+        pInputText
+        [(ngModel)]="supplier.phone"
+        name="phone"
+        required
+        class="w-full"
+      />
+    </div>
+
+    <div>
+      <label class="block text-gray-700 mb-1">Dirección</label>
+      <input
+        pInputText
+        [(ngModel)]="supplier.address"
+        name="address"
+        required
+        class="w-full"
+      />
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button
+        pButton
+        label="Cancelar"
+        class="p-button-secondary"
+        type="button"
+        (click)="goToSuppliers()"
+      ></button>
+      <button
+        pButton
+        [label]="isEdit ? 'Actualizar' : 'Guardar'"
+        icon="pi pi-save"
+        type="submit"
+        class="p-button-success"
+      ></button>
+    </div>
+  </form>
+</div>

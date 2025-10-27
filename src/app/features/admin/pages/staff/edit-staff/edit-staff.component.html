@@ -101,10 +101,13 @@
 
           <div>
             <label>Sueldo</label>
-            <input
-              pInputText
-              type="number"
+            <p-inputNumber
+              inputId="salary"
               formControlName="salary"
+              mode="currency"
+              currency="PEN"
+              locale="es-PE"
+              currencyDisplay="symbol"
               class="w-full"
             />
           </div>
@@ -155,43 +158,51 @@
     </ng-template>
   </section>
 
-  <section class="employee-schedules mt-8 bg-white p-6 rounded-2xl shadow-md">
-    <h3 class="text-lg font-semibold mb-4">Horarios del Empleado</h3>
-    <button
-      pButton
-      type="button"
-      label="Agregar horario"
-      icon="pi pi-plus"
-      (click)="openScheduleDialog()"
-    ></button>
+  <section class="mt-5 bg-white p-2">
+    <h3 class="text-lg font-semibold mb-3">Horarios del empleado</h3>
 
-    <p-table [value]="schedules" class="mt-4">
+    <p-table
+      [value]="schedules"
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-striped p-datatable-sm"
+      [loading]="loading"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+      emptyMessage="No hay horarios registrados"
+    >
       <ng-template pTemplate="header">
         <tr>
           <th>Día</th>
           <th>Hora inicio</th>
           <th>Hora fin</th>
-          <th>Acciones</th>
+          <th style="width: 120px; text-align: center">Acciones</th>
         </tr>
       </ng-template>
+
       <ng-template pTemplate="body" let-schedule>
         <tr>
-          <td>{{ schedule.dayOfWeek }}</td>
+          <td>{{ schedule.dayOfWeek | dayOfWeekName }}</td>
           <td>{{ schedule.startTime }}</td>
           <td>{{ schedule.endTime }}</td>
-          <td>
+          <td class="text-center">
             <button
               pButton
-              type="button"
+              pTooltip="Editar horario"
+              tooltipPosition="top"
               icon="pi pi-pencil"
-              class="p-button-text"
+              class="p-button-rounded p-button-text p-button-sm"
               (click)="openScheduleDialog(schedule)"
             ></button>
+
             <button
               pButton
-              type="button"
+              pTooltip="Eliminar horario"
+              tooltipPosition="top"
               icon="pi pi-trash"
-              class="p-button-text text-red-600"
+              class="p-button-rounded p-button-text p-button-sm p-button-danger"
               (click)="deleteSchedule(schedule.id)"
             ></button>
           </td>

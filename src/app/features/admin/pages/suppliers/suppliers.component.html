@@ -1,20 +1,29 @@
 <div class="p-6 space-y-8">
-  <!-- Encabezado -->
   <div class="flex justify-between items-center mb-6">
     <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-2">
       🏢 Proveedores
     </h2>
-    <p-togglebutton
-      onLabel="Tabla"
-      offLabel="Cards"
-      [(ngModel)]="showTable"
-      [onIcon]="'pi pi-table'"
-      offIcon="pi pi-id-card"
-      class="p-button-sm"
-    ></p-togglebutton>
+
+    <div class="flex items-center gap-3">
+      <button
+        pButton
+        label="Nuevo proveedor"
+        icon="pi pi-plus"
+        class="p-button-success"
+        (click)="createSupplier()"
+      ></button>
+
+      <p-togglebutton
+        onLabel="Tabla"
+        offLabel="Cards"
+        [(ngModel)]="showTable"
+        [onIcon]="'pi pi-table'"
+        offIcon="pi pi-id-card"
+        class="p-button-sm"
+      ></p-togglebutton>
+    </div>
   </div>
 
-  <!-- Filtro de búsqueda -->
   <div
     class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
   >
@@ -48,37 +57,12 @@
             {{ supplier.contactName }}
           </p>
 
-          <!-- Badges y categoría -->
-          <!-- <div class="flex gap-2 mt-2">
-            <span
-              [ngClass]="supplier.active ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'"
-              class="px-3 py-1 rounded-full text-xs font-semibold"
-            >
-              {{ supplier.active ? 'Activo' : 'Inactivo' }}
-            </span>
-            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">
-              {{ supplier.category || 'General' }}
-            </span>
-          </div> -->
-
           <p class="text-gray-600 text-sm mt-2 flex items-center gap-1">
             <i class="pi pi-phone"></i> {{ supplier.phone }}
           </p>
           <p class="text-gray-600 text-sm flex items-center gap-1">
             <i class="pi pi-map-marker"></i> {{ supplier.address }}
           </p>
-
-          <!-- Mini estadísticas -->
-          <!-- <div class="flex gap-4 mt-4 w-full justify-center">
-            <div class="text-center">
-              <p class="text-lg font-bold">{{ supplier.totalOrders || 0 }}</p>
-              <p class="text-xs text-gray-500">Pedidos</p>
-            </div>
-            <div class="text-center">
-              <p class="text-lg font-bold">{{ supplier.totalProducts || 0 }}</p>
-              <p class="text-xs text-gray-500">Productos</p>
-            </div>
-          </div> -->
 
           <div class="flex gap-3 mt-5">
             <button

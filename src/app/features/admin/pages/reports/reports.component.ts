@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
+import { ReportSummaryResponse } from '../../../../core/models/reports/reports.model';
+import { ReportService } from '../../../../core/services/reports/report.service';
 
 @Component({
   selector: 'app-reports',
@@ -10,6 +12,12 @@ import { ChartModule } from 'primeng/chart';
   styleUrls: ['./reports.component.scss'],
 })
 export class ReportsComponent implements OnInit {
+  reportData!: ReportSummaryResponse;
+
+  salesToday = 0;
+  totalOrders = 0;
+  topProductName = '-';
+
   salesChartData: any;
   salesChartOptions: any;
 
@@ -19,18 +27,39 @@ export class ReportsComponent implements OnInit {
   orderTypeChartData: any;
   orderTypeChartOptions: any;
 
+  constructor(private reportService: ReportService) {}
+
   ngOnInit(): void {
-    this.loadCharts();
+    this.loadReportSummary();
   }
 
-  loadCharts() {
-    // 📈 Ventas semanales
+  loadReportSummary() {
+    this.reportService.getReportSummary().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.reportData = res.data;
+          this.salesToday = res.data.salesToday;
+          this.totalOrders = res.data.totalOrders;
+          this.topProductName =
+            res.data.topProducts?.[0]?.productName ?? 'Sin datos';
+
+          this.loadCharts(res.data);
+        }
+      },
+      error: (err) => console.error('Error al cargar reportes:', err),
+    });
+  }
+
+  loadCharts(data: ReportSummaryResponse) {
+    const salesLabels = Object.keys(data.salesLast7Days);
+    const salesValues = Object.values(data.salesLast7Days);
+
     this.salesChartData = {
-      labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+      labels: salesLabels,
       datasets: [
         {
           label: 'Ventas (S/.)',
-          data: [320, 450, 280, 520, 610, 700, 640],
+          data: salesValues,
           fill: false,
           borderColor: '#4F46E5',
           tension: 0.4,
@@ -42,19 +71,15 @@ export class ReportsComponent implements OnInit {
       plugins: { legend: { display: false } },
     };
 
-    // 🥘 Productos más vendidos
+    const productLabels = data.topProducts.map((p) => p.productName);
+    const productValues = data.topProducts.map((p) => p.totalQuantitySold);
+
     this.productsChartData = {
-      labels: [
-        'Arroz Chaufa',
-        'Pollo a la Brasa',
-        'Ceviche',
-        'Lomo Saltado',
-        'Papas Fritas',
-      ],
+      labels: productLabels,
       datasets: [
         {
           label: 'Unidades Vendidas',
-          data: [120, 200, 150, 180, 90],
+          data: productValues,
           backgroundColor: [
             '#34D399',
             '#60A5FA',
@@ -71,13 +96,15 @@ export class ReportsComponent implements OnInit {
       scales: { x: { grid: { display: false } }, y: { beginAtZero: true } },
     };
 
-    // 📊 Tipos de orden
+    const orderTypeLabels = data.orderTypes.map((t) => t.orderTypeName);
+    const orderTypeValues = data.orderTypes.map((t) => t.totalOrders);
+
     this.orderTypeChartData = {
-      labels: ['Delivery', 'Recogo', 'En Mesa'],
+      labels: orderTypeLabels,
       datasets: [
         {
-          data: [45, 25, 30],
-          backgroundColor: ['#3B82F6', '#F59E0B', '#10B981'],
+          data: orderTypeValues,
+          backgroundColor: ['#3B82F6', '#F59E0B', '#10B981', '#F87171'],
         },
       ],
     };

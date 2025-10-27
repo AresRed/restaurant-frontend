@@ -3,7 +3,8 @@
 </div>
 
 <div *ngIf="!loading && mapReady" class="space-y-6">
-  <div #mapContainer class="w-full h-96 rounded-xl shadow-sm border"></div>
+  <div #mapContainer class="w-full h-96 min-h-[24rem] rounded-xl shadow-sm border"></div>
+
 
   <app-address-form
     [initialData]="currentDeliveryAddress"

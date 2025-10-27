@@ -18,6 +18,7 @@ import { EmployeeService } from '../../../../core/services/employee/employee.ser
 import { ScheduleService } from '../../../../core/services/employee/schedule.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { PositionLabelPipe } from '../../../../shared/pipes/position-label.pipe';
+import { DayOfWeekNamePipe } from '../../../../shared/pipes/day-of-week-name.pipe';
 
 interface ScheduleByDay {
   day: string;
@@ -38,10 +39,11 @@ interface ScheduleByDay {
     ChartModule,
     TooltipModule,
     PositionLabelPipe,
+    DayOfWeekNamePipe
   ],
   templateUrl: './staff.component.html',
   styleUrls: ['./staff.component.scss'],
-  providers: [PositionLabelPipe], // 👈 agrega esto
+  providers: [PositionLabelPipe],
 })
 export class StaffComponent implements OnInit {
   staffList: EmployeeResponse[] = [];
@@ -53,22 +55,13 @@ export class StaffComponent implements OnInit {
   chartData: any;
   chartOptions: any;
 
-  dayNamesMap: Record<DayOfWeekEnum, string> = {
-    MONDAY: 'Lunes',
-    TUESDAY: 'Martes',
-    WEDNESDAY: 'Miércoles',
-    THURSDAY: 'Jueves',
-    FRIDAY: 'Viernes',
-    SATURDAY: 'Sábado',
-    SUNDAY: 'Domingo',
-  };
 
   constructor(
     private employeeService: EmployeeService,
     private notificationService: NotificationService,
     private scheduleService: ScheduleService,
     private router: Router,
-    private positionLabelPipe: PositionLabelPipe // 👈 inyección del pipe
+    private positionLabelPipe: PositionLabelPipe
   ) {
     this.chartOptions = {
       responsive: true,
@@ -151,7 +144,7 @@ export class StaffComponent implements OnInit {
           const daysOfWeek = Object.values(DayOfWeekEnum);
 
           this.schedulesByDay = daysOfWeek.map((day) => ({
-            day: this.dayNamesMap[day],
+            day: day,
             schedules: this.schedules.filter((s) => s.dayOfWeek === day),
           }));
         }

@@ -3,11 +3,14 @@
     <h2 class="text-3xl font-bold mb-6">🍴 Inventario del Restaurante</h2>
 
     <p-button
-      label="Registrar nuevo inventario"
       icon="pi pi-plus"
-      severity="success"
+      pTooltip="Agregar inventario"
       [rounded]="true"
+      size="small"
       [raised]="true"
+      label="Agregar inventario"
+      severity="success"
+      (click)="goToForm()"
     ></p-button>
   </div>
 
@@ -75,7 +78,7 @@
             />
             <p-button
               icon="pi pi-plus-circle"
-              pTooltip="Ajustar stock"
+              pTooltip="Agregar stock"
               [rounded]="true"
               size="small"
               [raised]="true"
@@ -84,12 +87,12 @@
             />
             <p-button
               icon="pi pi-pencil"
-              pTooltip="Editar"
+              pTooltip="Editar Inventario"
               [rounded]="true"
               size="small"
               [raised]="true"
               severity="info"
-              (click)="orderMore(item)"
+              (click)="goToForm(item.id)"
             />
             <p-button
               icon="pi pi-trash"

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -28,7 +29,10 @@ export class SuppliersComponent implements OnInit {
   showTable = false;
   filter: string = '';
 
-  constructor(private supplierService: SupplierService) {}
+  constructor(
+    private supplierService: SupplierService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.loadSuppliers();
@@ -50,11 +54,15 @@ export class SuppliersComponent implements OnInit {
     );
   }
 
-  viewDetails(supplier: any) {
-    console.log('Ver detalle', supplier);
+  createSupplier() {
+    this.router.navigate(['/admin/suppliers/create']);
   }
 
-  editSupplier(supplier: any) {
-    console.log('Editar', supplier);
+  viewDetails(supplier: SupplierResponse) {
+    this.router.navigate([`/admin/suppliers/${supplier.id}`]);
+  }
+
+  editSupplier(supplier: SupplierResponse) {
+    this.router.navigate([`/admin/suppliers/${supplier.id}/edit`]);
   }
 }

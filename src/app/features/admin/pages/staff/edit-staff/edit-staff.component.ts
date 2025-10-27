@@ -18,6 +18,7 @@ import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { forkJoin } from 'rxjs';
 
+import { InputNumberModule } from 'primeng/inputnumber';
 import {
   EmployeeRequest,
   EmployeeResponse,
@@ -33,6 +34,7 @@ import { EmployeeService } from '../../../../../core/services/employee/employee.
 import { PositionService } from '../../../../../core/services/employee/position.service';
 import { ScheduleService } from '../../../../../core/services/employee/schedule.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
+import { DayOfWeekNamePipe } from '../../../../../shared/pipes/day-of-week-name.pipe';
 import { PositionLabelPipe } from '../../../../../shared/pipes/position-label.pipe';
 
 @Component({
@@ -43,12 +45,14 @@ import { PositionLabelPipe } from '../../../../../shared/pipes/position-label.pi
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
+    InputNumberModule,
     DropdownModule,
     TooltipModule,
     DatePickerModule,
     TableModule,
     DialogModule,
     PositionLabelPipe,
+    DayOfWeekNamePipe,
   ],
   templateUrl: './edit-staff.component.html',
   styleUrls: ['./edit-staff.component.scss'],
@@ -98,7 +102,6 @@ export class EditStaffComponent implements OnInit {
     private scheduleService: ScheduleService,
     private notificationService: NotificationService
   ) {
-    // Inicializamos los formularios para evitar undefined
     this.employeeForm = this.fb.group({
       positionId: [null, Validators.required],
       salary: [0, [Validators.required, Validators.min(0)]],
@@ -119,7 +122,6 @@ export class EditStaffComponent implements OnInit {
     this.loadSchedules();
   }
 
-  // ------------------ Empleado ------------------
   loadAllData() {
     const positions$ = this.positionService.getAllPositions();
     const employee$ = this.employeeService.getEmployeeById(this.employeeId);
@@ -210,7 +212,6 @@ export class EditStaffComponent implements OnInit {
     return new Date(year, month - 1, day);
   }
 
-  // ------------------ Horarios ------------------
   loadSchedules() {
     this.scheduleService.getAllSchedules().subscribe({
       next: (res) => {

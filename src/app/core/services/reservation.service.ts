@@ -32,6 +32,15 @@ export class ReservationService {
     );
   }
 
+  getReservationsByDateRange(
+    startDate: string,
+    endDate: string
+  ): Observable<ApiResponse<PagedApiResponse<ReservationResponse[]>>> {
+    return this.http.get<ApiResponse<PagedApiResponse<ReservationResponse[]>>>(
+      `${environment.apiUrl}/api/v1/reservations/filter?startDate=${startDate}&endDate=${endDate}`
+    );
+  }
+
   getReservationById(
     reservationId: number
   ): Observable<ApiResponse<ReservationResponse>> {
@@ -63,6 +72,22 @@ export class ReservationService {
     return this.http.post<ApiResponse<ReservationResponse[]>>(
       `${environment.apiUrl}/api/v1/reservations`,
       reservationRequest
+    );
+  }
+
+  updateReservation(
+    id: number,
+    reservationRequest: ReservationRequest
+  ): Observable<ApiResponse<ReservationResponse>> {
+    return this.http.put<ApiResponse<ReservationResponse>>(
+      `${environment.apiUrl}/api/v1/reservations/${id}`,
+      reservationRequest
+    );
+  }
+
+  deleteReservation(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(
+      `${environment.apiUrl}/api/v1/reservations/${id}`
     );
   }
 }

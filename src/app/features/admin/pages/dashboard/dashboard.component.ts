@@ -1,9 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
 import { TableModule } from 'primeng/table';
+import { Observable } from 'rxjs';
+import { DashboardSummaryResponse } from '../../../../core/models/dashboard/dashboard.model';
+import { UserResponse } from '../../../../core/models/user.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import { DashboardService } from '../../../../core/services/dashboard/dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,33 +17,35 @@ import { TableModule } from 'primeng/table';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent {
-  userName = 'Administrador';
+export class DashboardComponent implements OnInit {
+  days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+  user$!: Observable<UserResponse | null>;
+  dashboardData?: DashboardSummaryResponse;
 
   stats = [
     {
       title: 'Órdenes de hoy',
-      value: 45,
+      value: 0,
       icon: 'pi pi-shopping-cart',
-      color: 'from-blue-500 to-blue-600',
+      color: 'stat-blue text-white',
     },
     {
       title: 'Ventas de hoy',
-      value: '$1,250',
+      value: 'S/ 0.00',
       icon: 'pi pi-dollar',
-      color: 'from-red-500 to-red-600',
+      color: 'stat-cyan text-white',
     },
     {
       title: 'Reservaciones',
-      value: 12,
+      value: 0,
       icon: 'pi pi-calendar',
-      color: 'from-pink-500 to-pink-600',
+      color: 'stat-pink text-white',
     },
     {
       title: 'Satisfacción',
-      value: '92%',
+      value: '0%',
       icon: 'pi pi-star',
-      color: 'from-yellow-400 to-yellow-500',
+      color: 'stat-yellow text-white',
     },
   ];
 
@@ -46,71 +53,116 @@ export class DashboardComponent {
   chartOrdersReservations: any;
   chartOptions: any;
 
-  inventoryAlerts = [
-    { name: 'Carne de res', stock: 5 },
-    { name: 'Papas', stock: 10 },
-    { name: 'Cerveza artesanal', stock: 3 },
-  ];
+  loading = true;
 
-  reservations = [
-    { client: 'Juan Pérez', date: '2025-10-01', time: '19:00', people: 4 },
-    { client: 'María López', date: '2025-10-01', time: '20:30', people: 2 },
-    { client: 'Carlos Gómez', date: '2025-10-02', time: '18:45', people: 6 },
-  ];
+  constructor(
+    private authService: AuthService,
+    private dashboardService: DashboardService
+  ) {}
 
-  reviews = [
-    {
-      client: 'Lucía Fernández',
-      date: '2025-09-29',
-      comment: 'Excelente atención y comida deliciosa.',
-      rating: 5,
-    },
-    {
-      client: 'Pedro Ramos',
-      date: '2025-09-28',
-      comment: 'La reservación salió perfecta, volveré pronto.',
-      rating: 4,
-    },
-    {
-      client: 'Ana Torres',
-      date: '2025-09-27',
-      comment: 'Todo bien, pero la espera fue un poco larga.',
-      rating: 3,
-    },
-  ];
+  ngOnInit(): void {
+    this.user$ = this.authService.currentUser$;
+    this.loadDashboardData();
+    this.initializeCharts();
+  }
 
-  constructor() {
+  loadDashboardData(): void {
+    this.dashboardService.getDashboardSummary().subscribe({
+      next: (res) => {
+        this.dashboardData = res.data;
+        this.updateStats();
+        this.updateCharts();
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error cargando el dashboard:', err);
+        this.loading = false;
+      },
+    });
+  }
+
+  updateStats(): void {
+    if (!this.dashboardData) return;
+    this.stats = [
+      {
+        title: 'Órdenes de hoy',
+        value: this.dashboardData.ordersToday,
+        icon: 'pi pi-shopping-cart',
+        color: 'stat-blue text-white',
+      },
+      {
+        title: 'Ventas de hoy',
+        value: `S/ ${this.dashboardData.salesToday.toFixed(2)}`,
+        icon: 'pi pi-dollar',
+        color: 'stat-cyan text-white',
+      },
+      {
+        title: 'Reservaciones',
+        value: this.dashboardData.reservationsToday,
+        icon: 'pi pi-calendar',
+        color: 'stat-pink text-white',
+      },
+      {
+        title: 'Satisfacción',
+        value: `${this.dashboardData.satisfaction}%`,
+        icon: 'pi pi-star',
+        color: 'stat-yellow text-white',
+      },
+    ];
+  }
+
+  updateCharts(): void {
+    if (!this.dashboardData) return;
+
+    const orderDates = Object.keys(this.dashboardData.ordersWeek).sort();
+    const salesDates = Object.keys(this.dashboardData.salesWeek).sort();
+    const reservationDates = Object.keys(
+      this.dashboardData.reservationsWeek
+    ).sort();
+
+    const formatLabel = (dateStr: string) => {
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const date = new Date(Date.UTC(year, month - 1, day));
+      return this.days[date.getUTCDay()];
+    };
+
     this.chartData = {
-      labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+      labels: salesDates.map(formatLabel),
       datasets: [
         {
-          label: 'Ventas ($)',
-          data: [200, 450, 300, 600, 750, 900, 400],
+          label: 'Ventas (S/)',
+          data: salesDates.map(
+            (date) => +this.dashboardData!.salesWeek[date].toFixed(2)
+          ),
           backgroundColor: '#42A5F5',
         },
       ],
     };
 
     this.chartOrdersReservations = {
-      labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+      labels: reservationDates.map(formatLabel), // usa las mismas etiquetas que reservations
       datasets: [
         {
           label: 'Órdenes',
-          data: [40, 55, 32, 70, 65, 80, 50],
+          data: orderDates.map((date) => this.dashboardData!.ordersWeek[date]),
           borderColor: '#4CAF50',
           tension: 0.4,
           fill: false,
         },
         {
           label: 'Reservaciones',
-          data: [10, 12, 8, 15, 14, 18, 9],
+          data: reservationDates.map(
+            (date) => this.dashboardData!.reservationsWeek[date]
+          ),
           borderColor: '#FF9800',
           tension: 0.4,
           fill: false,
         },
       ],
     };
+  }
 
+  initializeCharts(): void {
     this.chartOptions = {
       responsive: true,
       maintainAspectRatio: false,

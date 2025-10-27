@@ -1,0 +1,64 @@
+<div
+  *ngIf="!loading && reservation; else loadingTpl"
+  class="p-6 max-w-4xl mx-auto"
+>
+  <p-button
+    icon="pi pi-arrow-left"
+    label="Volver"
+    (click)="goBack()"
+    severity="secondary"
+  ></p-button>
+
+  <p-card class="mt-4 shadow-md">
+    <ng-template pTemplate="header">
+      <h2 class="text-2xl font-bold">Reservación #{{ reservation.id }}</h2>
+    </ng-template>
+
+    <div class="space-y-3">
+      <p><strong>Cliente:</strong> {{ reservation.customerName }}</p>
+      <p>
+        <strong>Fecha:</strong>
+        {{ reservation.reservationDate | date : "full" }}
+      </p>
+      <p><strong>Invitados:</strong> {{ reservation.numberOfPeople }}</p>
+      <p>
+        <strong>Estado:</strong>
+        <p-tag
+          [value]="getStatusLabel(reservation.status)"
+          [severity]="
+            reservation.status === 'CONFIRMED'
+              ? 'success'
+              : reservation.status === 'PENDING'
+              ? 'warn'
+              : reservation.status === 'CANCELLED'
+              ? 'danger'
+              : 'info'
+          "
+        ></p-tag>
+      </p>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-end gap-2">
+        <p-button
+          label="Editar"
+          icon="pi pi-pencil"
+          severity="info"
+          (click)="editReservation(reservation.id)"
+        ></p-button>
+        <p-button
+          label="Eliminar"
+          icon="pi pi-trash"
+          severity="danger"
+          (click)="deleteReservation(reservation.id, $event)"
+        ></p-button>
+      </div>
+    </ng-template>
+  </p-card>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="flex justify-center items-center h-96">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+</ng-template>

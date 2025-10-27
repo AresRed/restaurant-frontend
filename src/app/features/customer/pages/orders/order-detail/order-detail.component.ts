@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
+import { environment } from '../../../../../../environments/environment';
 import { OrderResponse } from '../../../../../core/models/order.model';
 import { OrderService } from '../../../../../core/services/orders/order.service';
 
@@ -24,11 +25,15 @@ registerLocaleData(localeEsPe);
     ProgressSpinnerModule,
   ],
   templateUrl: './order-detail.component.html',
+  styleUrls: ['./order-detail.component.scss'],
 })
 export class OrderDetailComponent implements OnInit {
   orderId!: number;
   order!: OrderResponse;
   loading = true;
+  googleMapsApiKey = environment.googleMapsApiKey;
+
+  timelineSteps = ['Pendiente', 'Confirmada', 'En Progreso', 'Completada'];
 
   constructor(
     private route: ActivatedRoute,
@@ -58,23 +63,47 @@ export class OrderDetailComponent implements OnInit {
     this.router.navigate(['/profile/orders']);
   }
 
+  getStepStatus(
+    orderStatus: string,
+    step: string
+  ): 'completed' | 'current' | 'upcoming' {
+    const orderIndex = this.timelineSteps.findIndex(
+      (s) => s.toLowerCase() === orderStatus.toLowerCase()
+    );
+    const stepIndex = this.timelineSteps.indexOf(step);
+    if (stepIndex < orderIndex) return 'completed';
+    if (stepIndex === orderIndex) return 'current';
+    return 'upcoming';
+  }
+
+  getStepIcon(step: string): string {
+    switch (step) {
+      case 'Pendiente':
+        return 'pi pi-clock';
+      case 'Confirmada':
+        return 'pi pi-check';
+      case 'En Progreso':
+        return 'pi pi-spin pi-spinner';
+      case 'Completada':
+        return 'pi pi-flag-fill';
+      default:
+        return 'pi pi-circle';
+    }
+  }
+
   getStatusColor(status?: string) {
     if (!status) return 'secondary';
     switch (status.toUpperCase()) {
       case 'PENDIENTE':
         return 'warn';
       case 'CONFIRMADA':
+      case 'COMPLETADA':
         return 'success';
       case 'CANCELADA':
         return 'danger';
-      case 'FALLIDA':
-        return 'secondary';
       case 'EN PROGRESO':
-        return 'contrast';
       case 'LISTA PARA RECOGER':
-        return 'contrast';
-      case 'COMPLETADA':
-        return 'success';
+        return 'info';
       default:
         return 'secondary';
     }
@@ -86,11 +115,30 @@ export class OrderDetailComponent implements OnInit {
       case 'PENDIENTE':
         return 'pi pi-clock text-yellow-600';
       case 'CONFIRMADA':
+      case 'COMPLETADA':
         return 'pi pi-check-circle text-green-600';
       case 'CANCELADA':
         return 'pi pi-times-circle text-red-600';
+      case 'EN PROGRESO':
+      case 'LISTA PARA RECOGER':
+        return 'pi pi-spin pi-spinner text-blue-600';
       default:
         return 'pi pi-info-circle text-gray-600';
     }
+  }
+
+  calculateProgress(estimatedTime: number): number {
+    const maxTime = 60;
+    return Math.min((estimatedTime / maxTime) * 100, 100);
+  }
+
+  calculateTimelineProgress(orderStatus: string): number {
+    const currentIndex = this.timelineSteps.findIndex(
+      (s) => s.toLowerCase() === orderStatus.toLowerCase()
+    );
+    if (currentIndex === -1) return 0;
+
+    const totalSteps = this.timelineSteps.length - 1;
+    return (currentIndex / totalSteps) * 100;
   }
 }

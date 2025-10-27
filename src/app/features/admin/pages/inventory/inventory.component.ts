@@ -173,4 +173,12 @@ export class InventoryComponent implements OnInit {
       },
     });
   }
+
+  goToForm(inventoryId?: number) {
+    if (inventoryId) {
+      this.router.navigate(['admin/inventory', inventoryId, 'edit']);
+    } else {
+      this.router.navigate(['admin/inventory/create']);
+    }
+  }
 }

@@ -1,10 +1,9 @@
 <div class="min-h-screen flex bg-gray-50">
   <main class="flex-1 p-8 space-y-8">
-    <!-- Header -->
     <header class="flex items-center justify-between">
       <div>
         <h1 class="text-3xl font-bold text-gray-800">
-          Bienvenido, {{ userName }}
+          ¡Bienvenido, {{ (user$ | async)?.fullName || "Usuario" }}!
         </h1>
         <p class="text-gray-500 mt-1">Resumen general de tu restaurante</p>
       </div>
@@ -16,134 +15,170 @@
       ></button>
     </header>
 
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div
-        *ngFor="let stat of stats"
-        class="rounded-xl shadow-md bg-gradient-to-r p-6 hover:scale-[1.02] transition-transform duration-200"
-        [ngClass]="stat.color"
-      >
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm opacity-80">{{ stat.title }}</p>
-            <p class="text-2xl font-bold mt-1">{{ stat.value }}</p>
-          </div>
-          <div
-            class="w-12 h-12 flex items-center justify-center rounded-full bg-white/20"
-          >
-            <i class="{{ stat.icon }} text-xl"></i>
-          </div>
-        </div>
-      </div>
-    </section>
+    <div
+      *ngIf="loading"
+      class="flex justify-center items-center h-64 text-gray-500"
+    >
+      Cargando información...
+    </div>
 
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[28rem]">
-      <!-- Ventas recientes -->
-      <div class="bg-white rounded-xl shadow p-6 flex flex-col h-full">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">
-          Ventas recientes
-        </h2>
-        <div class="flex-1">
-          <p-chart
-            type="bar"
-            [data]="chartData"
-            [options]="chartOptions"
-            [height]="'100%'"
-            [width]="'100%'"
-            class="w-full h-full"
-          ></p-chart>
-        </div>
-      </div>
-
-      <!-- Órdenes vs Reservaciones -->
-      <div class="bg-white rounded-xl shadow p-6 flex flex-col h-full">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">
-          Órdenes vs Reservaciones
-        </h2>
-        <div class="flex-1">
-          <p-chart
-            type="line"
-            [data]="chartOrdersReservations"
-            [options]="chartOptions"
-            [height]="'100%'"
-            [width]="'100%'"
-            class="w-full h-full"
-          ></p-chart>
-        </div>
-      </div>
-    </section>
-
-    <!-- Alerta de inventario -->
-    <section class="bg-white rounded-xl shadow p-6">
-      <h2 class="text-lg font-semibold text-gray-800 mb-4">
-        Alertas de inventario
-      </h2>
-      <div
-        *ngFor="let item of inventoryAlerts"
-        class="flex items-center gap-4 p-3 border-b last:border-none"
-      >
-        <i class="pi pi-exclamation-triangle text-yellow-500 text-xl"></i>
-        <div>
-          <p class="font-medium text-gray-700">{{ item.name }}</p>
-          <p class="text-sm text-gray-500">Stock actual: {{ item.stock }}</p>
-        </div>
-        <span
-          class="ml-auto px-2 py-1 text-xs rounded-full bg-red-100 text-red-700"
-          >Bajo</span
-        >
-      </div>
-    </section>
-
-    <!-- Próximas reservaciones -->
-    <section class="bg-white rounded-xl shadow p-6">
-      <h2 class="text-lg font-semibold text-gray-800 mb-4">
-        Próximas reservaciones
-      </h2>
-      <p-table [value]="reservations" responsiveLayout="scroll">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Cliente</th>
-            <th>Fecha</th>
-            <th>Hora</th>
-            <th>Personas</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-res>
-          <tr>
-            <td>{{ res.client }}</td>
-            <td>{{ res.date }}</td>
-            <td>{{ res.time }}</td>
-            <td>{{ res.people }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </section>
-
-    <!-- Reseñas recientes -->
-    <section class="bg-white rounded-xl shadow p-6">
-      <h2 class="text-lg font-semibold text-gray-800 mb-4">
-        Reseñas recientes
-      </h2>
-      <div
-        *ngFor="let review of reviews"
-        class="flex items-start gap-4 p-4 border-b last:border-none"
-      >
+    <ng-container *ngIf="!loading && dashboardData">
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div
-          class="w-10 h-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 font-bold"
+          *ngFor="let stat of stats"
+          class="rounded-xl shadow-md bg-gradient-to-r p-6 hover:scale-[1.02] transition-transform duration-200"
+          [ngClass]="stat.color"
         >
-          {{ review.client[0] }}
-        </div>
-        <div>
-          <p class="font-medium text-gray-700">{{ review.client }}</p>
-          <p class="text-sm text-gray-500 mb-1">{{ review.date }}</p>
-          <p class="text-gray-700">{{ review.comment }}</p>
-          <div class="flex mt-1">
-            <i
-              *ngFor="let star of [].constructor(review.rating)"
-              class="pi pi-star-fill text-yellow-400 mr-1"
-            ></i>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm opacity-80">{{ stat.title }}</p>
+              <p class="text-2xl font-bold mt-1">{{ stat.value }}</p>
+            </div>
+            <div
+              class="w-12 h-12 flex items-center justify-center rounded-full bg-white/20"
+            >
+              <i class="{{ stat.icon }} text-xl"></i>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <!-- Charts -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[28rem]">
+        <!-- Ventas -->
+        <div class="bg-white rounded-xl shadow p-6 flex flex-col h-full">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4">
+            Ventas recientes
+          </h2>
+          <div class="flex-1">
+            <p-chart
+              type="bar"
+              [data]="chartData"
+              [options]="chartOptions"
+              class="w-full h-full"
+              [height]="'300px'"
+            ></p-chart>
+          </div>
+        </div>
+
+        <!-- Órdenes vs Reservaciones -->
+        <div class="bg-white rounded-xl shadow p-6 flex flex-col h-full">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4">
+            Órdenes vs Reservaciones
+          </h2>
+          <div class="flex-1">
+            <p-chart
+              type="line"
+              [data]="chartOrdersReservations"
+              [options]="chartOptions"
+              [height]="'300px'"
+              class="w-full h-full"
+            ></p-chart>
+          </div>
+        </div>
+      </section>
+
+      <!-- Inventario + Reseñas -->
+      <!-- Inventario bajo -->
+      <section class="bg-white rounded-xl shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">
+          Alertas de inventario
+        </h2>
+        <div
+          *ngIf="dashboardData.lowStock.length; else noStock"
+          class="divide-y"
+        >
+          <div
+            *ngFor="let item of dashboardData.lowStock"
+            class="flex items-center gap-4 p-3"
+          >
+            <i class="pi pi-exclamation-triangle text-yellow-500 text-xl"></i>
+            <div>
+              <p class="font-medium text-gray-700">
+                {{ item.ingredientName }}
+              </p>
+              <p class="text-sm text-gray-500">
+                Stock actual: {{ item.currentStock }} {{ item.unitSymbol }}
+              </p>
+            </div>
+            <span
+              class="ml-auto px-2 py-1 text-xs rounded-full bg-red-100 text-red-700"
+              >Bajo</span
+            >
+          </div>
+        </div>
+        <ng-template #noStock>
+          <p class="text-gray-500">Sin alertas de inventario.</p>
+        </ng-template>
+      </section>
+
+      <!-- Reseñas -->
+      <section class="bg-white rounded-xl shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">
+          Reseñas recientes
+        </h2>
+        <div
+          *ngIf="dashboardData.recentReviews.length; else noReviews"
+          class="divide-y"
+        >
+          <div
+            *ngFor="let review of dashboardData.recentReviews"
+            class="flex items-start gap-4 p-4"
+          >
+            <div
+              class="w-10 h-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 font-bold"
+            >
+              {{ review.customerName[0] }}
+            </div>
+            <div>
+              <p class="font-medium text-gray-700">
+                {{ review.customerName }}
+              </p>
+              <p class="text-sm text-gray-500 mb-1">
+                {{ review.date | date : "short" }}
+              </p>
+              <p class="text-gray-700">{{ review.comment }}</p>
+              <div class="flex mt-1">
+                <i
+                  *ngFor="let star of [].constructor(review.rating)"
+                  class="pi pi-star-fill text-yellow-400 mr-1"
+                ></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ng-template #noReviews>
+          <p class="text-gray-500">Sin reseñas recientes.</p>
+        </ng-template>
+      </section>
+
+      <!-- Reservaciones -->
+      <section class="bg-white rounded-xl shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">
+          Próximas reservaciones
+        </h2>
+        <p-table
+          [value]="dashboardData.upcomingReservations"
+          responsiveLayout="scroll"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Cliente</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Personas</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-res>
+            <tr>
+              <td>{{ res.customerName }}</td>
+              <td>{{ res.reservationDate }}</td>
+              <td>{{ res.reservationTime }}</td>
+              <td>{{ res.numberOfPeople }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </section>
+    </ng-container>
   </main>
 </div>

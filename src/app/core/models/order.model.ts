@@ -42,7 +42,19 @@ export interface OrderResponse {
   tableId: number;
   tableCode: string;
 
+  pickupStoreId: number;
+  pickupStoreName: string;
+  pickupStoreAddress: string;
+
+  estimatedTime: number;
+  estimatedDistance: string;
+  estimatedDuration: string;
+
+  currentLatitude: string;
+  currentLongitude: string;
+
   date: string;
+
   statusId: number;
   statusName: string;
   typeId: number;
@@ -50,6 +62,7 @@ export interface OrderResponse {
   total: number;
   details: OrderDetailResponse[];
 }
+
 export interface OrderDetailResponse {
   id: number;
   productId: number;

@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import {
   AutoCompleteCompleteEvent,
   AutoCompleteModule,
+  AutoCompleteSelectEvent,
 } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -73,6 +74,7 @@ export class OrdersComponent implements OnInit {
     { label: 'Fuera de servicio', value: 'OUT_OF_SERVICE' },
   ];
   filteredStatusOptions: TableMap[] = [];
+  selectedStatusOption: TableMap | null = null;
 
   constructor(
     private orderService: OrderService,
@@ -104,7 +106,17 @@ export class OrdersComponent implements OnInit {
 
   openTableActions(table: TableResponse) {
     this.selectedTable = { ...table };
+
+    this.selectedStatusOption =
+      this.statusOptions.find((opt) => opt.value === table.status) || null;
+
     this.dialogTableVisible = true;
+  }
+
+  onStatusSelect(event: AutoCompleteSelectEvent) {
+    const selected = event.value as TableMap;
+    this.selectedTable.status = selected.value;
+    this.selectedStatusOption = selected;
   }
 
   saveTable() {
@@ -135,6 +147,11 @@ export class OrdersComponent implements OnInit {
     );
   }
 
+  getStatusLabel(status: string): string {
+    const found = this.statusOptions.find((opt) => opt.value === status);
+    return found ? found.label : status;
+  }
+
   getStatusSeverity(
     status: string
   ): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
@@ -156,6 +173,22 @@ export class OrdersComponent implements OnInit {
 
   viewOrderDetail(orderId: number) {
     this.router.navigate(['/admin/orders', orderId]);
+  }
+
+  cancelOrder(orderId: number) {
+    this.orderService.cancelOrder(orderId).subscribe({
+      next: (res) => {
+        this.notificationService.success(
+          'Orden cancelada',
+          res.message || 'La orden fue cancelada correctamente.'
+        );
+        this.loadOrders();
+      },
+      error: (err: HttpErrorResponse) => {
+        const message = err.error?.message || 'No se pudo cancelar la orden.';
+        this.notificationService.error('Error', message);
+      },
+    });
   }
 
   getInitials(name: string): string {

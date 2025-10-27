@@ -3,10 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { ApiResponse } from '../../../models/base/api-response.model';
-import {
-  ProductDetailResponse,
-  ProductResponse,
-} from '../../../models/products/product/product.model';
+import { ProductRequest, ProductResponse } from '../../../models/products/product/product.model';
 
 @Injectable({
   providedIn: 'root',
@@ -20,13 +17,15 @@ export class ProductService {
     );
   }
 
-  getProduct(productId: number) {
-    return this.http.get<ApiResponse<ProductDetailResponse[]>>(
+  getProduct(productId: number): Observable<ApiResponse<ProductResponse>> {
+    return this.http.get<ApiResponse<ProductResponse>>(
       `${environment.apiUrl}/api/v1/products/${productId}`
     );
   }
 
-  updateProduct(productId: number) {}
+  updateProduct(productId: number, updateRequest: ProductRequest) {
+    
+  }
 
   deleteProduct(productId: number): Observable<ApiResponse<null>> {
     return this.http.delete<ApiResponse<null>>(

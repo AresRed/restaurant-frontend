@@ -57,17 +57,50 @@ export class DeliveryModeComponent implements OnDestroy {
   loading = false;
 
   private deliveryZoneCoords = [
-    { lat: -14.0663821, lng: -75.7398385 },
-    { lat: -14.0713358, lng: -75.7383365 },
-    { lat: -14.0761229, lng: -75.738079 },
-    { lat: -14.0819506, lng: -75.7301826 },
-    { lat: -14.0797028, lng: -75.7204408 },
-    { lat: -14.0747492, lng: -75.7235307 },
-    { lat: -14.0713774, lng: -75.7245178 },
-    { lat: -14.069296, lng: -75.7251615 },
-    { lat: -14.069296, lng: -75.7257623 },
-    { lat: -14.0629685, lng: -75.7276506 },
-    { lat: -14.0663821, lng: -75.7398385 },
+    { lng: -75.724211, lat: -14.088629 },
+    { lng: -75.72155, lat: -14.081553 },
+    { lng: -75.721807, lat: -14.080138 },
+    { lng: -75.719147, lat: -14.079555 },
+    { lng: -75.719404, lat: -14.07431 },
+    { lng: -75.711851, lat: -14.07048 },
+    { lng: -75.715714, lat: -14.061322 },
+    { lng: -75.720606, lat: -14.062737 },
+    { lng: -75.721807, lat: -14.060906 },
+    { lng: -75.723524, lat: -14.055244 },
+    { lng: -75.722065, lat: -14.054078 },
+    { lng: -75.722322, lat: -14.047834 },
+    { lng: -75.727987, lat: -14.049582 },
+    { lng: -75.727386, lat: -14.055411 },
+    { lng: -75.730219, lat: -14.055827 },
+    { lng: -75.73245, lat: -14.045086 },
+    { lng: -75.735369, lat: -14.043254 },
+    { lng: -75.742922, lat: -14.045835 },
+    { lng: -75.744896, lat: -14.049582 },
+    { lng: -75.746613, lat: -14.052247 },
+    { lng: -75.751076, lat: -14.053246 },
+    { lng: -75.751419, lat: -14.056826 },
+    { lng: -75.749424, lat: -14.060885 },
+    { lng: -75.744681, lat: -14.060198 },
+    { lng: -75.744081, lat: -14.065735 },
+    { lng: -75.743351, lat: -14.067858 },
+    { lng: -75.742664, lat: -14.073228 },
+    { lng: -75.744424, lat: -14.073894 },
+    { lng: -75.743866, lat: -14.07739 },
+    { lng: -75.747728, lat: -14.078598 },
+    { lng: -75.746484, lat: -14.082177 },
+    { lng: -75.742064, lat: -14.082843 },
+    { lng: -75.74142, lat: -14.083967 },
+    { lng: -75.738716, lat: -14.083842 },
+    { lng: -75.738029, lat: -14.085299 },
+    { lng: -75.736656, lat: -14.085258 },
+    { lng: -75.734167, lat: -14.085008 },
+    { lng: -75.733867, lat: -14.085924 },
+    { lng: -75.735369, lat: -14.086298 },
+    { lng: -75.734982, lat: -14.089129 },
+    { lng: -75.731335, lat: -14.088962 },
+    { lng: -75.731893, lat: -14.084425 },
+    { lng: -75.729704, lat: -14.08634 },
+    { lng: -75.724211, lat: -14.088629 },
   ];
 
   constructor(
@@ -160,6 +193,29 @@ export class DeliveryModeComponent implements OnDestroy {
       position,
       this.deliveryZonePolygon
     );
+  }
+
+  private createMarker(pos: google.maps.LatLngLiteral) {
+    const { AdvancedMarkerElement } = (google.maps as any)
+      .marker as google.maps.MarkerLibrary;
+    this.marker = new AdvancedMarkerElement({
+      position: pos,
+      map: this.map!,
+      gmpDraggable: true,
+    });
+
+    this.marker.addListener('dragend', () => {
+      const newPos = this.marker!.position as google.maps.LatLngLiteral;
+      this.currentDeliveryAddress.latitude = newPos.lat;
+      this.currentDeliveryAddress.longitude = newPos.lng;
+      this.checkMarkerInsideZone(newPos);
+      if (this.isMarkerInsideZone) {
+        this.geocodePosition(newPos);
+      } else {
+        this.notificationService.warn('Fuera de zona de reparto');
+        this.resetAddress();
+      }
+    });
   }
 
   private geocodePosition(pos: google.maps.LatLngLiteral) {

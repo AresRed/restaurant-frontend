@@ -13,6 +13,7 @@ import { CategoryService } from '../../../../core/services/category.service';
 import { ConfirmService } from '../../../../core/services/confirmation.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ProductService } from '../../../../core/services/products/product/product.service';
+import { Tag } from "primeng/tag";
 
 @Component({
   selector: 'app-menu',
@@ -26,7 +27,8 @@ import { ProductService } from '../../../../core/services/products/product/produ
     ToggleButtonModule,
     TooltipModule,
     TabsModule,
-  ],
+    Tag
+],
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss'],
 })
@@ -66,7 +68,7 @@ export class MenuComponent implements OnInit {
 
   loadProducts() {
     this.loading = true;
-    this.productService.getAllProducts().subscribe({
+    this.productService.getAllIncludingInactive().subscribe({
       next: (res) => {
         this.products = res.data;
         this.loading = false;

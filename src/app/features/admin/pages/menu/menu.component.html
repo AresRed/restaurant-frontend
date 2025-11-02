@@ -135,6 +135,7 @@
                     <th class="py-3 px-4 text-left font-semibold">Producto</th>
                     <th class="py-3 px-4 text-left font-semibold">Categoría</th>
                     <th class="py-3 px-4 text-right font-semibold">Precio</th>
+                    <th class="py-3 px-4 text-right font-semibold">Estado</th>
                     <th class="py-3 px-4 text-center font-semibold">
                       Acciones
                     </th>
@@ -159,6 +160,14 @@
                       class="py-3 px-4 text-right text-gray-500 font-semibold"
                     >
                       S/. {{ item.price }}
+                    </td>
+                    <td
+                      class="py-3 px-4 text-right text-gray-500 font-semibold"
+                    >
+                      <p-tag
+                        value="{{ item.active ? 'Activo' : 'Inactivo' }}"
+                        [severity]="item.active ? 'success' : 'danger'"
+                      />
                     </td>
                     <td class="py-3 px-4 space-x-4 text-center">
                       <p-button

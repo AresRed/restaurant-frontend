@@ -11,7 +11,7 @@ import { OrderTypeResponse } from '../../../../core/models/order-type.model';
 import {
   DeliveryAddressRequest,
   OrderRequest,
-} from '../../../../core/models/order.model';
+} from '../../../../core/models/order/orderhttp/order.model';
 import { CartService } from '../../../../core/services/cart.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { OrderTypeService } from '../../../../core/services/orders/order-type.service';

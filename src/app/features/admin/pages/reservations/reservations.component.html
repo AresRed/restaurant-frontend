@@ -1,173 +1,197 @@
-<div class="p-6 space-y-6">
-  <h2 class="text-3xl font-bold mb-6">📅 Reservaciones del Restaurante</h2>
+<div class="p-4 sm:p-6 space-y-6">
+  <header
+    class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+  >
+    <div>
+      <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">
+        📅 Reservaciones
+      </h2>
+      <p class="text-gray-500 mt-1">
+        Gestiona las reservas de mesas del restaurante.
+      </p>
+    </div>
+    <!-- ✅ Botón para ir a la página de creación -->
+    <p-button
+      label="Nueva Reserva"
+      icon="pi pi-plus"
+      (onClick)="goToCreateReservation()"
+    ></p-button>
+  </header>
 
   <div class="grid lg:grid-cols-3 gap-6">
-    <!-- Calendario -->
-    <div class="lg:col-span-2 border rounded-lg p-4 shadow-lg bg-white">
+    <!-- CALENDARIO VISUAL (sin cambios funcionales, quizás ajustar estilos) -->
+    <div class="lg:col-span-2 border rounded-xl p-4 shadow-sm bg-white">
       <div class="flex justify-between items-center mb-4">
-        <div class="flex gap-1">
-          <button class="p-2 bg-gray-200 rounded" (click)="changeYear(-1)">
-            « Año
-          </button>
-          <button class="p-2 bg-gray-200 rounded" (click)="changeMonth(-1)">
-            ‹ Mes
-          </button>
-        </div>
-        <span class="font-semibold">{{
-          currentMonth | date : "MMMM yyyy"
+        <!-- ... botones de navegación mes/año ... -->
+        <span class="font-semibold text-lg">{{
+          currentMonth | date : "MMMM yyyy" : "" : "es-PE"
         }}</span>
-        <div class="flex gap-1">
-          <button class="p-2 bg-gray-200 rounded" (click)="changeMonth(1)">
-            Mes ›
-          </button>
-          <button class="p-2 bg-gray-200 rounded" (click)="changeYear(1)">
-            Año »
-          </button>
-        </div>
+        <!-- ... botones de navegación mes/año ... -->
       </div>
-
-      <!-- Días de la semana -->
-      <div class="grid grid-cols-7 text-center font-semibold mb-2">
+      <div
+        class="grid grid-cols-7 text-center font-medium text-gray-500 text-sm mb-2"
+      >
         <div
           *ngFor="let day of ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']"
         >
           {{ day }}
         </div>
       </div>
-
-      <!-- Días del mes -->
-      <div class="grid grid-cols-7 gap-2">
+      <div class="grid grid-cols-7 gap-1">
         <div
           *ngFor="let day of getDaysOfMonth()"
-          class="p-2 border rounded cursor-pointer relative hover:bg-gray-100"
+          class="p-2 border rounded-md cursor-pointer aspect-square flex flex-col items-center justify-center text-center relative hover:bg-blue-50 transition-colors duration-150"
           [ngClass]="{
-            'bg-blue-100': selectedDate?.toDateString() === day?.toDateString(),
-            'bg-gray-50': !day
+            'bg-blue-500 text-white font-bold cursor-pointer hover:bg-blue-600':
+              selectedDate?.toDateString() === day?.toDateString(),
+
+            'bg-white text-gray-700 font-medium cursor-pointer hover:bg-blue-50':
+              day && selectedDate?.toDateString() !== day?.toDateString(),
+
+            'bg-gray-50 text-gray-300 cursor-default pointer-events-none': !day
           }"
           (click)="selectDate(day)"
         >
-          {{ day?.getDate() || "" }}
+          <span *ngIf="day">{{ day.getDate() }}</span>
+          <!-- Indicador de reserva (punto) -->
           <span
             *ngIf="hasReservation(day)"
-            class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"
+            class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-red-500 rounded-full"
           ></span>
         </div>
       </div>
     </div>
 
-    <!-- Formulario nueva reserva -->
-    <div class="lg:col-span-1 border rounded-lg p-4 shadow-lg bg-white">
-      <h3 class="font-semibold mb-4">Nueva Reservación</h3>
-      <div class="space-y-8">
-        <div class="flex flex-col">
-          <label>Cliente</label>
-          <input
-            pInputText
-            type="text"
-            [(ngModel)]="newReservation.customerName"
-          />
+    <!-- ❌ SECCIÓN DEL FORMULARIO ELIMINADA -->
+    <!-- <div class="lg:col-span-1 ..."> ... </div> -->
+
+    <!-- ✅ NUEVO ESPACIO o componente para mostrar detalles del día seleccionado -->
+    <div
+      class="lg:col-span-1 border rounded-xl p-4 shadow-sm bg-white flex flex-col"
+    >
+      <h3 class="font-semibold mb-3 text-gray-700">
+        {{
+          selectedDate
+            ? (selectedDate | date : "EEEE, d MMMM" : "" : "es-PE")
+            : "Selecciona un día"
+        }}
+      </h3>
+      <div class="flex-grow overflow-y-auto space-y-3">
+        <p *ngIf="!selectedDate" class="text-gray-400 text-center mt-8">
+          Haz clic en un día del calendario para ver las reservas.
+        </p>
+        <p
+          *ngIf="selectedDate && filteredReservations.length === 0"
+          class="text-gray-400 text-center mt-8"
+        >
+          No hay reservas para este día.
+        </p>
+
+        <!-- Mini lista de reservas del día seleccionado -->
+        <div
+          *ngFor="let res of filteredReservations"
+          class="p-3 rounded-lg border flex justify-between items-center cursor-pointer hover:bg-gray-50"
+          (click)="viewReservationDetail(res.id)"
+        >
+          <div>
+            <p class="font-medium text-sm text-gray-800">
+              {{ res.customerName || res.contactName }}
+            </p>
+            <p class="text-xs text-gray-500">
+              {{ res.reservationTime | slice : 0 : 5 }} -
+              {{ res.numberOfPeople }} pers.
+            </p>
+          </div>
+          <p-tag
+            [value]="res.status"
+            [severity]="getStatusSeverity(res.status)"
+            [rounded]="true"
+            styleClass="text-xs"
+          ></p-tag>
         </div>
-
-        <p-floatlabel>
-          <label>Fecha y Hora</label>
-          <input
-            type="datetime-local"
-            class="p-inputtext w-full"
-            [(ngModel)]="newReservation.reservationDate"
-          />
-        </p-floatlabel>
-
-        <p-floatlabel>
-          <label>Invitados</label>
-          <p-inputnumber
-            [(ngModel)]="newReservation.numberOfPeople"
-            [min]="1"
-            [max]="12"
-            styleClass="w-full"
-            class="w-full"
-          />
-        </p-floatlabel>
-
-        <p-floatlabel>
-          <label>Estado</label>
-          <p-select
-            [options]="statusOptions"
-            [(ngModel)]="newReservation.status"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Selecciona estado"
-            class="p-inputtext w-full"
-          >
-          </p-select>
-        </p-floatlabel>
-
-        <p-button
-          label="Guardar"
-          icon="pi pi-check"
-          styleClass="w-full mt-2"
-          (click)="addReservation(newReservation)"
-        ></p-button>
       </div>
     </div>
   </div>
 
-  <!-- Filtro por rango -->
-  <div class="mt-6 border rounded-lg p-4 shadow-lg bg-white">
-    <div class="mb-4 flex flex-wrap items-center gap-3">
-      <label class="font-medium">Filtrar por rango de fechas:</label>
-      <p-datepicker
-        [(ngModel)]="startDate"
-        (ngModelChange)="filterByDateRange()"
-        dateFormat="yy-mm-dd"
-        showIcon="true"
-      />
-      <span>—</span>
-      <p-datepicker
-        [(ngModel)]="endDate"
-        (ngModelChange)="filterByDateRange()"
-        dateFormat="yy-mm-dd"
-        showIcon="true"
-      />
-      <button
-        pButton
+  <!-- FILTRO POR RANGO Y TABLA PRINCIPAL -->
+  <div class="mt-6 border rounded-xl p-4 shadow-sm bg-white">
+    <div
+      class="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-3"
+    >
+      <label class="font-medium text-gray-700 whitespace-nowrap"
+        >Filtrar por rango:</label
+      >
+      <!-- ✅ Usamos p-calendar para seleccionar rango -->
+      <p-calendar
+        [(ngModel)]="dateRange"
+        selectionMode="range"
+        [readonlyInput]="true"
+        dateFormat="dd/mm/yy"
+        (onSelect)="applyFilters()"
+        placeholder="Selecciona un rango"
+        [showIcon]="true"
+      >
+      </p-calendar>
+      <p-button
         label="Limpiar"
-        class="p-button-outlined"
+        [outlined]="true"
+        severity="secondary"
+        icon="pi pi-times"
         (click)="clearFilters()"
-      ></button>
+        [disabled]="!dateRange && !selectedDate"
+      ></p-button>
     </div>
 
     <p-table
       [value]="filteredReservations"
-      class="shadow-lg rounded-lg overflow-hidden"
+      styleClass="p-datatable-striped p-datatable-sm"
+      [tableStyle]="{ 'min-width': '50rem' }"
     >
       <ng-template pTemplate="header">
         <tr>
-          <th>#</th>
-          <th>Cliente</th>
-          <th>Fecha</th>
-          <th>Hora</th>
-          <th>Invitados</th>
-          <th>Estado</th>
+          <th pSortableColumn="id">#</th>
+          <th pSortableColumn="customerName">Cliente/Contacto</th>
+          <th pSortableColumn="reservationDate">Fecha</th>
+          <th pSortableColumn="reservationTime">Hora</th>
+          <th pSortableColumn="numberOfPeople">Personas</th>
+          <th pSortableColumn="tableNumber">Mesa</th>
+          <th pSortableColumn="status">Estado</th>
+          <th>Acciones</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-res>
-        <tr>
+        <tr class="hover:bg-gray-50">
           <td>{{ res.id }}</td>
-          <td>{{ res.customerName }}</td>
-          <td>{{ res.reservationDate | date : "shortDate" }}</td>
-          <td>{{ res.reservationTime }}</td>
+          <td>{{ res.customerName || res.contactName }}</td>
+          <td>{{ res.reservationDate | date : "dd/MM/yy" }}</td>
+          <td>{{ res.reservationTime | slice : 0 : 5 }}</td>
+          <!-- Mostramos solo HH:mm -->
           <td>{{ res.numberOfPeople }}</td>
+          <td>{{ res.tableNumber || "N/A" }}</td>
+          <!-- Muestra código de mesa si viene -->
           <td>
-            <span
-              [ngClass]="{
-                'bg-green-100 text-green-800': res.status === 'CONFIRMED',
-                'bg-yellow-100 text-yellow-800': res.status === 'PENDING',
-                'bg-red-100 text-red-800': res.status === 'CANCELLED'
-              }"
-              class="px-2 py-1 rounded-full text-xs font-semibold"
-            >
-              {{ res.status }}
-            </span>
+            <p-tag
+              [value]="res.status"
+              [severity]="getStatusSeverity(res.status)"
+              [rounded]="true"
+            ></p-tag>
+          </td>
+          <td>
+            <p-button
+              icon="pi pi-eye"
+              [text]="true"
+              [rounded]="true"
+              pTooltip="Ver Detalle"
+              (click)="viewReservationDetail(res.id)"
+            ></p-button>
+            <!-- Podrías añadir botón de editar aquí -->
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center p-4">
+            No se encontraron reservaciones con los filtros aplicados.
           </td>
         </tr>
       </ng-template>

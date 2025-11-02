@@ -3,6 +3,7 @@ export interface ProductRequest {
   description: string;
   price: number;
   imageUrl: string;
+  active: boolean;
   categoryId: number;
   preparationTimeMinutes: number;
   ingredients: ProductIngredientRequest[];
@@ -12,7 +13,6 @@ export interface ProductIngredientRequest {
   ingredientId: number;
   quantity: number;
 }
-
 
 export interface ProductResponse {
   id: number;

@@ -1,0 +1,58 @@
+<p-dialog
+  header="Calificar {{ resourceName }}"
+  [(visible)]="display"
+  (onHide)="closeModal()"
+  [modal]="true"
+  [style]="{ width: '90%', 'max-width': '500px' }"
+>
+  <form [formGroup]="reviewForm" (ngSubmit)="onSubmit()">
+    <div class="text-center mb-4">
+      <p class="mb-2 text-lg">Tu calificación:</p>
+      <p-rating formControlName="rating" [stars]="5"></p-rating>
+      <small
+        *ngIf="
+          reviewForm.controls['rating'].invalid &&
+          reviewForm.controls['rating'].touched
+        "
+        class="p-error block mt-2"
+        >La calificación es obligatoria.</small
+      >
+    </div>
+
+    <div class="field">
+      <label for="comment" class="font-semibold"
+        >Tu comentario (opcional):</label
+      >
+      <textarea
+        pInputTextarea
+        id="comment"
+        formControlName="comment"
+        rows="4"
+        class="w-full mt-2"
+        placeholder="Cuéntanos qué te pareció..."
+      ></textarea>
+    </div>
+
+    <div
+      *ngIf="errorMessage"
+      class="text-center p-3 bg-red-100 text-red-700 rounded-lg my-4"
+    >
+      {{ errorMessage }}
+    </div>
+
+    <div class="flex justify-end gap-2 mt-6">
+      <p-button
+        label="Cancelar"
+        styleClass="p-button-text"
+        (onClick)="closeModal()"
+        [disabled]="isLoading"
+      ></p-button>
+      <p-button
+        label="Enviar Reseña"
+        type="submit"
+        [disabled]="reviewForm.invalid || isLoading"
+        [loading]="isLoading"
+      ></p-button>
+    </div>
+  </form>
+</p-dialog>

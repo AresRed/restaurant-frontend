@@ -4,14 +4,25 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TooltipModule } from 'primeng/tooltip';
-import { OrderResponse } from '../../../../core/models/order.model';
-import { OrderService } from '../../../../core/services/orders/order.service';
 import { environment } from '../../../../../environments/environment';
+import {
+  OrderResponse,
+  OrderStatusStepResponse,
+} from '../../../../core/models/order/orderhttp/order.model';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { OrderService } from '../../../../core/services/orders/order.service';
+import { ReviewModalComponent } from '../../components/review-modal/review-modal.component';
 
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [CommonModule, ButtonModule, ProgressSpinnerModule, TooltipModule], 
+  imports: [
+    CommonModule,
+    ButtonModule,
+    ProgressSpinnerModule,
+    TooltipModule,
+    ReviewModalComponent,
+  ],
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
 })
@@ -20,9 +31,16 @@ export class OrdersComponent implements OnInit {
   loading = true;
   googleMapsApiKey = environment.googleMapsApiKey;
 
-  timelineSteps = ['Pendiente', 'Confirmada', 'En Progreso', 'Completada'];
+  displayReviewModal = false;
+  reviewResourceId: number | null = null;
+  reviewResourceType: 'order' | 'product' | null = null;
+  reviewResourceName: string = '';
 
-  constructor(private orderService: OrderService, private router: Router) {}
+  constructor(
+    private orderService: OrderService,
+    private router: Router,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnInit(): void {
     this.loadOrders();
@@ -51,14 +69,40 @@ export class OrdersComponent implements OnInit {
     console.log('Implementar lógica para reordenar la orden #', orderId);
   }
 
+  openReviewModal(id: number, type: 'order' | 'product', name: string) {
+    this.reviewResourceId = id;
+    this.reviewResourceType = type;
+    this.reviewResourceName = name;
+    this.displayReviewModal = true;
+  }
+
+  onReviewModalClosed() {
+    this.displayReviewModal = false;
+  }
+
   getStepStatus(
     orderStatus: string,
-    step: string
+    stepName: string,
+    timeline: OrderStatusStepResponse[]
   ): 'completed' | 'current' | 'upcoming' {
-    const orderIndex = this.timelineSteps.findIndex(
-      (s) => s.toLowerCase() === orderStatus.toLowerCase()
+    const orderIndex = timeline.findIndex(
+      (s) => s.name.toLowerCase() === orderStatus.toLowerCase()
     );
-    const stepIndex = this.timelineSteps.indexOf(step);
+
+    const stepIndex = timeline.findIndex(
+      (s) => s.name.toLowerCase() === stepName.toLowerCase()
+    );
+
+    if (orderIndex === -1) {
+      if (
+        stepIndex === 0 &&
+        (orderStatus.toUpperCase() === 'CANCELADO' ||
+          orderStatus.toUpperCase() === 'FALLIDO')
+      ) {
+        return 'current';
+      }
+      return 'upcoming';
+    }
 
     if (stepIndex < orderIndex) {
       return 'completed';
@@ -69,15 +113,20 @@ export class OrdersComponent implements OnInit {
     return 'upcoming';
   }
 
-  getStepIcon(step: string): string {
-    switch (step) {
-      case 'Pendiente':
+  getStepIcon(stepName: string): string {
+    switch (stepName.toLowerCase()) {
+      case 'pendiente':
         return 'pi pi-clock';
-      case 'Confirmada':
+      case 'confirmado':
         return 'pi pi-check';
-      case 'En Progreso':
+      case 'en proceso':
         return 'pi pi-spin pi-spinner';
-      case 'Completada':
+      case 'en camino':
+        return 'pi pi-truck';
+      case 'listo para recoger':
+        return 'pi pi-shopping-bag';
+      case 'entregado':
+      case 'completado':
         return 'pi pi-flag-fill';
       default:
         return 'pi pi-circle';

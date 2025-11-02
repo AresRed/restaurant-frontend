@@ -23,6 +23,13 @@ export interface DeliveryAddressRequest {
   longitude: number;
 }
 
+export interface OrderStatusStepResponse {
+  code: string;
+  name: string;
+  step: number;
+}
+
+
 export interface OrderResponse {
   id: number;
   customerId: number;
@@ -61,6 +68,7 @@ export interface OrderResponse {
   typeName: string;
   total: number;
   details: OrderDetailResponse[];
+  timelineSteps: OrderStatusStepResponse[];
 }
 
 export interface OrderDetailResponse {
@@ -70,3 +78,4 @@ export interface OrderDetailResponse {
   quantity: number;
   unitPrice: number;
 }
+

@@ -8,7 +8,10 @@ import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
 import { environment } from '../../../../../../environments/environment';
-import { OrderResponse } from '../../../../../core/models/order.model';
+import { OrderStatusResponse } from '../../../../../core/models/order/order-statuses/order-statuses.model';
+import { OrderResponse } from '../../../../../core/models/order/orderhttp/order.model';
+import { NotificationService } from '../../../../../core/services/notification.service';
+import { OrderStatusService } from '../../../../../core/services/orders/order-status.service';
 import { OrderService } from '../../../../../core/services/orders/order.service';
 
 registerLocaleData(localeEsPe);
@@ -30,20 +33,37 @@ registerLocaleData(localeEsPe);
 export class OrderDetailComponent implements OnInit {
   orderId!: number;
   order!: OrderResponse;
+  orderStatuses!: OrderStatusResponse[];
   loading = true;
   googleMapsApiKey = environment.googleMapsApiKey;
 
-  timelineSteps = ['Pendiente', 'Confirmada', 'En Progreso', 'Completada'];
+  timelineSteps: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private orderService: OrderService,
+    private orderStatusService: OrderStatusService,
+    private notificationService: NotificationService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.orderId = +this.route.snapshot.paramMap.get('id')!;
+    this.loadOrderStatuses();
     this.loadOrder();
+  }
+
+  loadOrderStatuses() {
+    this.orderStatusService.getAllOrderStatuses().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.orderStatuses = res.data;
+        }
+      },
+      error: (err) => {
+        this.notificationService.error('Error', err.message);
+      },
+    });
   }
 
   loadOrder() {

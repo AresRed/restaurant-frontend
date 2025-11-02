@@ -1,64 +1,148 @@
 <div
-  *ngIf="!loading && reservation; else loadingTpl"
-  class="p-6 max-w-4xl mx-auto"
+  *ngIf="loading"
+  class="flex justify-center items-center h-[calc(100vh-200px)]"
 >
-  <p-button
-    icon="pi pi-arrow-left"
-    label="Volver"
-    (click)="goBack()"
-    severity="secondary"
-  ></p-button>
-
-  <p-card class="mt-4 shadow-md">
-    <ng-template pTemplate="header">
-      <h2 class="text-2xl font-bold">Reservación #{{ reservation.id }}</h2>
-    </ng-template>
-
-    <div class="space-y-3">
-      <p><strong>Cliente:</strong> {{ reservation.customerName }}</p>
-      <p>
-        <strong>Fecha:</strong>
-        {{ reservation.reservationDate | date : "full" }}
-      </p>
-      <p><strong>Invitados:</strong> {{ reservation.numberOfPeople }}</p>
-      <p>
-        <strong>Estado:</strong>
-        <p-tag
-          [value]="getStatusLabel(reservation.status)"
-          [severity]="
-            reservation.status === 'CONFIRMED'
-              ? 'success'
-              : reservation.status === 'PENDING'
-              ? 'warn'
-              : reservation.status === 'CANCELLED'
-              ? 'danger'
-              : 'info'
-          "
-        ></p-tag>
-      </p>
-    </div>
-
-    <ng-template pTemplate="footer">
-      <div class="flex justify-end gap-2">
-        <p-button
-          label="Editar"
-          icon="pi pi-pencil"
-          severity="info"
-          (click)="editReservation(reservation.id)"
-        ></p-button>
-        <p-button
-          label="Eliminar"
-          icon="pi pi-trash"
-          severity="danger"
-          (click)="deleteReservation(reservation.id, $event)"
-        ></p-button>
-      </div>
-    </ng-template>
-  </p-card>
+  <p-progressSpinner animationDuration=".8s"></p-progressSpinner>
 </div>
 
-<ng-template #loadingTpl>
-  <div class="flex justify-center items-center h-96">
-    <p-progressSpinner></p-progressSpinner>
+<div *ngIf="!loading && reservation" class="p-4 sm:p-6 max-w-3xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <p-button
+      icon="pi pi-arrow-left"
+      label="Volver a Reservas"
+      (click)="goBack()"
+      [text]="true"
+      styleClass="p-button-secondary p-button-sm"
+    ></p-button>
+    <h1 class="text-2xl font-bold text-gray-800">Detalle de Reservación</h1>
+    <div class="w-24"></div>
   </div>
-</ng-template>
+
+  <div
+    class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
+  >
+    <div
+      class="p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start gap-3"
+    >
+      <div>
+        <span
+          class="text-sm font-semibold text-indigo-700 uppercase tracking-wider"
+          >Reservación</span
+        >
+        <p class="text-3xl font-bold text-gray-900">#{{ reservation.id }}</p>
+      </div>
+      <p-tag
+        [value]="reservation.status | reservationStatus"
+        [severity]="getStatusSeverity(reservation.status)"
+        [rounded]="true"
+        styleClass="px-3 py-1.5 text-sm font-semibold self-start sm:self-center"
+      >
+      </p-tag>
+    </div>
+
+    <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+      <div class="flex items-center gap-3">
+        <p-avatar
+          [label]="
+            getInitials(reservation.customerName || reservation.contactName)
+          "
+          shape="circle"
+          size="large"
+          styleClass="bg-blue-100 text-blue-700 font-bold"
+        >
+        </p-avatar>
+        <div>
+          <p class="text-sm text-gray-500">Cliente</p>
+          <p class="font-semibold text-gray-800">
+            {{ reservation.customerName || reservation.contactName || "N/A" }}
+          </p>
+        </div>
+      </div>
+
+      <div
+        *ngIf="
+          reservation.contactPhone ||
+          (reservation.contactName &&
+            reservation.contactName !== reservation.customerName)
+        "
+        class="flex items-center gap-3"
+      >
+        <i
+          class="pi pi-phone text-xl text-gray-400 p-2 rounded-full bg-gray-100"
+        ></i>
+        <div>
+          <p class="text-sm text-gray-500">Contacto</p>
+          <p class="font-semibold text-gray-800">
+            {{ reservation.contactName || "N/A" }}
+          </p>
+          <p *ngIf="reservation.contactPhone" class="text-xs text-gray-500">
+            {{ reservation.contactPhone }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <i
+          class="pi pi-calendar text-xl text-gray-400 p-2 rounded-full bg-gray-100"
+        ></i>
+        <div>
+          <p class="text-sm text-gray-500">Fecha y Hora</p>
+          <p class="font-semibold text-gray-800">
+            {{
+              reservation.reservationDate
+                | date : "EEEE, d MMMM yyyy" : "" : "es-PE"
+            }}
+            <span class="font-normal text-gray-600"> a las </span>
+            {{ reservation.reservationTime | slice : 0 : 5 }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <i
+          class="pi pi-users text-xl text-gray-400 p-2 rounded-full bg-gray-100"
+        ></i>
+        <div>
+          <p class="text-sm text-gray-500">Personas</p>
+          <p class="font-semibold text-gray-800">
+            {{ reservation.numberOfPeople }}
+          </p>
+        </div>
+      </div>
+
+      <div
+        *ngIf="reservation.tableNumber"
+        class="flex items-center gap-3 sm:col-span-2"
+      >
+        <i
+          class="pi pi-table text-xl text-gray-400 p-2 rounded-full bg-gray-100"
+        ></i>
+        <div>
+          <p class="text-sm text-gray-500">Mesa Asignada</p>
+          <p class="font-semibold text-gray-800">
+            {{ reservation.tableNumber }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+      <p-confirmPopup></p-confirmPopup>
+      <p-button
+        label="Eliminar"
+        icon="pi pi-trash"
+        severity="danger"
+        [outlined]="true"
+        (click)="deleteReservation(reservation.id, $event)"
+      ></p-button>
+
+      <p-button
+        label="Editar Reserva"
+        icon="pi pi-pencil"
+        (click)="editReservation(reservation.id)"
+      ></p-button>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTpl>...</ng-template>

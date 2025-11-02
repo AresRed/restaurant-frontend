@@ -8,14 +8,19 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { DeliveryAddressRequest } from '../../../../../../core/models/order.model';
 import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
+import { DeliveryAddressRequest } from '../../../../../../core/models/order/orderhttp/order.model';
 
 @Component({
   selector: 'app-address-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, InputTextModule, FloatLabelModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    FloatLabelModule,
+  ],
   templateUrl: './address-form.component.html',
   styleUrls: ['./address-form.component.scss'],
 })

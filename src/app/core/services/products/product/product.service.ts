@@ -3,7 +3,10 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { ApiResponse } from '../../../models/base/api-response.model';
-import { ProductRequest, ProductResponse } from '../../../models/products/product/product.model';
+import {
+  ProductRequest,
+  ProductResponse,
+} from '../../../models/products/product/product.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,9 +14,15 @@ import { ProductRequest, ProductResponse } from '../../../models/products/produc
 export class ProductService {
   constructor(private http: HttpClient) {}
 
-  getAllProducts(): Observable<ApiResponse<ProductResponse[]>> {
+  getAllActive(): Observable<ApiResponse<ProductResponse[]>> {
     return this.http.get<ApiResponse<ProductResponse[]>>(
       `${environment.apiUrl}/api/v1/products`
+    );
+  }
+
+  getAllIncludingInactive() {
+    return this.http.get<ApiResponse<ProductResponse[]>>(
+      `${environment.apiUrl}/api/v1/products/all`
     );
   }
 
@@ -23,8 +32,25 @@ export class ProductService {
     );
   }
 
+  addProduct(request: ProductRequest) {
+    return this.http.post<ApiResponse<ProductResponse>>(
+      `${environment.apiUrl}/api/v1/products`,
+      request
+    );
+  }
+
   updateProduct(productId: number, updateRequest: ProductRequest) {
-    
+    return this.http.put<ApiResponse<ProductResponse>>(
+      `${environment.apiUrl}/api/v1/products/${productId}`,
+      updateRequest
+    );
+  }
+
+  toggleActive(productId: number) {
+    return this.http.patch<ApiResponse<ProductResponse>>(
+      `${environment.apiUrl}/api/v1/products/${productId}/toggle-active`,
+      null
+    );
   }
 
   deleteProduct(productId: number): Observable<ApiResponse<null>> {

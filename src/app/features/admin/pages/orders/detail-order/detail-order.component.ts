@@ -6,7 +6,7 @@ import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TableModule } from 'primeng/table';
 import { environment } from '../../../../../../environments/environment';
-import { OrderResponse } from '../../../../../core/models/order.model';
+import { OrderResponse } from '../../../../../core/models/order/orderhttp/order.model';
 import { OrderService } from '../../../../../core/services/orders/order.service';
 
 @Component({

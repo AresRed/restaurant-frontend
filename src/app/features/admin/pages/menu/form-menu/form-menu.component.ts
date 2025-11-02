@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpEventType } from '@angular/common/http';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import {
   FormArray,
@@ -17,8 +18,14 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
+import { CategoryResponse } from '../../../../../core/models/category.model';
+import { FileResponse } from '../../../../../core/models/file/file.model';
 import { IngredientResponse } from '../../../../../core/models/products/product/ingredient/ingredient.model';
-import { ProductResponse } from '../../../../../core/models/products/product/product.model';
+import {
+  ProductRequest,
+  ProductResponse,
+} from '../../../../../core/models/products/product/product.model';
+import { FileService } from '../../../../../core/services/aws/file.service';
 import { CategoryService } from '../../../../../core/services/category.service';
 import { IngredientService } from '../../../../../core/services/ingredient.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
@@ -47,11 +54,15 @@ export class FormMenuComponent {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   product: ProductResponse | null = null;
   ingredientsList: IngredientResponse[] = [];
-  categories: string[] = [];
+  categories: CategoryResponse[] = [];
   selectedImageUrl: string | null = null;
   isEditMode = false;
   title = 'Registrar Producto';
   loading = false;
+
+  uploadProgress = 0;
+  uploadedFile: FileResponse | null = null;
+  tempUploadedFileId: number | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -60,6 +71,7 @@ export class FormMenuComponent {
     private productService: ProductService,
     private categoryService: CategoryService,
     private ingredientService: IngredientService,
+    private fileService: FileService,
     private notificationService: NotificationService
   ) {}
 
@@ -93,11 +105,12 @@ export class FormMenuComponent {
     this.form = this.fb.group({
       name: ['', Validators.required],
       description: [''],
-      categoryName: [null, Validators.required],
+      categoryId: [null, Validators.required],
       price: [0, [Validators.required, Validators.min(0.1)]],
       preparationTimeMinutes: [5, [Validators.required, Validators.min(1)]],
       imageUrl: [''],
       ingredients: this.fb.array([]),
+      active: [true],
     });
   }
 
@@ -139,7 +152,7 @@ export class FormMenuComponent {
   loadCategories() {
     this.categoryService.getAllCategories().subscribe({
       next: (res) => {
-        this.categories = res.data.map((c: any) => c.name);
+        this.categories = res.data;
       },
       error: () =>
         this.notificationService.error('Error', 'Error al cargar categorías'),
@@ -151,7 +164,7 @@ export class FormMenuComponent {
     this.productService.getProduct(id).subscribe({
       next: (res) => {
         this.loading = false;
-        this.product = Array.isArray(res.data) ? res.data[0] : res.data;
+        this.product = res.data;
 
         if (!this.product) {
           this.notificationService.error('Error', 'Producto no encontrado');
@@ -159,13 +172,21 @@ export class FormMenuComponent {
           return;
         }
 
-        this.form.patchValue(this.product);
+        this.form.patchValue({
+          name: this.product.name,
+          description: this.product.description,
+          price: this.product.price,
+          imageUrl: this.product.imageUrl,
+          categoryId: this.product.categoryId,
+          preparationTimeMinutes: this.product.preparationTimeMinutes,
+          active: this.product.active,
+        });
+
         this.selectedImageUrl = this.product.imageUrl || null;
 
+        this.ingredients.clear();
         if (this.product.ingredients) {
-          this.product.ingredients.forEach((ing: any) =>
-            this.addIngredient(ing)
-          );
+          this.product.ingredients.forEach((ing) => this.addIngredient(ing));
         }
       },
       error: () => {
@@ -183,23 +204,64 @@ export class FormMenuComponent {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.selectedImageUrl = reader.result as string;
-      this.form.patchValue({ imageUrl: this.selectedImageUrl });
-      this.notificationService.success(
-        'Imagen cargada',
-        'Vista previa actualizada.'
-      );
-    };
-    reader.readAsDataURL(file);
+    this.uploadProgress = 0;
+    this.notificationService.info('Subiendo imagen...', 'Por favor espera.');
+
+    this.fileService.uploadFileWithProgress(file, 'products').subscribe({
+      next: (event) => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          this.uploadProgress = Math.round((100 * event.loaded) / event.total);
+        } else if (event.type === HttpEventType.Response) {
+          const res = event.body;
+          if (res?.success && res.data) {
+            this.uploadedFile = res.data;
+            this.tempUploadedFileId = res.data.id;
+            this.selectedImageUrl = res.data.fileUrl;
+            this.form.patchValue({ imageUrl: res.data.fileUrl });
+            this.notificationService.success(
+              'Imagen subida',
+              'La imagen fue subida exitosamente.'
+            );
+          } else {
+            this.notificationService.error(
+              'Error',
+              'No se pudo subir la imagen.'
+            );
+          }
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        this.notificationService.error('Error', 'Error al subir la imagen.');
+      },
+    });
   }
 
   onRemoveImage() {
-    this.selectedImageUrl = null;
-    this.form.patchValue({ imageUrl: '' });
+    if (this.uploadedFile) {
+      this.fileService.deleteFile(this.uploadedFile.id).subscribe({
+        next: () => {
+          this.notificationService.success(
+            'Imagen eliminada',
+            'La imagen se eliminó correctamente.'
+          );
+          this.selectedImageUrl = null;
+          this.form.patchValue({ imageUrl: '' });
+          this.uploadedFile = null;
+          this.tempUploadedFileId = null;
+        },
+        error: () => {
+          this.notificationService.error(
+            'Error',
+            'No se pudo eliminar la imagen.'
+          );
+        },
+      });
+    } else {
+      this.selectedImageUrl = null;
+      this.form.patchValue({ imageUrl: '' });
+    }
   }
-
   onSubmit() {
     if (this.form.invalid) {
       this.notificationService.warn(
@@ -209,28 +271,74 @@ export class FormMenuComponent {
       return;
     }
 
-    const data = this.form.value;
+    const request = this.buildProductRequest();
+    this.loading = true;
 
-    if (this.isEditMode && this.product) {
-      this.notificationService.success(
-        'Actualizado',
-        'El producto se actualizó correctamente.'
-      );
-    } else {
-      this.notificationService.success(
-        'Creado',
-        'El producto se registró correctamente.'
-      );
+    const obs =
+      this.isEditMode && this.product
+        ? this.productService.updateProduct(this.product.id, request)
+        : this.productService.addProduct(request);
+
+    obs.subscribe({
+      next: (res) => {
+        this.loading = false;
+        if (res.success) {
+          this.notificationService.success(
+            this.isEditMode ? 'Actualizado' : 'Creado',
+            this.isEditMode
+              ? 'El producto se actualizó correctamente.'
+              : 'El producto se registró correctamente.'
+          );
+          this.router.navigate(['/admin/menu']);
+        } else {
+          this.notificationService.error('Error', 'Operación fallida.');
+          this.cleanupTempImage();
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        this.notificationService.error(
+          'Error',
+          err?.error?.message || 'Ocurrió un error inesperado.'
+        );
+        this.cleanupTempImage();
+      },
+    });
+  }
+
+  private cleanupTempImage() {
+    if (this.tempUploadedFileId) {
+      this.fileService.deleteFile(this.tempUploadedFileId).subscribe({
+        next: () => {
+          console.log('🧹 Imagen temporal eliminada');
+          this.tempUploadedFileId = null;
+        },
+        error: () => console.warn('⚠️ No se pudo eliminar imagen temporal'),
+      });
     }
+  }
 
-    console.log('Datos enviados:', data);
-    this.router.navigate(['/admin/menu']);
+  private buildProductRequest(): ProductRequest {
+    const raw = this.form.value;
+
+    return {
+      name: raw.name,
+      description: raw.description,
+      price: raw.price,
+      imageUrl: raw.imageUrl || '',
+      active: raw.active,
+      categoryId: raw.categoryId,
+      preparationTimeMinutes: raw.preparationTimeMinutes,
+      ingredients: raw.ingredients.map((ing: any) => ({
+        ingredientId: ing.ingredientId,
+        quantity: ing.quantity,
+      })),
+    };
   }
 
   triggerFileInput() {
     this.fileInput.nativeElement.click();
   }
-
 
   onCancel() {
     this.router.navigate(['/admin/menu']);

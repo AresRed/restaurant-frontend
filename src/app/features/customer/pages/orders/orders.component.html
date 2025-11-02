@@ -66,51 +66,74 @@
           <div class="mb-6">
             <h3 class="font-semibold text-slate-700 mb-4">Estado del Pedido</h3>
             <div class="flex items-center">
-              <ng-container *ngFor="let step of timelineSteps; let i = index">
+              <ng-container
+                *ngFor="let step of order.timelineSteps; let i = index"
+              >
                 <div class="flex flex-col items-center">
                   <div
                     class="flex items-center justify-center w-10 h-10 rounded-full"
                     [ngClass]="{
-                      'bg-green-500 text-white':
-                        getStepStatus(order.statusName, step) === 'completed',
-                      'bg-blue-600 text-white animate-pulse':
-                        getStepStatus(order.statusName, step) === 'current',
-                      'bg-slate-200 text-slate-500':
-                        getStepStatus(order.statusName, step) === 'upcoming'
-                    }"
+
+          'bg-green-500 text-white':
+            getStepStatus(order.statusName, step.name, order.timelineSteps) === 'completed',
+          'bg-blue-600 text-white animate-pulse':
+            getStepStatus(order.statusName, step.name, order.timelineSteps) === 'current',
+          'bg-slate-200 text-slate-500':
+            getStepStatus(order.statusName, step.name, order.timelineSteps) === 'upcoming'
+        }"
                   >
-                    <i [class]="getStepIcon(step)"></i>
+                    <i [class]="getStepIcon(step.name)"></i>
                   </div>
                   <p
                     class="text-xs mt-2 text-center"
                     [ngClass]="{
                       'font-bold text-blue-700':
-                        getStepStatus(order.statusName, step) === 'current',
+                        getStepStatus(
+                          order.statusName,
+                          step.name,
+                          order.timelineSteps
+                        ) === 'current',
                       'text-slate-600':
-                        getStepStatus(order.statusName, step) !== 'current'
+                        getStepStatus(
+                          order.statusName,
+                          step.name,
+                          order.timelineSteps
+                        ) !== 'current'
                     }"
                   >
-                    {{ step }}
+                    {{ step.name }}
                   </p>
                 </div>
                 <div
-                  *ngIf="i < timelineSteps.length - 1"
+                  *ngIf="i < order.timelineSteps.length - 1"
                   class="flex-auto border-t-2 mx-2"
                   [ngClass]="{
                     'border-green-500':
-                      getStepStatus(order.statusName, step) === 'completed',
+                      getStepStatus(
+                        order.statusName,
+                        step.name,
+                        order.timelineSteps
+                      ) === 'completed',
                     'border-slate-200':
-                      getStepStatus(order.statusName, step) !== 'completed'
+                      getStepStatus(
+                        order.statusName,
+                        step.name,
+                        order.timelineSteps
+                      ) !== 'completed'
                   }"
                 ></div>
               </ng-container>
             </div>
+
             <!-- Tiempo estimado -->
             <div
               *ngIf="order.estimatedTime"
               class="mt-2 text-sm text-slate-500 flex flex-col"
             >
-              <span>Tiempo total estimado de entrega: {{ order.estimatedTime }} mins</span>
+              <span
+                >Tiempo total estimado de entrega:
+                {{ order.estimatedTime }} mins</span
+              >
               <span>
                 Tiempo de viaje: {{ order.estimatedDuration }} (Distancia:
                 {{ order.estimatedDistance }})
@@ -229,7 +252,61 @@
             </div>
           </div>
         </div>
+
+        <div
+          *ngIf="order.statusName === 'Completada'"
+          class="p-5 border-t border-slate-200 bg-slate-50 rounded-b-2xl"
+        >
+          <h4 class="font-semibold text-slate-800 mb-4">
+            ¿Qué te pareció tu pedido?
+          </h4>
+          <div class="space-y-3">
+            <div
+              class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm"
+            >
+              <span class="font-medium text-slate-700"
+                >Servicio y Entrega (Pedido #{{ order.id }})</span
+              >
+              <p-button
+                label="Calificar"
+                icon="pi pi-star"
+                styleClass="p-button-outlined p-button-sm"
+                (onClick)="
+                  openReviewModal(
+                    order.id,
+                    'order',
+                    'Servicio y Entrega (Pedido #' + order.id + ')'
+                  )
+                "
+              ></p-button>
+            </div>
+
+            <h5 class="font-semibold text-slate-700 pt-2">Productos:</h5>
+            <div
+              *ngFor="let item of order.details"
+              class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm"
+            >
+              <span class="text-slate-700">{{ item.productName }}</span>
+              <p-button
+                label="Calificar"
+                icon="pi pi-star-fill"
+                styleClass="p-button-outlined p-button-sm p-button-warning"
+                (onClick)="
+                  openReviewModal(item.productId, 'product', item.productName)
+                "
+              ></p-button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<app-review-modal
+  [(display)]="displayReviewModal"
+  [resourceId]="reviewResourceId"
+  [resourceType]="reviewResourceType"
+  [resourceName]="reviewResourceName"
+  (reviewSubmitted)="onReviewModalClosed()"
+></app-review-modal>

@@ -29,9 +29,9 @@ import { UbicationComponent } from '../ubication/ubication.component';
 export class MenuComponent implements OnInit {
   categories: CategoryResponse[] = [];
 
-  products: ProductResponse[] = []; 
-  filteredProducts: ProductResponse[] = []; 
-  originalProducts: ProductResponse[] = []; 
+  products: ProductResponse[] = [];
+  filteredProducts: ProductResponse[] = [];
+  originalProducts: ProductResponse[] = [];
 
   selectedCategoryId: number | null = null;
   total$!: Observable<number>;
@@ -80,7 +80,7 @@ export class MenuComponent implements OnInit {
   }
 
   loadProducts() {
-    this.productService.getAllProducts().subscribe({
+    this.productService.getAllActive().subscribe({
       next: (res) => {
         if (res.success) {
           this.originalProducts = res.data;

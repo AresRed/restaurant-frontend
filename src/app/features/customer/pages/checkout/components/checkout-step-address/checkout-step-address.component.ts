@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { DeliveryAddressRequest } from '../../../../../../core/models/order.model';
+import { DeliveryAddressRequest } from '../../../../../../core/models/order/orderhttp/order.model';
 import { DeliveryModeComponent } from './modes/delivery-mode/delivery-mode.component';
 import { DineInModeComponent } from './modes/dine-in-mode/dine-in-mode.component';
 import { TakeAwayModeComponent } from './modes/take-away-mode/take-away-mode.component';

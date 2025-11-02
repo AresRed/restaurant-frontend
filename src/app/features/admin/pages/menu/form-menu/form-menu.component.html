@@ -6,12 +6,10 @@
   </div>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="p-6 grid gap-8">
-    <!-- Imagen -->
     <div class="flex flex-col items-center gap-4">
       <div
         class="relative group w-52 h-52 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shadow-sm flex items-center justify-center cursor-pointer hover:shadow-md transition-all"
       >
-        <!-- Imagen cargada -->
         <img
           *ngIf="selectedImageUrl; else uploadPlaceholder"
           [src]="selectedImageUrl"
@@ -19,7 +17,6 @@
           class="object-cover w-full h-full group-hover:opacity-80 transition-all"
         />
 
-        <!-- Placeholder cuando no hay imagen -->
         <ng-template #uploadPlaceholder>
           <div class="flex flex-col items-center text-gray-400">
             <i class="pi pi-image text-3xl mb-1"></i>
@@ -27,7 +24,6 @@
           </div>
         </ng-template>
 
-        <!-- Botones flotantes -->
         <div
           *ngIf="selectedImageUrl"
           class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all"
@@ -48,8 +44,18 @@
           ></button>
         </div>
       </div>
+      <div *ngIf="uploadProgress > 0 && uploadProgress < 100" class="w-52 mt-2">
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div
+            class="bg-blue-600 h-2 rounded-full"
+            [style.width.%]="uploadProgress"
+          ></div>
+        </div>
+        <p class="text-xs text-gray-500 text-center mt-1">
+          Subiendo... {{ uploadProgress }}%
+        </p>
+      </div>
 
-      <!-- Input invisible de subida -->
       <input
         #fileInput
         type="file"
@@ -68,7 +74,6 @@
       ></p-button>
     </div>
 
-    <!-- Campos principales -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1"
@@ -88,7 +93,9 @@
         >
         <p-dropdown
           [options]="categories"
-          formControlName="categoryName"
+          optionLabel="name"
+          optionValue="id"
+          formControlName="categoryId"
           placeholder="Seleccionar categoría"
           [showClear]="true"
           class="w-full"
@@ -134,6 +141,20 @@
           class="w-full"
         ></p-inputNumber>
       </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">
+          Estado
+        </label>
+        <p-dropdown
+          [options]="[
+            { label: 'Activo', value: true },
+            { label: 'Inactivo', value: false }
+          ]"
+          formControlName="active"
+          class="w-full"
+        ></p-dropdown>
+      </div>
     </div>
 
     <div class="mt-2">
@@ -175,7 +196,6 @@
             class="w-full"
           ></p-select>
 
-          <!-- Cantidad editable -->
           <p-inputNumber
             formControlName="quantity"
             [min]="0.1"
@@ -183,7 +203,6 @@
             class="w-full"
           ></p-inputNumber>
 
-          <!-- Unidad -->
           <div class="flex items-center gap-2">
             <input
               pInputText
@@ -203,7 +222,6 @@
       </div>
     </div>
 
-    <!-- Botones -->
     <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
       <p-button
         type="button"

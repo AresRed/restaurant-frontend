@@ -13,7 +13,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
-import { OrderResponse } from '../../../../core/models/order.model';
+import { OrderResponse } from '../../../../core/models/order/orderhttp/order.model';
 import {
   TableResponse,
   TableStatus,

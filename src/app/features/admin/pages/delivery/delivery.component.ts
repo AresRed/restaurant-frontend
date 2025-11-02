@@ -5,7 +5,7 @@ import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { PaginatorModule } from 'primeng/paginator';
-import { TableModule, Table } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 
 interface DeliveryOrder {
   id: number;
@@ -32,9 +32,9 @@ interface DeliveryOrder {
   styleUrls: ['./delivery.component.scss'],
 })
 export class DeliveryComponent {
-  @ViewChild('dt') dt!: Table; // referencia a la tabla para filtros
+  @ViewChild('dt') dt!: Table;
 
-  view: 'kanban' | 'table' = 'kanban'; // Vista activa
+  view: 'kanban' | 'table' = 'kanban';
   statusOptions = ['Pendiente', 'En Camino', 'Entregado'];
 
   orders: DeliveryOrder[] = [

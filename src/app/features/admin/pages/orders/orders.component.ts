@@ -175,6 +175,10 @@ export class OrdersComponent implements OnInit {
     this.router.navigate(['/admin/orders', orderId]);
   }
 
+  goToPos() {
+    this.router.navigate(['/admin/pos']);
+  }
+
   cancelOrder(orderId: number) {
     this.orderService.cancelOrder(orderId).subscribe({
       next: (res) => {

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
@@ -16,8 +16,8 @@ import {
 export class CustomerService {
   constructor(private http: HttpClient) {}
 
-  getAllCustomers(): Observable<ApiResponse<CustomerResponse[]>> {
-    return this.http.get<ApiResponse<CustomerResponse[]>>(
+  getAllCustomers() {
+    return this.http.get<ApiResponse<PagedApiResponse<CustomerResponse[]>>>(
       `${environment.apiUrl}/api/v1/customers`
     );
   }
@@ -41,6 +41,15 @@ export class CustomerService {
   ): Observable<ApiResponse<PagedApiResponse<PointsHistoryResponse>>> {
     return this.http.get<ApiResponse<PagedApiResponse<PointsHistoryResponse>>>(
       `${environment.apiUrl}/api/v1/customers/${customerId}/points/history`
+    );
+  }
+
+  searchCustomers(query: string): Observable<ApiResponse<CustomerResponse[]>> {
+    const params = new HttpParams().set('query', query);
+
+    return this.http.get<ApiResponse<CustomerResponse[]>>(
+      `${environment.apiUrl}/api/v1/customers/search`,
+      { params }
     );
   }
 
@@ -73,7 +82,7 @@ export class CustomerService {
     customerId: number,
     customerRequest: CustomerRequest
   ): Observable<ApiResponse<CustomerResponse>> {
-    return this.http.post<ApiResponse<CustomerResponse>>(
+    return this.http.put<ApiResponse<CustomerResponse>>(
       `${environment.apiUrl}/api/v1/customers/${customerId}`,
       customerRequest
     );

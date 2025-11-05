@@ -1,0 +1,38 @@
+:host ::ng-deep {
+  .p-dialog {
+    border-radius: 1rem !important;
+    overflow: hidden;
+  }
+
+  .p-dialog-header {
+    background: linear-gradient(90deg, #06b6d4, #0e7490);
+    color: white !important;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .p-rating .pi-star,
+  .p-rating .pi-star-fill {
+    font-size: 1rem !important;
+    margin: 0 1px;
+    cursor: pointer;
+  }
+
+  .p-rating .pi-star-fill {
+    color: #facc15 !important; /* Amarillo brillante */
+  }
+
+  .p-button-primary {
+    background-color: #0891b2 !important;
+    border-color: #0891b2 !important;
+  }
+
+  .p-button-primary:hover {
+    background-color: #06b6d4 !important;
+  }
+
+  .p-button-text {
+    color: #555 !important;
+  }
+}

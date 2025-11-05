@@ -5,4 +5,5 @@ export const environment = {
   mercadoPagoPublicKey: 'TU_MP_PUBLIC_KEY_PROD',
   apiUrl: 'TU_API_URL_PROD',
   googleMapsApiKey: apiKeys.googleMapsApiKey,
+  igv: 0.18,
 };

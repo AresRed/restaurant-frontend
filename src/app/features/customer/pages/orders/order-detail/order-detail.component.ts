@@ -8,10 +8,11 @@ import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
 import { environment } from '../../../../../../environments/environment';
-import { OrderStatusResponse } from '../../../../../core/models/order/order-statuses/order-statuses.model';
-import { OrderResponse } from '../../../../../core/models/order/orderhttp/order.model';
+import {
+  OrderResponse,
+  OrderStatusStepResponse,
+} from '../../../../../core/models/order/orderhttp/order.model';
 import { NotificationService } from '../../../../../core/services/notification.service';
-import { OrderStatusService } from '../../../../../core/services/orders/order-status.service';
 import { OrderService } from '../../../../../core/services/orders/order.service';
 
 registerLocaleData(localeEsPe);
@@ -33,37 +34,19 @@ registerLocaleData(localeEsPe);
 export class OrderDetailComponent implements OnInit {
   orderId!: number;
   order!: OrderResponse;
-  orderStatuses!: OrderStatusResponse[];
   loading = true;
   googleMapsApiKey = environment.googleMapsApiKey;
-
-  timelineSteps: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private orderService: OrderService,
-    private orderStatusService: OrderStatusService,
     private notificationService: NotificationService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.orderId = +this.route.snapshot.paramMap.get('id')!;
-    this.loadOrderStatuses();
     this.loadOrder();
-  }
-
-  loadOrderStatuses() {
-    this.orderStatusService.getAllOrderStatuses().subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.orderStatuses = res.data;
-        }
-      },
-      error: (err) => {
-        this.notificationService.error('Error', err.message);
-      },
-    });
   }
 
   loadOrder() {
@@ -75,6 +58,7 @@ export class OrderDetailComponent implements OnInit {
       error: (err) => {
         console.error('Error cargando orden', err);
         this.loading = false;
+        this.notificationService.error('Error', 'No se pudo cargar la orden.');
       },
     });
   }
@@ -85,26 +69,49 @@ export class OrderDetailComponent implements OnInit {
 
   getStepStatus(
     orderStatus: string,
-    step: string
+    stepName: string,
+    timeline: OrderStatusStepResponse[]
   ): 'completed' | 'current' | 'upcoming' {
-    const orderIndex = this.timelineSteps.findIndex(
-      (s) => s.toLowerCase() === orderStatus.toLowerCase()
+    const orderIndex = timeline.findIndex(
+      (s) => s.name.toLowerCase() === orderStatus.toLowerCase()
     );
-    const stepIndex = this.timelineSteps.indexOf(step);
+
+    const stepIndex = timeline.findIndex(
+      (s) => s.name.toLowerCase() === stepName.toLowerCase()
+    );
+
+    if (orderIndex === -1) {
+      if (
+        stepIndex === 0 &&
+        (orderStatus.toUpperCase() === 'CANCELADO' ||
+          orderStatus.toUpperCase() === 'FALLIDO')
+      ) {
+        return 'current';
+      }
+      return 'upcoming';
+    }
+
     if (stepIndex < orderIndex) return 'completed';
     if (stepIndex === orderIndex) return 'current';
     return 'upcoming';
   }
 
-  getStepIcon(step: string): string {
-    switch (step) {
-      case 'Pendiente':
+  getStepIcon(stepName: string): string {
+    switch (stepName.toLowerCase()) {
+      case 'pendiente de confirmación':
+        return 'pi pi-question-circle';
+      case 'pendiente':
         return 'pi pi-clock';
-      case 'Confirmada':
+      case 'confirmado':
         return 'pi pi-check';
-      case 'En Progreso':
+      case 'en proceso':
         return 'pi pi-spin pi-spinner';
-      case 'Completada':
+      case 'en camino':
+        return 'pi pi-truck';
+      case 'listo para recoger':
+        return 'pi pi-shopping-bag';
+      case 'entregado':
+      case 'completado':
         return 'pi pi-flag-fill';
       default:
         return 'pi pi-circle';
@@ -115,14 +122,18 @@ export class OrderDetailComponent implements OnInit {
     if (!status) return 'secondary';
     switch (status.toUpperCase()) {
       case 'PENDIENTE':
+      case 'PENDIENTE DE CONFIRMACIÓN':
         return 'warn';
-      case 'CONFIRMADA':
-      case 'COMPLETADA':
+      case 'CONFIRMADO':
+      case 'COMPLETADO':
+      case 'ENTREGADO':
         return 'success';
-      case 'CANCELADA':
+      case 'CANCELADO':
+      case 'FALLIDO':
         return 'danger';
-      case 'EN PROGRESO':
-      case 'LISTA PARA RECOGER':
+      case 'EN PROCESO':
+      case 'LISTO PARA RECOGER':
+      case 'EN CAMINO':
         return 'info';
       default:
         return 'secondary';
@@ -134,14 +145,21 @@ export class OrderDetailComponent implements OnInit {
     switch (status.toUpperCase()) {
       case 'PENDIENTE':
         return 'pi pi-clock text-yellow-600';
-      case 'CONFIRMADA':
-      case 'COMPLETADA':
+      case 'PENDIENTE DE CONFIRMACIÓN':
+        return 'pi pi-question-circle text-yellow-600';
+      case 'CONFIRMADO':
+      case 'COMPLETADO':
+      case 'ENTREGADO':
         return 'pi pi-check-circle text-green-600';
-      case 'CANCELADA':
+      case 'CANCELADO':
+      case 'FALLIDO':
         return 'pi pi-times-circle text-red-600';
-      case 'EN PROGRESO':
-      case 'LISTA PARA RECOGER':
+      case 'EN PROCESO':
         return 'pi pi-spin pi-spinner text-blue-600';
+      case 'LISTO PARA RECOGER':
+        return 'pi pi-shopping-bag text-blue-600';
+      case 'EN CAMINO':
+        return 'pi pi-truck text-blue-600';
       default:
         return 'pi pi-info-circle text-gray-600';
     }
@@ -153,12 +171,18 @@ export class OrderDetailComponent implements OnInit {
   }
 
   calculateTimelineProgress(orderStatus: string): number {
-    const currentIndex = this.timelineSteps.findIndex(
-      (s) => s.toLowerCase() === orderStatus.toLowerCase()
+    if (!this.order || !this.order.timelineSteps) return 0;
+
+    const timeline = this.order.timelineSteps;
+
+    const currentIndex = timeline.findIndex(
+      (s) => s.name.toLowerCase() === orderStatus.toLowerCase()
     );
     if (currentIndex === -1) return 0;
 
-    const totalSteps = this.timelineSteps.length - 1;
+    const totalSteps = timeline.length - 1;
+    if (totalSteps === 0) return 100;
+
     return (currentIndex / totalSteps) * 100;
   }
 }

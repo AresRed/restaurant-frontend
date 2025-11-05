@@ -1,15 +1,46 @@
+export type PaymentStatus =
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'FAILED'
+  | 'REFUNDED'
+  | 'CANCELLED';
+
+export interface PaymentInOrderRequest {
+  paymentMethodId: number;
+  amount: number;
+  isOnline: boolean;
+  transactionCode?: string;
+  status?: PaymentStatus;
+}
 export interface OrderDetailRequest {
   productId: number;
   quantity: number;
 }
 
 export interface OrderRequest {
-  statusId: number;
-  typeId: number;
+  customerId?: number;
+  employeeId?: number;
+
   deliveryAddress?: DeliveryAddressRequest;
-  details: OrderDetailRequest[];
+
   tableId?: number;
   pickupStoreId?: number;
+
+  statusId: number;
+  typeId: number;
+
+  details: OrderDetailRequest[];
+
+  payments?: PaymentInOrderRequest[];
+  documents?: DocumentInOrderRequest[];
+}
+
+export interface DocumentInOrderRequest {
+  id?: number;
+  type: string;
+  number: string;
+  date: string;
+  amount: number;
 }
 
 export interface DeliveryAddressRequest {
@@ -28,7 +59,6 @@ export interface OrderStatusStepResponse {
   name: string;
   step: number;
 }
-
 
 export interface OrderResponse {
   id: number;
@@ -78,4 +108,3 @@ export interface OrderDetailResponse {
   quantity: number;
   unitPrice: number;
 }
-

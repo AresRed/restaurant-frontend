@@ -1,0 +1,46 @@
+.gradient-card {
+  background: linear-gradient(135deg, #0891b2, #06b6d4, #0e7490);
+  color: white;
+  position: relative;
+  overflow: hidden;
+
+  // Sutil animación de brillo
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0) 70%
+    );
+    transform: translateX(-100%);
+    animation: shimmer 4s infinite linear;
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
+
+/* Avatar con halo */
+::ng-deep .p-avatar {
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.4);
+}
+
+/* Tarjetas de etiquetas */
+::ng-deep .p-tag {
+  font-size: 0.85rem;
+  border-radius: 9999px;
+}
+
+/* Transiciones suaves en botones */
+::ng-deep .p-button {
+  transition: all 0.2s ease;
+}
+
+::ng-deep .p-button:hover {
+  transform: translateY(-2px);
+}

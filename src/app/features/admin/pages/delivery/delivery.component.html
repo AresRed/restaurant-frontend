@@ -1,128 +1,262 @@
-<div class="p-6 bg-gray-50 min-h-screen space-y-6">
-  <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-2">
-    🚚 Dashboard Delivery
-  </h2>
-
-  <!-- Selector de vista -->
-  <div class="flex gap-4 mb-4">
-    <button
-      pButton
-      label="Kanban"
-      class="p-button-outlined"
-      [class.p-button-secondary]="view === 'kanban'"
-      (click)="view = 'kanban'"
-    ></button>
-    <button
-      pButton
-      label="Tabla"
-      class="p-button-outlined"
-      [class.p-button-secondary]="view === 'table'"
-      (click)="view = 'table'"
-    ></button>
-  </div>
-
-  <!-- Kanban -->
-  <div *ngIf="view === 'kanban'" class="kanban-container mt-6">
-    <div class="kanban-column w-80">
-      <h3 class="font-semibold mb-3">Pendientes ({{ pendientes.length }})</h3>
-      <p-card
-        *ngFor="let order of pendientes"
-        class="shadow-lg rounded-lg bg-white"
-      >
-        <div class="flex justify-between items-center mb-2">
-          <span class="font-semibold text-gray-700">#{{ order.id }}</span>
-          <span
-            [ngClass]="getStatusColor(order.status)"
-            class="px-2 py-1 rounded-full text-xs font-semibold"
-          >
-            {{ order.status }}
-          </span>
-        </div>
-        <p class="text-gray-600">
-          <strong>Cliente:</strong> {{ order.customer }}
-        </p>
-        <p class="text-gray-600">
-          <strong>Dirección:</strong> {{ order.address }}
-        </p>
-        <p class="text-gray-700 font-semibold mt-1 mb-1">Items:</p>
-        <ul class="list-disc list-inside text-gray-600">
-          <li *ngFor="let item of order.items">{{ item }}</li>
-        </ul>
-        <p class="text-gray-800 font-semibold mt-2">
-          Total: ${{ order.total }}
-        </p>
-      </p-card>
-    </div>
-
-    <div class="kanban-column w-80">
-      <h3 class="font-semibold mb-3">En Camino ({{ enCamino.length }})</h3>
-      <p-card
-        *ngFor="let order of enCamino"
-        class="shadow-lg rounded-lg bg-white"
-      >
-        <div class="flex justify-between items-center mb-2">
-          <span class="font-semibold text-gray-700">#{{ order.id }}</span>
-          <span
-            [ngClass]="getStatusColor(order.status)"
-            class="px-2 py-1 rounded-full text-xs font-semibold"
-          >
-            {{ order.status }}
-          </span>
-        </div>
-        <p class="text-gray-600">
-          <strong>Cliente:</strong> {{ order.customer }}
-        </p>
-        <p class="text-gray-600">
-          <strong>Dirección:</strong> {{ order.address }}
-        </p>
-      </p-card>
-    </div>
-
-    <div class="kanban-column w-80">
-      <h3 class="font-semibold mb-3">Entregados ({{ entregados.length }})</h3>
-      <p-card
-        *ngFor="let order of entregados"
-        class="shadow-lg rounded-lg bg-white"
-      >
-        <div class="flex justify-between items-center mb-2">
-          <span class="font-semibold text-gray-700">#{{ order.id }}</span>
-          <span
-            [ngClass]="getStatusColor(order.status)"
-            class="px-2 py-1 rounded-full text-xs font-semibold"
-          >
-            {{ order.status }}
-          </span>
-        </div>
-        <p class="text-gray-600">
-          <strong>Cliente:</strong> {{ order.customer }}
-        </p>
-        <p class="text-gray-600">
-          <strong>Dirección:</strong> {{ order.address }}
-        </p>
-      </p-card>
+<div class="min-h-screen bg-gray-100 p-4 lg:p-6">
+  <div
+    class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6"
+  >
+    <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+      <i class="pi pi-truck text-blue-600"></i>
+      <span>Dashboard de Entregas</span>
+    </h2>
+    <div class="flex items-center gap-2">
+      <button
+        pButton
+        label="Kanban"
+        icon="pi pi-th-large"
+        [outlined]="view !== 'kanban'"
+        (click)="view = 'kanban'"
+        class="p-button-sm p-button-secondary"
+      ></button>
+      <button
+        pButton
+        label="Tabla"
+        icon="pi pi-bars"
+        [outlined]="view !== 'table'"
+        (click)="view = 'table'"
+        class="p-button-sm p-button-secondary"
+      ></button>
+      <button
+        pButton
+        label="Recargar"
+        icon="pi pi-refresh"
+        class="p-button-sm p-button-help p-button-outlined"
+        (click)="loadDeliveryOrders()"
+        [loading]="loading"
+      ></button>
     </div>
   </div>
 
-  <!-- Tabla con paginación y filtros -->
-  <div *ngIf="view === 'table'">
+  <div *ngIf="loading" class="flex justify-center items-center h-64">
+    <p-progressSpinner styleClass="w-10 h-10"></p-progressSpinner>
+  </div>
+
+  <div
+    *ngIf="!loading && view === 'kanban'"
+    class="kanban-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4"
+    cdkDropListGroup
+  >
+    <div
+      *ngFor="let column of kanbanColumns"
+      [id]="column.code"
+      class="kanban-column bg-gray-200 rounded-lg p-3 flex flex-col border border-gray-300"
+      cdkDropList
+      [cdkDropListData]="column.orders"
+      (cdkDropListDropped)="drop($event)"
+    >
+      <h3
+        class="font-semibold text-gray-700 pb-3 mb-3 flex justify-between items-center text-sm uppercase tracking-wider"
+      >
+        <span>{{ column.name }}</span>
+        <span
+          class="font-bold text-gray-600 bg-gray-300 px-2 py-0.5 rounded-md text-xs"
+          >{{ column.orders.length }}</span
+        >
+      </h3>
+
+      <div class="space-y-3 flex-grow overflow-y-auto min-h-[400px] p-1 -mx-1">
+        <div
+          *ngFor="let order of column.orders"
+          class="bg-white rounded-md shadow hover:shadow-lg transition-shadow duration-200 border border-gray-200 cdk-drag"
+          cdkDrag
+        >
+          <div
+            *ngIf="loadingOrders.has(order.id)"
+            class="flex items-center justify-center p-6"
+          >
+            <p-progressSpinner styleClass="w-5 h-5"></p-progressSpinner>
+          </div>
+
+          <div [class.hidden]="loadingOrders.has(order.id)">
+            <div
+              class="flex justify-between items-center p-3 border-b border-gray-100"
+            >
+              <span class="font-bold text-lg text-blue-700"
+                >#{{ order.id }}</span
+              >
+              <span
+                [ngClass]="getStatusColor(order.statusName)"
+                class="px-2 py-0.5 rounded-md text-xs font-semibold uppercase"
+              >
+                {{ order.statusName }}
+              </span>
+            </div>
+
+            <div class="p-3 space-y-2 text-sm text-gray-700">
+              <p class="font-semibold text-gray-800">
+                {{ order.customerName }}
+              </p>
+              <p
+                class="text-xs text-gray-500 truncate"
+                pTooltip="{{ order.deliveryStreet }}"
+              >
+                <i class="pi pi-map-marker mr-1"></i>
+                {{ order.deliveryStreet }}
+              </p>
+
+              <p
+                *ngIf="order.employeeName"
+                class="text-xs text-blue-600 font-semibold flex items-center gap-1"
+              >
+                <i class="pi pi-user"></i>
+                {{ order.employeeName }}
+              </p>
+
+              <p class="text-sm text-gray-600 font-medium pt-1">
+                {{ order.details.length }} items
+              </p>
+              <p class="text-lg font-bold text-green-600 text-right">
+                S/{{ order.total | number : "1.2-2" }}
+              </p>
+            </div>
+            <div
+              class="flex flex-wrap gap-1 justify-end p-2 border-t border-gray-100 bg-gray-50 rounded-b-md"
+            >
+              <button
+                pButton
+                *ngIf="order.statusName === 'Pendiente de Confirmación'"
+                pTooltip="Confirmar Orden"
+                tooltipPosition="top"
+                icon="pi pi-check"
+                class="p-button-sm p-button-success p-button-text"
+                (click)="updateStatus(order, 'CONFIRMED')"
+              ></button>
+
+              <button
+                pButton
+                *ngIf="order.statusName === 'Confirmado'"
+                pTooltip="Mover a Preparación"
+                tooltipPosition="top"
+                icon="pi pi-cog"
+                class="p-button-sm p-button-secondary p-button-text"
+                (click)="updateStatus(order, 'IN_PROGRESS')"
+              ></button>
+
+              <button
+                pButton
+                *ngIf="
+                  order.statusName === 'Confirmado' ||
+                  order.statusName === 'En Proceso'
+                "
+                pTooltip="Asignar Repartidor"
+                tooltipPosition="top"
+                [icon]="
+                  order.employeeId ? 'pi pi-user-edit' : 'pi pi-user-plus'
+                "
+                [ngClass]="order.employeeId ? 'p-button-help' : 'p-button-info'"
+                class="p-button-sm p-button-text"
+                (click)="openAssignDriverModal(order)"
+              ></button>
+
+              <button
+                pButton
+                *ngIf="order.statusName === 'En Proceso' && order.employeeId"
+                pTooltip="Marcar como 'En Camino'"
+                tooltipPosition="top"
+                icon="pi pi-truck"
+                class="p-button-sm p-button-success"
+                (click)="updateStatus(order, 'OUT_FOR_DELIVERY')"
+              ></button>
+
+              <button
+                pButton
+                *ngIf="
+                  order.statusName === 'Pendiente de Confirmación' ||
+                  order.statusName === 'Confirmado'
+                "
+                pTooltip="Cancelar Orden"
+                tooltipPosition="top"
+                icon="pi pi-times"
+                class="p-button-sm p-button-danger p-button-text"
+                (click)="updateStatus(order, 'CANCELLED')"
+              ></button>
+
+              <button
+                pButton
+                pTooltip="Ver Detalles"
+                tooltipPosition="top"
+                icon="pi pi-search"
+                class="p-button-sm p-button-secondary p-button-text"
+                (click)="verDetalleModal(order)"
+              ></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && view === 'table'">
     <p-table
       #dt
       [value]="orders"
       [paginator]="true"
       [rows]="5"
       [rowsPerPageOptions]="[5, 10, 20]"
-      class="mt-4"
+      styleClass="p-datatable-gridlines p-datatable-striped p-datatable-sm"
+      class="mt-4 border border-gray-200 rounded-lg overflow-hidden shadow-sm"
+      [globalFilterFields]="[
+        'id',
+        'customerName',
+        'deliveryStreet',
+        'statusName',
+        'employeeName'
+      ]"
     >
+      <!-- Encabezado -->
       <ng-template pTemplate="header">
         <tr>
-          <th>ID</th>
-          <th>Cliente</th>
-          <th>Dirección</th>
-          <th>Items</th>
-          <th>Total</th>
-          <th>Status</th>
-          <th>Acciones</th>
+          <th
+            pSortableColumn="id"
+            class="bg-gray-100 text-gray-700 font-semibold text-sm"
+          >
+            ID <p-sortIcon field="id"></p-sortIcon>
+          </th>
+          <th
+            pSortableColumn="customerName"
+            class="bg-gray-100 text-gray-700 font-semibold text-sm"
+          >
+            Cliente <p-sortIcon field="customerName"></p-sortIcon>
+          </th>
+          <th
+            pSortableColumn="deliveryStreet"
+            class="bg-gray-100 text-gray-700 font-semibold text-sm"
+          >
+            Dirección <p-sortIcon field="deliveryStreet"></p-sortIcon>
+          </th>
+          <th class="bg-gray-100 text-gray-700 font-semibold text-sm">Items</th>
+          <th
+            pSortableColumn="total"
+            class="bg-gray-100 text-gray-700 font-semibold text-sm"
+          >
+            Total <p-sortIcon field="total"></p-sortIcon>
+          </th>
+          <th
+            pSortableColumn="statusName"
+            class="bg-gray-100 text-gray-700 font-semibold text-sm"
+          >
+            Estado <p-sortIcon field="statusName"></p-sortIcon>
+          </th>
+          <!-- 🧍 Nueva columna Repartidor -->
+          <th
+            pSortableColumn="employeeName"
+            class="bg-gray-100 text-gray-700 font-semibold text-sm"
+          >
+            Repartidor <p-sortIcon field="employeeName"></p-sortIcon>
+          </th>
+          <th class="bg-gray-100 text-gray-700 font-semibold text-sm">
+            Acciones
+          </th>
         </tr>
+
+        <!-- Filtros -->
         <tr>
           <th>
             <input
@@ -130,7 +264,8 @@
               pInputText
               type="text"
               (input)="dt.filter(idInput.value, 'id', 'contains')"
-              placeholder="Buscar"
+              placeholder="Buscar ID"
+              class="p-inputtext-sm w-full"
             />
           </th>
           <th>
@@ -138,8 +273,11 @@
               #customerInput
               pInputText
               type="text"
-              (input)="dt.filter(customerInput.value, 'customer', 'contains')"
-              placeholder="Buscar"
+              (input)="
+                dt.filter(customerInput.value, 'customerName', 'contains')
+              "
+              placeholder="Buscar Cliente"
+              class="p-inputtext-sm w-full"
             />
           </th>
           <th>
@@ -147,8 +285,11 @@
               #addressInput
               pInputText
               type="text"
-              (input)="dt.filter(addressInput.value, 'address', 'contains')"
-              placeholder="Buscar"
+              (input)="
+                dt.filter(addressInput.value, 'deliveryStreet', 'contains')
+              "
+              placeholder="Buscar Dirección"
+              class="p-inputtext-sm w-full"
             />
           </th>
           <th></th>
@@ -156,47 +297,134 @@
           <th>
             <p-dropdown
               [options]="statusOptions"
-              (onChange)="dt.filter($event.value, 'status', 'equals')"
-              placeholder="Filtrar"
+              (onChange)="dt.filter($event.value, 'statusName', 'equals')"
+              placeholder="Filtrar Estado"
+              [showClear]="true"
+              styleClass="p-inputtext-sm w-full"
             ></p-dropdown>
+          </th>
+          <!-- 🔍 Filtro Repartidor -->
+          <th>
+            <input
+              #employeeInput
+              pInputText
+              type="text"
+              (input)="
+                dt.filter(employeeInput.value, 'employeeName', 'contains')
+              "
+              placeholder="Buscar Repartidor"
+              class="p-inputtext-sm w-full"
+            />
           </th>
           <th></th>
         </tr>
       </ng-template>
 
+      <!-- Cuerpo -->
       <ng-template pTemplate="body" let-order>
         <tr>
-          <td>{{ order.id }}</td>
-          <td>{{ order.customer }}</td>
-          <td>{{ order.address }}</td>
-          <td>{{ order.items.join(", ") }}</td>
-          <td>${{ order.total }}</td>
-          <td>
+          <td class="text-sm">{{ order.id }}</td>
+          <td class="text-sm font-medium text-gray-800">
+            {{ order.customerName }}
+          </td>
+          <td class="text-sm text-gray-600">{{ order.deliveryStreet }}</td>
+          <td
+            class="text-sm text-gray-700 max-w-xs truncate"
+            pTooltip="{{ getProductNames(order.details) }}"
+            tooltipPosition="bottom"
+          >
+            {{ getProductNames(order.details) }}
+          </td>
+          <td class="text-sm font-semibold text-right text-green-700">
+            S/{{ order.total | number : "1.2-2" }}
+          </td>
+          <td class="text-center">
             <span
-              [ngClass]="getStatusColor(order.status)"
-              class="px-2 py-1 rounded-full text-xs font-semibold"
+              [ngClass]="getStatusColor(order.statusName)"
+              class="px-2 py-0.5 rounded-full text-xs font-semibold"
             >
-              {{ order.status }}
+              {{ order.statusName }}
             </span>
           </td>
-          <td class="flex gap-1">
+
+          <!-- 🧍 Nueva celda Repartidor -->
+          <td class="text-sm text-blue-700 font-medium text-center">
+            <ng-container *ngIf="order.employeeName; else noDriver">
+              <i class="pi pi-user mr-1 text-blue-500"></i>
+              {{ order.employeeName }}
+            </ng-container>
+            <ng-template #noDriver>
+              <span class="text-gray-400 italic">Sin asignar</span>
+            </ng-template>
+          </td>
+
+          <!-- Acciones -->
+          <td *ngIf="loadingOrders.has(order.id)" class="text-center">
+            <p-progressSpinner
+              styleClass="w-6 h-6"
+              strokeWidth="6"
+            ></p-progressSpinner>
+          </td>
+
+          <td
+            *ngIf="!loadingOrders.has(order.id)"
+            class="flex flex-wrap gap-1 justify-center"
+          >
             <button
+              *ngIf="order.statusName === 'Pendiente de Confirmación'"
               pButton
+              pTooltip="Confirmar"
+              tooltipPosition="top"
               icon="pi pi-check"
-              class="p-button-sm p-button-success"
-              (click)="updateStatus(order, 'Entregado')"
+              class="p-button-sm p-button-success p-button-text"
+              (click)="updateStatus(order, 'CONFIRMED')"
             ></button>
+
             <button
+              *ngIf="order.statusName === 'Confirmado'"
               pButton
-              icon="pi pi-arrow-right"
-              class="p-button-sm p-button-info"
-              (click)="updateStatus(order, 'En Camino')"
+              pTooltip="Mover a Preparación"
+              tooltipPosition="top"
+              icon="pi pi-cog"
+              class="p-button-sm p-button-secondary p-button-text"
+              (click)="updateStatus(order, 'IN_PROGRESS')"
             ></button>
+
             <button
+              *ngIf="
+                order.statusName === 'Confirmado' ||
+                order.statusName === 'En Proceso'
+              "
               pButton
-              icon="pi pi-exclamation-triangle"
-              class="p-button-sm p-button-warning"
-              (click)="updateStatus(order, 'Pendiente')"
+              pTooltip="Asignar Repartidor"
+              tooltipPosition="top"
+              [icon]="order.employeeId ? 'pi pi-user-edit' : 'pi pi-user-plus'"
+              [ngClass]="order.employeeId ? 'p-button-help' : 'p-button-info'"
+              class="p-button-sm p-button-text"
+              (click)="openAssignDriverModal(order)"
+            ></button>
+
+            <button
+              *ngIf="order.statusName === 'En Proceso' && order.employeeId"
+              pButton
+              pTooltip="Marcar como 'En Camino'"
+              tooltipPosition="top"
+              icon="pi pi-truck"
+              class="p-button-sm p-button-success p-button-text"
+              (click)="updateStatus(order, 'OUT_FOR_DELIVERY')"
+            ></button>
+
+            <button
+              *ngIf="
+                order.statusName === 'Pendiente de Confirmación' ||
+                order.statusName === 'Confirmado'
+              "
+              pButton
+              pTooltip="Cancelar"
+              tooltipPosition="top"
+              icon="pi pi-times"
+              class="p-button-sm p-button-danger p-button-text"
+              (click)="updateStatus(order, 'CANCELLED')"
             ></button>
           </td>
         </tr>

@@ -1,26 +1,54 @@
 <div class="space-y-4">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <label class="flex items-center gap-3 p-4 border rounded-xl cursor-pointer"
-           [ngClass]="{'border-blue-500 bg-blue-50 shadow-md': paymentMethod === 'card'}">
-      <p-radiobutton name="payment" value="card" [(ngModel)]="paymentMethod"></p-radiobutton>
-      <i class="pi pi-credit-card text-2xl text-blue-600"></i>
-      Tarjeta de crédito/débito
-    </label>
 
-    <label class="flex items-center gap-3 p-4 border rounded-xl cursor-pointer"
-           [ngClass]="{'border-green-500 bg-green-50 shadow-md': paymentMethod === 'cash'}">
-      <p-radiobutton name="payment" value="cash" [(ngModel)]="paymentMethod"></p-radiobutton>
-      <i class="pi pi-money-bill text-2xl text-green-600"></i>
-      Efectivo contra entrega
-    </label>
+  <div *ngIf="orderType === 'DELIVERY' || orderType === 'TAKE_AWAY'">
+    <h3 class="text-lg font-semibold mb-3">Elige tu método de pago</h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <label class="flex items-center gap-3 p-4 border rounded-xl cursor-pointer"
+             [ngClass]="{'border-blue-500 bg-blue-50 shadow-md': paymentMethod === 'card'}">
+        <p-radiobutton name="payment" value="card" [(ngModel)]="paymentMethod"></p-radiobutton>
+        <i class="pi pi-credit-card text-2xl text-blue-600"></i>
+        Pagar con Tarjeta (Online)
+      </label>
+
+      <label class="flex items-center gap-3 p-4 border rounded-xl cursor-pointer"
+             [ngClass]="{'border-green-500 bg-green-50 shadow-md': paymentMethod === 'cash'}">
+        <p-radiobutton name="payment" value="cash" [(ngModel)]="paymentMethod"></p-radiobutton>
+        <i class="pi pi-money-bill text-2xl text-green-600"></i>
+        <span *ngIf="orderType === 'DELIVERY'">Efectivo contra entrega</span>
+        <span *ngIf="orderType === 'TAKE_AWAY'">Pagar al recoger</span>
+      </label>
+    </div>
+
+    <div *ngIf="paymentMethod === 'card'" class="mt-6">
+      <app-payment-brick
+        [amount]="total"
+        [publicKey]="mercadoPagoPublicKey"
+        (token)="token.emit($event)">
+      </app-payment-brick>
+    </div>
+
+    <div *ngIf="paymentMethod === 'cash'" class="mt-6 text-center">
+      <p class="text-gray-600 mb-4" *ngIf="orderType === 'DELIVERY'">Pagarás S/{{ total | number: '1.2-2' }} al repartidor.</p>
+      <p class="text-gray-600 mb-4" *ngIf="orderType === 'TAKE_AWAY'">Pagarás S/{{ total | number: '1.2-2' }} en caja al recoger.</p>
+      
+      <p-button label="Confirmar pedido" icon="pi pi-check" (click)="onConfirmLocalPayment()"></p-button>
+    </div>
   </div>
 
-  <div *ngIf="paymentMethod === 'card'" class="mt-6">
-    <app-payment-brick
-      [amount]="total"
-      [publicKey]="mercadoPagoPublicKey"
-      (token)="token.emit($event)">
-    </app-payment-brick>
+  <div *ngIf="orderType === 'DINE_IN'">
+    <h3 class="text-xl font-semibold mb-4">Confirmación de Pedido</h3>
+    <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
+      <p class="text-gray-700">Tu pedido se enviará a la cocina.</p>
+      <p class="text-gray-500 text-sm mb-4">
+        Pagarás el total de S/{{ total | number: '1.2-2' }} en caja antes de retirarte.
+      </p>
+      <p-button
+        label="Confirmar Pedido y Pagar en Local"
+        icon="pi pi-check"
+        (click)="onConfirmLocalPayment()"
+      ></p-button>
+    </div>
   </div>
 
   <div class="flex justify-start mt-6">

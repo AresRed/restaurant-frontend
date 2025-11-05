@@ -5,12 +5,11 @@ import { roleLabels, Roles } from '../../core/models/base/roles.model';
   name: 'roleLabel',
 })
 export class RoleLabelPipe implements PipeTransform {
-  transform(value: Roles[] | Roles): unknown {
-    if (!value) return;
+  transform(value: Roles[] | Roles): string | undefined {
+    if (!value) return undefined;
     if (Array.isArray(value)) {
       return value.map((role) => roleLabels[role]).join(', ');
     }
-
     return roleLabels[value];
   }
 }

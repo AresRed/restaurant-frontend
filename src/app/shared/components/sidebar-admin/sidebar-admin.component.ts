@@ -31,6 +31,11 @@ export class SidebarAdminComponent {
   sidebarItems: SidebarItem[] = [
     { label: 'Dashboard', icon: 'pi pi-home', route: '/admin/dashboard' },
     {
+      label: 'Punto de Venta',
+      icon: 'pi pi-th-large', // Un ícono que parece un "grid" de POS
+      route: '/admin/pos',
+    },
+    {
       label: 'Gestión',
       icon: 'pi pi-cog',
       isOpen: true,
@@ -42,6 +47,7 @@ export class SidebarAdminComponent {
         },
         { label: 'Inventario', icon: 'pi pi-box', route: '/admin/inventory' },
         { label: 'Personal', icon: 'pi pi-users', route: '/admin/staff' },
+        { label: 'Clientes', icon: 'pi pi-users', route: '/admin/customers' },
         {
           label: 'Proveedores',
           icon: 'pi pi-briefcase',

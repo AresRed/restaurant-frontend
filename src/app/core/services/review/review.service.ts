@@ -26,6 +26,25 @@ export class ReviewService {
     );
   }
 
+  checkIfReviewed(params: {
+    orderId?: number;
+    productId?: number;
+    reservationId?: number;
+  }) {
+    const queryParams = new URLSearchParams();
+
+    if (params.orderId)
+      queryParams.append('orderId', params.orderId.toString());
+    if (params.productId)
+      queryParams.append('productId', params.productId.toString());
+    if (params.reservationId)
+      queryParams.append('reservationId', params.reservationId.toString());
+
+    return this.http.get<ApiResponse<boolean>>(
+      `${environment.apiUrl}/api/v1/reviews/check?${queryParams.toString()}`
+    );
+  }
+
   createReview(reviewRequest: ReviewCreateRequest) {
     return this.http.post<ApiResponse<ReviewResponse>>(
       `${environment.apiUrl}/api/v1/reviews`,

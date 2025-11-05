@@ -1,0 +1,38 @@
+<div class="p-3">
+  <h2 class="text-lg font-bold mb-3 text-gray-800">Seleccionar Repartidor</h2>
+
+  <p-table
+    [value]="drivers"
+    *ngIf="!loading; else loadingTpl"
+    class="p-datatable-sm"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+        <th>Acción</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-driver>
+      <tr>
+        <td>{{ driver.fullName }}</td>
+        <td>{{ driver.phone }}</td>
+        <td>
+          <button
+            pButton
+            label="Asignar"
+            icon="pi pi-check"
+            class="p-button-sm p-button-success"
+            (click)="selectDriver(driver)"
+          ></button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <ng-template #loadingTpl>
+    <div class="flex justify-center items-center p-6">
+      <p-progressSpinner></p-progressSpinner>
+    </div>
+  </ng-template>
+</div>

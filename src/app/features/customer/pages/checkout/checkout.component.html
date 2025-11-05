@@ -5,7 +5,11 @@
       Opciones de Compra
     </h2>
 
-    <p-stepper [value]="activeStepIndex + 1" [linear]="true" styleClass="w-full">
+    <p-stepper
+      [value]="activeStepIndex + 1"
+      [linear]="true"
+      styleClass="w-full"
+    >
       <p-step-list>
         <p-step [value]="1" icon="pi pi-truck">Tipo de Entrega</p-step>
         <p-step [value]="2" icon="pi pi-map-marker"
@@ -26,21 +30,25 @@
       </app-checkout-step-delivery-type>
 
       <app-checkout-step-address
-         *ngSwitchCase="1"
+        *ngSwitchCase="1"
         [selectedOrderTypeCode]="selectedOrderType?.code || ''"
         (back)="goToStep(0)"
         (next)="handleStep2Data($event)"
       >
       </app-checkout-step-address>
 
-      <app-checkout-step-payment
-        *ngSwitchCase="2"
-        [total]="total"
-        [mercadoPagoPublicKey]="mercadoPagoPublicKey"
-        (back)="goToStep(1)"
-        (token)="handleBrickToken($event)"
-      >
-      </app-checkout-step-payment>
+      <ng-container [ngSwitch]="activeStepIndex">
+        <app-checkout-step-payment
+          *ngSwitchCase="2"
+          [total]="total"
+          [mercadoPagoPublicKey]="mercadoPagoPublicKey"
+          [orderType]="selectedOrderType?.code"
+          (back)="goToStep(1)"
+          (token)="handleBrickToken($event)"
+          (confirmLocal)="handleLocalOrder($event)"
+        >
+        </app-checkout-step-payment>
+      </ng-container>
     </ng-container>
   </div>
 

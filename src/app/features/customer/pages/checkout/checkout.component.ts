@@ -11,12 +11,13 @@ import { OrderTypeResponse } from '../../../../core/models/order-type.model';
 import {
   DeliveryAddressRequest,
   OrderRequest,
+  PaymentInOrderRequest,
 } from '../../../../core/models/order/orderhttp/order.model';
 import { CartService } from '../../../../core/services/cart.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { OrderTypeService } from '../../../../core/services/orders/order-type.service';
 import { OrderService } from '../../../../core/services/orders/order.service';
-import { PaymentService } from '../../../../core/services/payment.service';
+import { PaymentService } from '../../../../core/services/payment/payment.service';
 import {
   CheckoutStep2Data,
   CheckoutStepAddressComponent,
@@ -48,6 +49,9 @@ export class CheckoutComponent implements OnInit {
 
   orderTypes: OrderTypeResponse[] = [];
   selectedOrderType: OrderTypeResponse | null = null;
+
+  readonly STATUS_PENDING = 1;
+  readonly STATUS_PENDING_CONFIRMATION = 10;
 
   selectedDeliveryAddress: DeliveryAddressRequest | null = null;
   selectedTableId: number | null = null;
@@ -113,14 +117,6 @@ export class CheckoutComponent implements OnInit {
         );
         return;
       }
-      if (this.isDineIn() && !this.selectedTableId) {
-        this.notificationService.error(
-          'Error',
-          'Por favor, selecciona una mesa.'
-        );
-        return;
-      }
-
       if (this.isTakeAway() && !this.selectedPickupStoreId) {
         this.notificationService.error(
           'Error',
@@ -129,22 +125,9 @@ export class CheckoutComponent implements OnInit {
         return;
       }
 
-      const orderPayload: OrderRequest = {
-        statusId: 1,
-        typeId: this.selectedOrderType!.id,
-        details: this.items.map((i) => ({
-          productId: i.id,
-          quantity: i.quantity,
-        })),
-      };
-
-      if (this.isDelivery()) {
-        orderPayload.deliveryAddress = this.selectedDeliveryAddress!;
-      } else if (this.isDineIn()) {
-        orderPayload.tableId = this.selectedTableId!;
-      } else if (this.isTakeAway()) {
-        orderPayload.pickupStoreId = this.selectedPickupStoreId!;
-      }
+      const orderPayload: OrderRequest = this.buildOrderPayload(
+        this.STATUS_PENDING
+      );
 
       const orderResponse = await firstValueFrom(
         this.orderService.createOrder(orderPayload)
@@ -164,19 +147,88 @@ export class CheckoutComponent implements OnInit {
         })
       );
 
-      this.notificationService.success(
-        '¡Éxito!',
+      this.showSuccessAndNavigate(
+        orderResponse.data.id,
         'Tu orden ha sido creada y pagada.'
       );
-      this.cartService.clear();
-      this.router.navigate(['/profile/orders', orderResponse.data.id]);
     } catch (error: any) {
-      console.error('Error al procesar el pago:', error);
-      this.notificationService.error(
-        'Error en el pago',
-        error?.error?.message || 'No se pudo procesar tu pago.'
-      );
+      this.handleError(error);
     }
+  }
+
+  async handleLocalOrder(localPayment: PaymentInOrderRequest) {
+    try {
+      if (
+        (this.isDelivery() && !this.selectedDeliveryAddress) ||
+        (this.isDineIn() && !this.selectedTableId) ||
+        (this.isTakeAway() && !this.selectedPickupStoreId)
+      ) {
+        this.notificationService.error(
+          'Error',
+          'Falta información del paso anterior.'
+        );
+        this.goToStep(1);
+        return;
+      }
+
+      const orderPayload: OrderRequest = this.buildOrderPayload(
+        this.STATUS_PENDING_CONFIRMATION
+      );
+
+      orderPayload.payments = [localPayment];
+
+      const orderResponse = await firstValueFrom(
+        this.orderService.createOrder(orderPayload)
+      );
+
+      this.showSuccessAndNavigate(
+        orderResponse.data.id,
+        'Tu orden ha sido recibida. Un administrador la confirmará en breve.'
+      );
+    } catch (error: any) {
+      this.handleError(error);
+    }
+  }
+
+  private buildOrderPayload(initialStatusId: number): OrderRequest {
+    const orderPayload: OrderRequest = {
+      statusId: initialStatusId,
+      typeId: this.selectedOrderType!.id,
+      details: this.items.map((i) => ({
+        productId: i.id,
+        quantity: i.quantity,
+      })),
+    };
+
+    if (this.isDelivery()) {
+      orderPayload.deliveryAddress = this.selectedDeliveryAddress!;
+    } else if (this.isDineIn()) {
+      orderPayload.tableId = this.selectedTableId!;
+    } else if (this.isTakeAway()) {
+      orderPayload.pickupStoreId = this.selectedPickupStoreId!;
+    }
+    return orderPayload;
+  }
+
+  private showSuccessAndNavigate(orderId: number, message: string) {
+    this.notificationService.success('¡Éxito!', message);
+    this.cartService.clear();
+    this.router.navigate(['/profile/orders', orderId]);
+  }
+
+  private handleError(error: any) {
+    console.error('Error al procesar la orden:', error);
+    // Aquí usamos el parche de seguridad del backend
+    const errorMsg = error?.error?.message.includes(
+      'Los pagos online no están permitidos'
+    )
+      ? 'Error de lógica: Intento de pago online para orden local.'
+      : error?.error?.message;
+
+    this.notificationService.error(
+      'Error en la orden',
+      errorMsg || 'No se pudo procesar tu orden.'
+    );
   }
 
   handleStep2Data(data: CheckoutStep2Data) {

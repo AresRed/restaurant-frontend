@@ -1,0 +1,64 @@
+<div class="flex justify-between items-center mb-4">
+  <h2 class="text-2xl font-semibold">Clientes</h2>
+  <button
+    pButton
+    label="Nuevo cliente"
+    icon="pi pi-plus"
+    class="p-button-success"
+    (click)="createCustomer()"
+  ></button>
+</div>
+
+<p-table
+  [value]="customers"
+  [paginator]="true"
+  [rows]="10"
+  [loading]="loading"
+  responsiveLayout="scroll"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Nombre</th>
+      <th>Email</th>
+      <th>Puntos</th>
+      <th>Acciones</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-c>
+    <tr>
+      <td>
+        <div class="flex items-center gap-2">
+          <p-avatar icon="pi pi-user" size="normal" shape="circle"></p-avatar>
+          {{ c.fullName }}
+        </div>
+      </td>
+      <td>{{ c.email }}</td>
+      <td>
+        <p-tag
+          [severity]="c.points > 50 ? 'success' : 'warn'"
+          [value]="c.points"
+        ></p-tag>
+      </td>
+      <td class="flex gap-2">
+        <button
+          pButton
+          icon="pi pi-eye"
+          class="p-button-rounded p-button-info"
+          (click)="viewCustomer(c.id)"
+        ></button>
+        <button
+          pButton
+          icon="pi pi-pencil"
+          class="p-button-rounded p-button-warning"
+          (click)="editCustomer(c.id)"
+        ></button>
+        <button
+          pButton
+          icon="pi pi-trash"
+          class="p-button-rounded p-button-danger"
+          (click)="deleteCustomer(c.id)"
+        ></button>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

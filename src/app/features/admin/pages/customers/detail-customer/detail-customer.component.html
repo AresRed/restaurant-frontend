@@ -1,0 +1,125 @@
+<div class="flex justify-center items-center min-h-[80vh] p-6 ">
+  <p-progressSpinner *ngIf="loading" styleClass="w-6 h-6"></p-progressSpinner>
+
+  <div *ngIf="error && !loading" class="text-center text-red-500">
+    <p>Ocurrió un error al cargar los datos del cliente.</p>
+    <button
+      pButton
+      label="Volver"
+      icon="pi pi-arrow-left"
+      class="mt-3"
+      (click)="goBack()"
+    ></button>
+  </div>
+
+  <div
+    *ngIf="!loading && customer"
+    class="shadow-2xl rounded-2xl overflow-hidden w-full max-w-3xl"
+  >
+    <!-- Cabecera -->
+    <div
+      class="gradient-card text-white p-6 flex flex-col sm:flex-row items-center gap-6 relative z-10"
+    >
+      <p-avatar
+        [image]="customer.profileImageUrl || undefined"
+        [label]="!customer.profileImageUrl ? customer.fullName[0] : undefined"
+        shape="circle"
+        size="xlarge"
+        styleClass="ring-4 ring-white"
+      ></p-avatar>
+
+      <div class="text-center sm:text-left">
+        <h2 class="text-2xl font-semibold">{{ customer.fullName }}</h2>
+        <p class="text-blue-100">{{ customer.email }}</p>
+        <div class="flex flex-wrap justify-center sm:justify-start gap-2 mt-3">
+          <p-tag
+            [severity]="customer.enabled ? 'success' : 'danger'"
+            [value]="customer.enabled ? 'Activo' : 'Inactivo'"
+          ></p-tag>
+          <p-tag
+            [severity]="customer.emailVerified ? 'info' : 'warn'"
+            [value]="
+              customer.emailVerified ? 'Email verificado' : 'No verificado'
+            "
+          ></p-tag>
+          <p-tag [value]="customer.provider" severity="secondary"></p-tag>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido -->
+    <div class="p-6">
+      <h3 class="text-lg font-semibold text-gray-700 mb-4">
+        Información General
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-10 mb-6">
+        <div>
+          <p class="text-gray-500 text-sm">Usuario</p>
+          <p class="text-gray-800 font-medium">{{ customer.username }}</p>
+        </div>
+
+        <div>
+          <p class="text-gray-500 text-sm">Teléfono</p>
+          <p class="text-gray-800 font-medium">
+            {{ customer.phone || "Sin número registrado" }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-gray-500 text-sm">Puntos acumulados</p>
+          <p-tag [value]="customer.points + ' pts'" severity="info"></p-tag>
+        </div>
+
+        <div>
+          <p class="text-gray-500 text-sm">Roles</p>
+          <div class="flex flex-wrap gap-2 mt-1">
+            <p-tag
+              *ngFor="let role of customer.roles"
+              [value]="role | roleLabel"
+              severity="contrast"
+            ></p-tag>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="text-lg font-semibold text-gray-700 mb-4">
+        Historial de Cambios
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-10">
+        <div>
+          <p class="text-gray-500 text-sm">
+            Último cambio de nombre de usuario
+          </p>
+          <p class="text-gray-800 font-medium">
+            {{ customer.lastUsernameChange | date : "medium" }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-gray-500 text-sm">Último cambio de email</p>
+          <p class="text-gray-800 font-medium">
+            {{ customer.lastEmailChange | date : "medium" }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-gray-50 border-t p-4 flex justify-end gap-3">
+      <button
+        pButton
+        label="Volver"
+        icon="pi pi-arrow-left"
+        class="p-button-outlined"
+        (click)="goBack()"
+      ></button>
+      <button
+        pButton
+        label="Editar"
+        icon="pi pi-pencil"
+        class="p-button-primary"
+        [routerLink]="['/admin/customers/edit', customer.id]"
+      ></button>
+    </div>
+  </div>
+</div>

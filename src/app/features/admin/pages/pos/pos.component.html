@@ -1,0 +1,421 @@
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4 lg:p-6">
+  <div class="lg:col-span-2">
+    <div class="p-4">
+      <div
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3"
+      >
+        <input
+          pInputText
+          type="text"
+          placeholder="Buscar producto..."
+          class="w-full sm:w-64"
+          [value]="productSearchQuery()"
+          (input)="onSearchInput($event)"
+        />
+        <p-paginator
+          [rows]="12"
+          [totalRecords]="filteredProducts().length"
+          (onPageChange)="onPageChange($event)"
+          [rowsPerPageOptions]="[6, 12, 24]"
+        ></p-paginator>
+      </div>
+
+      <div
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
+      >
+        <div
+          *ngFor="let product of paginatedProducts"
+          (click)="addToCart(product)"
+          class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col items-center text-center"
+        >
+          <img
+            [src]="
+              product.imageUrl || 'https://placehold.co/200x200?text=Sin+Imagen'
+            "
+            [alt]="product.name"
+            class="w-24 h-24 object-cover rounded-lg mb-2"
+            onerror="this.src='https://placehold.co/200x200?text=Sin+Imagen'"
+          />
+          <h3
+            class="font-medium text-sm text-gray-700 truncate w-full"
+            [title]="product.name"
+          >
+            {{ product.name }}
+          </h3>
+          <span class="font-semibold text-sm mt-1 mb-2">
+            {{ product.price | currency : "S/ " }}
+          </span>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-plus"
+            label="Agregar"
+            class="p-button-sm p-button-outlined w-full"
+          ></button>
+        </div>
+      </div>
+
+      <div
+        *ngIf="!isLoadingProducts() && paginatedProducts.length === 0"
+        class="text-center text-gray-500 py-10"
+      >
+        <i class="pi pi-box text-4xl mb-2"></i>
+        <p>No hay productos disponibles</p>
+      </div>
+
+      <div *ngIf="isLoadingProducts()" class="flex justify-center py-10">
+        <p-progressSpinner></p-progressSpinner>
+      </div>
+    </div>
+  </div>
+
+  <div class="lg:col-span-1">
+    <div class="bg-white rounded-lg shadow-lg p-4 sticky top-6">
+      <h3 class="text-2xl font-bold border-b pb-2 mb-4">Orden Actual</h3>
+
+      <div class="flex flex-col gap-4 mb-4">
+        <div class="flex items-center justify-between gap-2">
+          <label class="font-semibold text-gray-700">Cliente Titular:</label>
+          <p-tag
+            *ngIf="selectedCustomer()"
+            [value]="selectedCustomer()?.fullName"
+            icon="pi pi-user"
+            styleClass="text-sm"
+          ></p-tag>
+        </div>
+
+        <p-autoComplete
+          [suggestions]="filteredCustomers()"
+          (completeMethod)="searchCustomer($event)"
+          [(ngModel)]="selectedCustomer"
+          optionLabel="fullName"
+          placeholder="Buscar para cambiar cliente..."
+          [style]="{ width: '100%' }"
+          [dropdown]="true"
+          (onSelect)="onCustomerSelect($event)"
+          pTooltip="Por defecto, la orden es para 'Público General'. Use esto solo si el cliente está registrado."
+          tooltipPosition="bottom"
+        >
+        </p-autoComplete>
+
+        <p-dropdown
+          [options]="orderTypes()"
+          [(ngModel)]="selectedOrderType"
+          optionLabel="name"
+          placeholder="Seleccionar Tipo de Orden"
+          [style]="{ width: '100%' }"
+        >
+        </p-dropdown>
+      </div>
+
+      <div
+        *ngIf="selectedOrderType()?.code === 'DINE_IN'"
+        class="animate-fade-in mb-4"
+      >
+        <h4 class="font-semibold text-gray-700 mb-2">Seleccionar Mesa:</h4>
+
+        <div
+          *ngIf="tables().length === 0"
+          class="text-center text-gray-500 p-4 border rounded-lg"
+        >
+          <i class="pi pi-table text-2xl mb-2"></i>
+          <p>No hay mesas libres disponibles.</p>
+        </div>
+
+        <div
+          class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto"
+        >
+          <div
+            *ngFor="let table of tables()"
+            class="border rounded-lg p-3 text-center cursor-pointer transition-all flex flex-col justify-between"
+            [ngClass]="{
+              'bg-blue-100 border-blue-500 ring-2 ring-blue-300':
+                selectedTable()?.id === table.id,
+              'hover:bg-gray-50': selectedTable()?.id !== table.id
+            }"
+            (click)="selectedTable.set(table)"
+            [pTooltip]="table.alias"
+            tooltipPosition="top"
+          >
+            <span class="font-bold text-gray-800 block text-lg">{{
+              table.code
+            }}</span>
+
+            <span class="text-sm text-gray-600"
+              >(Cap: {{ table.capacity }})</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="max-h-80 overflow-y-auto mb-4 space-y-3"
+        [ngClass]="{ 'border-t border-b py-3': cart().length > 0 }"
+      >
+        <div
+          *ngIf="cart().length === 0"
+          class="text-center text-gray-400 py-10"
+        >
+          <i class="pi pi-shopping-cart text-3xl mb-2"></i>
+          <p>Añade productos a la orden</p>
+        </div>
+
+        <div
+          *ngFor="let item of cart(); trackBy: trackByProductId"
+          class="flex items-center gap-3 animate-fade-in"
+        >
+          <div class="flex-shrink-0">
+            <p-inputNumber
+              [(ngModel)]="item.quantity"
+              [min]="0"
+              [max]="99"
+              [showButtons]="true"
+              buttonLayout="vertical"
+              spinnerMode="horizontal"
+              (onInput)="updateCartItem(item, $event)"
+              [inputStyle]="{ width: '45px', 'text-align': 'center' }"
+            >
+            </p-inputNumber>
+          </div>
+
+          <div class="flex-grow min-w-0">
+            <span class="font-medium text-gray-800 truncate block">{{
+              item.name
+            }}</span>
+            <span class="text-sm text-gray-500"
+              >{{ item.price | currency : "S/ " }} c/u</span
+            >
+          </div>
+
+          <div class="flex-shrink-0 text-right">
+            <span class="font-semibold text-gray-900">{{
+              item.lineTotal | currency : "S/ "
+            }}</span>
+          </div>
+
+          <div class="flex-shrink-0">
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              [rounded]="true"
+              severity="danger"
+              (click)="removeFromCart(item.productId)"
+            >
+            </p-button>
+          </div>
+        </div>
+      </div>
+      <div class="space-y-2 border-t pt-4">
+        <div class="flex justify-between text-lg">
+          <span>Subtotal:</span>
+          <span class="font-medium">{{ subtotal() | currency : "S/ " }}</span>
+        </div>
+        <div class="flex justify-between text-lg">
+          <span>IGV ({{ TAX_RATE * 100 }}%):</span>
+          <span class="font-medium">{{ taxes() | currency : "S/ " }}</span>
+        </div>
+        <div class="flex justify-between text-2xl font-bold">
+          <span>Total:</span>
+          <span>{{ total() | currency : "S/ " }}</span>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4 mt-4">
+        <p-button
+          label="Pagar ({{ total() | currency : 'S/ ' }})"
+          icon="pi pi-check-circle"
+          [disabled]="cart().length === 0"
+          (onClick)="openPaymentModal()"
+          class="w-full"
+          styleClass="w-full"
+        >
+        </p-button>
+        <p-button
+          label="Cancelar Orden"
+          icon="pi pi-times"
+          severity="danger"
+          [outlined]="true"
+          (onClick)="resetAll()"
+          styleClass="w-full"
+        >
+        </p-button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog
+  header="Procesar Pago"
+  [(visible)]="displayPaymentModal"
+  [modal]="true"
+  [style]="{ width: '50vw', 'min-width': '450px' }"
+  (onHide)="resetPaymentModal()"
+>
+  <div class="flex flex-col gap-4">
+    <div class="text-center p-4 bg-gray-100 rounded-lg">
+      <h3 class="text-xl font-bold">Total a Pagar</h3>
+      <span class="text-4xl font-light">{{ total() | currency : "S/ " }}</span>
+    </div>
+
+    <div
+      class="text-center p-3 rounded-lg"
+      [ngClass]="
+        amountRemaining() > 0
+          ? 'bg-red-100 text-red-700'
+          : 'bg-green-100 text-green-700'
+      "
+    >
+      <h4 class="text-lg font-semibold">
+        {{ amountRemaining() > 0 ? "Faltante por Pagar" : "Pagado (Cambio)" }}
+      </h4>
+      <span class="text-2xl font-medium">
+        {{
+          (amountRemaining() > 0 ? amountRemaining() : amountRemaining() * -1)
+            | currency : "S/ "
+        }}
+      </span>
+    </div>
+
+    <div
+      class="border-t border-b py-4 px-1 my-2 flex flex-col gap-3"
+      [formGroup]="documentForm"
+    >
+      <div class="flex items-center justify-between">
+        <label for="wantsDoc" class="font-semibold text-lg"
+          >¿Desea Boleta / Factura?</label
+        >
+        <p-toggleButton
+          [(ngModel)]="wantsDocument"
+          [ngModelOptions]="{ standalone: true }"
+          onLabel="Sí"
+          offLabel="No"
+          [onIcon]="'pi pi-check'"
+          offIcon="pi pi-times"
+          [style]="{ width: '5rem' }"
+          inputId="wantsDoc"
+        ></p-toggleButton>
+      </div>
+
+      <div *ngIf="wantsDocument()" class="flex gap-3 animate-fade-in">
+        <p-dropdown
+          [options]="documentTypes()"
+          formControlName="type"
+          optionLabel="label"
+          optionValue="value"
+          class="flex-1"
+        ></p-dropdown>
+
+        <input
+          pInputText
+          formControlName="number"
+          placeholder="Número de Documento"
+          class="flex-2 w-full"
+          [pTooltip]="
+            documentForm.get('type')?.value === 'DNI'
+              ? '8 dígitos'
+              : '11 dígitos'
+          "
+          tooltipPosition="bottom"
+        />
+      </div>
+    </div>
+    <form
+      [formGroup]="paymentForm"
+      (ngSubmit)="addPayment()"
+      class="flex flex-col sm:flex-row gap-3 items-start"
+    >
+      <p-dropdown
+        [options]="paymentMethods()"
+        formControlName="paymentMethod"
+        optionLabel="name"
+        placeholder="Método de Pago"
+        [style]="{ width: '100%' }"
+        class="flex-1"
+        [appendTo]="'body'"
+      >
+      </p-dropdown>
+
+      <p-inputNumber
+        formControlName="amount"
+        placeholder="Monto"
+        mode="currency"
+        currency="PEN"
+        locale="es-PE"
+        class="flex-1"
+      >
+      </p-inputNumber>
+
+      <input
+        pInputText
+        formControlName="transactionCode"
+        placeholder="Cód. Transacción"
+        pTooltip="Opcional: Para Yape, Plin o Tarjeta"
+        class="flex-1 w-full"
+      />
+
+      <p-button
+        type="submit"
+        icon="pi pi-plus"
+        label="Añadir"
+        [disabled]="paymentForm.invalid"
+      ></p-button>
+    </form>
+
+    <p-table [value]="addedPayments()" [tableStyle]="{ 'min-width': '20rem' }">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Método</th>
+          <th>Monto</th>
+          <th>Transacción</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-payment let-i="rowIndex">
+        <tr>
+          <td>{{ payment.paymentMethodName }}</td>
+          <td>{{ payment.amount | currency : "S/ " }}</td>
+          <td>{{ payment.transactionCode || "N/A" }}</td>
+          <td>
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              pTooltip="Remover"
+              [rounded]="true"
+              severity="danger"
+              (click)="removePayment(i)"
+            >
+            </p-button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="empty">
+        <tr>
+          <td colspan="4" class="text-center p-4">
+            Añada uno o más métodos de pago.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      [outlined]="true"
+      (click)="displayPaymentModal.set(false)"
+    ></p-button>
+    <p-button
+      label="Confirmar Venta"
+      icon="pi pi-check"
+      [loading]="isSubmittingOrder()"
+      [disabled]="
+        amountRemaining() > 0 ||
+        addedPayments().length === 0 ||
+        (wantsDocument() && documentForm.invalid)
+      "
+      (click)="submitOrder()"
+    >
+    </p-button>
+  </ng-template>
+</p-dialog>

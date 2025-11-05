@@ -11,6 +11,7 @@ import {
 } from '../../../../core/models/order/orderhttp/order.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { OrderService } from '../../../../core/services/orders/order.service';
+import { ReviewService } from '../../../../core/services/review/review.service';
 import { ReviewModalComponent } from '../../components/review-modal/review-modal.component';
 
 @Component({
@@ -30,6 +31,7 @@ export class OrdersComponent implements OnInit {
   orders: OrderResponse[] = [];
   loading = true;
   googleMapsApiKey = environment.googleMapsApiKey;
+  reviewedMap = new Map<string, boolean>();
 
   displayReviewModal = false;
   reviewResourceId: number | null = null;
@@ -39,7 +41,8 @@ export class OrdersComponent implements OnInit {
   constructor(
     private orderService: OrderService,
     private router: Router,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private reviewService: ReviewService
   ) {}
 
   ngOnInit(): void {
@@ -53,11 +56,38 @@ export class OrdersComponent implements OnInit {
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
         );
         this.loading = false;
+
+        this.checkExistingReviews();
       },
       error: (err) => {
         console.error('Error cargando órdenes', err);
         this.loading = false;
       },
+    });
+  }
+
+  checkExistingReviews() {
+    this.orders.forEach((order) => {
+      this.reviewService.checkIfReviewed({ orderId: order.id }).subscribe({
+        next: (res) => {
+          if (res.data) this.reviewedMap.set(`order-${order.id}`, true);
+        },
+        error: (err) =>
+          console.error('Error al verificar reseña de orden', err),
+      });
+
+      order.details.forEach((item) => {
+        this.reviewService
+          .checkIfReviewed({ productId: item.productId })
+          .subscribe({
+            next: (res) => {
+              if (res.data)
+                this.reviewedMap.set(`product-${item.productId}`, true);
+            },
+            error: (err) =>
+              console.error('Error al verificar reseña de producto', err),
+          });
+      });
     });
   }
 
@@ -79,7 +109,6 @@ export class OrdersComponent implements OnInit {
   onReviewModalClosed() {
     this.displayReviewModal = false;
   }
-
   getStepStatus(
     orderStatus: string,
     stepName: string,
@@ -93,28 +122,22 @@ export class OrdersComponent implements OnInit {
       (s) => s.name.toLowerCase() === stepName.toLowerCase()
     );
 
-    if (orderIndex === -1) {
-      if (
-        stepIndex === 0 &&
-        (orderStatus.toUpperCase() === 'CANCELADO' ||
-          orderStatus.toUpperCase() === 'FALLIDO')
-      ) {
-        return 'current';
-      }
-      return 'upcoming';
-    }
+    if (orderIndex === -1) return 'upcoming';
 
-    if (stepIndex < orderIndex) {
+    const finalStates = ['entregado', 'completado'];
+    if (finalStates.includes(orderStatus.toLowerCase())) {
       return 'completed';
     }
-    if (stepIndex === orderIndex) {
-      return 'current';
-    }
+
+    if (stepIndex < orderIndex) return 'completed';
+    if (stepIndex === orderIndex) return 'current';
     return 'upcoming';
   }
 
   getStepIcon(stepName: string): string {
     switch (stepName.toLowerCase()) {
+      case 'pendiente de confirmación':
+        return 'pi pi-question-circle';
       case 'pendiente':
         return 'pi pi-clock';
       case 'confirmado':

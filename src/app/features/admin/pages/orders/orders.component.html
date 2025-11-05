@@ -46,17 +46,26 @@
             <i class="pi pi-list text-primary-500"></i>
             Órdenes Recientes
           </h3>
-          <div
-            class="p-input-icon-left w-full flex items-center justify-center gap-2 sm:w-64"
-          >
-            <i class="pi pi-search text-gray-400"></i>
-            <input
-              pInputText
-              type="text"
-              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-              placeholder="Buscar orden..."
-              class="w-full pl-8 py-2 border rounded-full focus:ring-2 focus:ring-primary-300 focus:border-primary-500 transition duration-200"
-            />
+
+          <div class="flex flex-col sm:flex-row items-center gap-2">
+            <button
+              pButton
+              type="button"
+              label="Nueva Venta (POS)"
+              icon="pi pi-plus"
+              class="p-button-success"
+              (click)="goToPos()"
+            ></button>
+            <div class="p-input-icon-left w-full sm:w-64">
+              <i class="pi pi-search text-gray-400"></i>
+              <input
+                pInputText
+                type="text"
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Buscar orden..."
+                class="w-full pl-8 py-2 border rounded-full focus:ring-2 focus:ring-primary-300 focus:border-primary-500 transition duration-200"
+              />
+            </div>
           </div>
         </div>
       </ng-template>

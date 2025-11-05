@@ -3,6 +3,9 @@ import { ProfileLayoutComponent } from '../customer/components/profile-layout/pr
 import { ProfileComponent } from '../customer/pages/profile/profile.component';
 import { SecurityComponent } from '../customer/pages/security/security.component';
 import { SettingsComponent } from '../customer/pages/settings/settings.component';
+import { CustomersComponent } from './pages/customers/customers.component';
+import { DetailCustomerComponent } from './pages/customers/detail-customer/detail-customer.component';
+import { FormCustomerComponent } from './pages/customers/form-customer/form-customer.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { DeliveryComponent } from './pages/delivery/delivery.component';
 import { FeedbackAndLoyaltyComponent } from './pages/feedback-and-loyalty/feedback-and-loyalty.component';
@@ -25,10 +28,14 @@ import { StaffComponent } from './pages/staff/staff.component';
 import { DetailSupplierComponent } from './pages/suppliers/detail-supplier/detail-supplier.component';
 import { FormSupplierComponent } from './pages/suppliers/form-supplier/form-supplier.component';
 import { SuppliersComponent } from './pages/suppliers/suppliers.component';
+import { AuthGuard } from '../../core/guards/auth.guard';
+import { PosComponent } from './pages/pos/pos.component';
+import { PosCashClosingComponent } from './pages/pos/pos-cash-closing/pos-cash-closing.component';
 
 export const adminRoutes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent },
+
   { path: 'staff', component: StaffComponent },
   { path: 'staff/:id', component: DetailStaffComponent },
   { path: 'staff/:id/edit', component: EditStaffComponent },
@@ -42,6 +49,11 @@ export const adminRoutes: Routes = [
   { path: 'reservations/create', component: FormReservationComponent },
   { path: 'reservations/:id', component: DetailReservationComponent },
   { path: 'reservations/:id/edit', component: FormReservationComponent },
+
+  { path: 'customers', component: CustomersComponent },
+  { path: 'customers/create', component: FormCustomerComponent },
+  { path: 'customers/:id', component: DetailCustomerComponent },
+  { path: 'customers/:id/edit', component: FormCustomerComponent },
 
   { path: 'orders', component: OrdersComponent },
   { path: 'orders/:id', component: DetailOrderComponent },
@@ -69,5 +81,18 @@ export const adminRoutes: Routes = [
       { path: 'security', component: SecurityComponent },
       { path: 'settings', component: SettingsComponent },
     ],
+  },
+
+  {
+    path: 'pos',
+    component: PosComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_ADMIN', 'ROLE_EMPLOYEE'] },
+  },
+  {
+    path: 'pos/cash-closing',
+    component: PosCashClosingComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_ADMIN', 'ROLE_EMPLOYEE'] },
   },
 ];

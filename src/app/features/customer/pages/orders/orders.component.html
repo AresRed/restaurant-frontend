@@ -10,12 +10,10 @@
       </p>
     </header>
 
-    <!-- Loading -->
     <div *ngIf="loading" class="text-center py-20">
       <p-progressSpinner></p-progressSpinner>
     </div>
 
-    <!-- Sin pedidos -->
     <div
       *ngIf="!loading && orders.length === 0"
       class="text-center py-16 bg-white rounded-2xl shadow-sm"
@@ -28,13 +26,11 @@
       ></p-button>
     </div>
 
-    <!-- Lista de pedidos -->
     <div *ngIf="!loading && orders.length > 0" class="space-y-8">
       <div
         *ngFor="let order of orders"
         class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
       >
-        <!-- Header del pedido -->
         <header
           class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 border-b border-slate-200 gap-4"
         >
@@ -62,7 +58,6 @@
         </header>
 
         <div class="p-5">
-          <!-- Estado del pedido -->
           <div class="mb-6">
             <h3 class="font-semibold text-slate-700 mb-4">Estado del Pedido</h3>
             <div class="flex items-center">
@@ -73,14 +68,25 @@
                   <div
                     class="flex items-center justify-center w-10 h-10 rounded-full"
                     [ngClass]="{
-
-          'bg-green-500 text-white':
-            getStepStatus(order.statusName, step.name, order.timelineSteps) === 'completed',
-          'bg-blue-600 text-white animate-pulse':
-            getStepStatus(order.statusName, step.name, order.timelineSteps) === 'current',
-          'bg-slate-200 text-slate-500':
-            getStepStatus(order.statusName, step.name, order.timelineSteps) === 'upcoming'
-        }"
+                      'bg-green-500 text-white':
+                        getStepStatus(
+                          order.statusName,
+                          step.name,
+                          order.timelineSteps
+                        ) === 'completed',
+                      'bg-blue-600 text-white animate-pulse':
+                        getStepStatus(
+                          order.statusName,
+                          step.name,
+                          order.timelineSteps
+                        ) === 'current',
+                      'bg-slate-200 text-slate-500':
+                        getStepStatus(
+                          order.statusName,
+                          step.name,
+                          order.timelineSteps
+                        ) === 'upcoming'
+                    }"
                   >
                     <i [class]="getStepIcon(step.name)"></i>
                   </div>
@@ -254,7 +260,7 @@
         </div>
 
         <div
-          *ngIf="order.statusName === 'Completada'"
+          *ngIf="order.statusName.toLowerCase() === 'entregado'"
           class="p-5 border-t border-slate-200 bg-slate-50 rounded-b-2xl"
         >
           <h4 class="font-semibold text-slate-800 mb-4">
@@ -271,6 +277,7 @@
                 label="Calificar"
                 icon="pi pi-star"
                 styleClass="p-button-outlined p-button-sm"
+                [disabled]="reviewedMap.get('order-' + order.id)"
                 (onClick)="
                   openReviewModal(
                     order.id,
@@ -291,6 +298,7 @@
                 label="Calificar"
                 icon="pi pi-star-fill"
                 styleClass="p-button-outlined p-button-sm p-button-warning"
+                [disabled]="reviewedMap.get('product-' + item.productId)"
                 (onClick)="
                   openReviewModal(item.productId, 'product', item.productName)
                 "

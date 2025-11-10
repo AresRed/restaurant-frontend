@@ -7,7 +7,10 @@ import { ChartModule } from 'primeng/chart';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { InventoryResponse } from '../../../../core/models/products/inventory/inventory.model';
-import { ConfirmService } from '../../../../core/services/confirmation.service';
+import {
+  ConfirmOptions,
+  ConfirmService,
+} from '../../../../core/services/confirmation.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { InventoryService } from '../../../../core/services/products/inventory/inventory.service';
 
@@ -138,16 +141,16 @@ export class InventoryComponent implements OnInit {
   }
 
   async confirmDelete(event: Event, item: InventoryResponse) {
-    const confirmed = await this.confirmationService.confirm(
-      {
-        message: `¿Seguro que deseas eliminar el inventario de "${item.ingredientName}"?`,
-        acceptLabel: 'Sí, eliminar',
-        rejectLabel: 'Cancelar',
-        icon: 'pi pi-exclamation-triangle',
-        acceptClass: 'p-button-danger',
-      },
-      event
-    );
+    const options: ConfirmOptions = {
+      message: `¿Seguro que deseas eliminar el inventario de "${item.ingredientName}"?`,
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      icon: 'pi pi-exclamation-triangle',
+      acceptClass: 'p-button-danger',
+      target: event.currentTarget as EventTarget,
+    };
+
+    const confirmed = await this.confirmationService.confirm(options);
 
     if (confirmed) {
       this.deleteInventory(item);

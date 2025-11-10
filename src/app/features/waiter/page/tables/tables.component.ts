@@ -1,16 +1,34 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TableResponse, TableStatus } from '../../../../core/models/table.model';
-import { OrdersComponent } from '../orders/orders.component';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-// PrimeNG Modules
-import { CardModule } from 'primeng/card';
-import { TagModule } from 'primeng/tag';
-import { InputTextModule } from 'primeng/inputtext';
+import {
+  TableRequest,
+  TableResponse,
+  TableStatus,
+} from '../../../../core/models/table.model';
+import { OrdersComponent } from '../orders/orders.component';
+
+import { Router } from '@angular/router';
+import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { DynamicDialogModule, DialogService } from 'primeng/dynamicdialog';
+import { CardModule } from 'primeng/card';
+import { ContextMenuModule } from 'primeng/contextmenu';
+import {
+  DialogService,
+  DynamicDialogModule,
+  DynamicDialogRef,
+} from 'primeng/dynamicdialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TagModule } from 'primeng/tag';
+import {
+  ConfirmOptions,
+  ConfirmService,
+} from '../../../../core/services/confirmation.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { TableService } from '../../../../core/services/restaurant/table.service';
 
 @Component({
   selector: 'app-tables',
@@ -25,8 +43,10 @@ import { DynamicDialogModule, DialogService } from 'primeng/dynamicdialog';
     InputTextModule,
     ButtonModule,
     DynamicDialogModule,
+    ProgressSpinnerModule,
+    ContextMenuModule,
   ],
-  providers: [DialogService], // El DialogService debe ser proveído aquí
+  providers: [DialogService],
   templateUrl: './tables.component.html',
   styleUrls: ['./tables.component.scss'],
 })
@@ -35,26 +55,48 @@ export class TablesComponent implements OnInit {
   filteredTables: TableResponse[] = [];
   searchTerm: string = '';
   selectedTable: TableResponse | null = null;
+  loading: boolean = false;
+  dialogRef: DynamicDialogRef | undefined;
 
-  constructor(private dialogService: DialogService) {}
+  contextMenuItems: MenuItem[] = [];
+  selectedTableForMenu: TableResponse | null = null;
+
+  constructor(
+    private dialogService: DialogService,
+    private tableService: TableService,
+    private notificationService: NotificationService,
+    private confirmService: ConfirmService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadTables();
   }
 
-  /**
-   * Carga los datos de ejemplo para las mesas.
-   */
   loadTables(): void {
-    this.allTables = [
-      { id: 1, code: 'M1', alias: 'Mesa 1', capacity: 4, status: 'FREE', imageUrl: 'table.svg' } as TableResponse,
-      { id: 2, code: 'M2', alias: 'Mesa 2', capacity: 2, status: 'OCCUPIED', imageUrl: 'table.svg' } as TableResponse,
-      { id: 3, code: 'M3', alias: 'Mesa 3', capacity: 6, status: 'FREE', imageUrl: 'table.svg' } as TableResponse,
-      { id: 4, code: 'M4', alias: 'Mesa 4', capacity: 4, status: 'OUT_OF_SERVICE', imageUrl: 'table.svg' } as TableResponse,
-      { id: 5, code: 'M5', alias: 'Mesa 5', capacity: 8, status: 'FREE', imageUrl: 'table.svg' } as TableResponse,
-      { id: 6, code: 'M6', alias: 'Mesa 6', capacity: 2, status: 'OCCUPIED', imageUrl: 'table.svg' } as TableResponse,
-    ];
-    this.filteredTables = this.allTables;
+    this.loading = true;
+    this.tableService.getAllTables().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.allTables = res.data;
+          this.filterTables();
+        } else {
+          this.notificationService.error(
+            'Error',
+            'No se pudieron cargar los datos de las mesas.'
+          );
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        this.loading = false;
+        this.notificationService.error(
+          'Error de Red',
+          'No se pudo conectar al servidor para cargar las mesas.'
+        );
+        console.error(err);
+      },
+    });
   }
 
   /**
@@ -79,19 +121,118 @@ export class TablesComponent implements OnInit {
    */
   selectTable(table: TableResponse): void {
     if (table.status === 'OUT_OF_SERVICE') {
+      this.notificationService.warn(
+        'Mesa no disponible',
+        'Esta mesa se encuentra fuera de servicio.'
+      );
       return;
     }
-    this.selectedTable = table;
 
-    this.dialogService.open(OrdersComponent, {
-      header: `Pedido para ${table.alias}`,
-      width: '90%',
-      style: { 'max-width': '800px' },
-      modal: true,
-      data: {
-        table: this.selectedTable,
-      },
-    });
+    if (table.status === 'FREE') {
+      this.router.navigate(['/waiter/pos', table.id]);
+    }
+
+    if (table.status === 'OCCUPIED') {
+      if (!table.activeOrderId) {
+        this.notificationService.error(
+          'Error de Datos',
+          'La mesa está ocupada pero no tiene una orden activa. Libere la mesa manualmente.'
+        );
+        return;
+      }
+
+      this.dialogRef = this.dialogService.open(OrdersComponent, {
+        header: `Ver Pedido de ${table.alias}`,
+        width: '90%',
+        style: { 'max-width': '800px' },
+        modal: true,
+        data: {
+          orderId: table.activeOrderId,
+          isHistoryView: true, 
+        },
+      });
+
+      this.dialogRef.onClose.subscribe(() => {
+        this.loadTables();
+      });
+    }
+  }
+  /**
+   * (Clic Derecho) Muestra el menú de gestión de mesa.
+   */
+  onTableRightClick(event: MouseEvent, table: TableResponse) {
+    this.selectedTableForMenu = table;
+    this.contextMenuItems = this.buildContextMenu(table, event);
+  }
+
+  buildContextMenu(table: TableResponse, event: MouseEvent): MenuItem[] {
+    const items: MenuItem[] = [];
+    const target = event.currentTarget as EventTarget;
+
+    if (table.status === 'FREE') {
+      items.push({
+        label: 'Fuera de Servicio',
+        icon: 'pi pi-exclamation-triangle',
+        command: () =>
+          this.confirmChangeStatus(table, 'OUT_OF_SERVICE', target),
+      });
+    }
+
+    if (table.status === 'OUT_OF_SERVICE') {
+      items.push({
+        label: 'Marcar como Libre',
+        icon: 'pi pi-check',
+        command: () => this.confirmChangeStatus(table, 'FREE', target),
+      });
+    }
+
+    if (table.status === 'OCCUPIED' && !table.activeOrderId) {
+      items.push({
+        label: 'Forzar Liberación',
+        icon: 'pi pi-sync',
+        command: () => this.confirmChangeStatus(table, 'FREE', target),
+      });
+    }
+
+    return items;
+  }
+
+  async confirmChangeStatus(
+    table: TableResponse,
+    newStatus: TableStatus,
+    target: EventTarget
+  ) {
+    const options: ConfirmOptions = {
+      message: `¿Estás seguro de que quieres cambiar la mesa ${table.alias} a "${newStatus}"?`,
+      header: 'Confirmar Cambio de Estado',
+      icon: 'pi pi-info-circle',
+      acceptLabel: 'Sí, cambiar',
+      rejectLabel: 'Cancelar',
+      target: target,
+    };
+
+    const accepted = await this.confirmService.confirm(options);
+
+    if (accepted) {
+      const request: TableRequest = { ...table, status: newStatus };
+
+      this.tableService.updateTable(table.id, request).subscribe({
+        next: () => {
+          this.notificationService.success(
+            'Estado Actualizado',
+            `La mesa ${table.alias} ahora está ${newStatus}`
+          );
+          this.loadTables();
+        },
+        error: (err) => {
+          this.notificationService.error(
+            'Error',
+            'No se pudo actualizar el estado de la mesa.'
+          );
+          console.error(err);
+        },
+      });
+    }
   }
 
   /**

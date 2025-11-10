@@ -36,7 +36,8 @@ interface Section {
 export class ProfileLayoutComponent implements OnInit, AfterViewInit {
   activeSection: string = '';
   user: UserResponse | null = null;
-  isAdmin: boolean = false;
+
+  isStaffProfile: boolean = false;
 
   sections: Section[] = [];
 
@@ -51,7 +52,19 @@ export class ProfileLayoutComponent implements OnInit, AfterViewInit {
   ) {
     this.authService.currentUser$.subscribe((user) => {
       this.user = user;
-      this.isAdmin = user?.roles.includes(Roles.ROLE_ADMIN) || false;
+      if (user) {
+        const userRoles = new Set(user.roles);
+        this.isStaffProfile =
+          userRoles.has(Roles.ROLE_ADMIN) ||
+          userRoles.has(Roles.ROLE_MANAGER) ||
+          userRoles.has(Roles.ROLE_WAITER) ||
+          userRoles.has(Roles.ROLE_CHEF) ||
+          userRoles.has(Roles.ROLE_CASHIER) ||
+          userRoles.has(Roles.ROLE_SUPPLIER);
+      } else {
+        this.isStaffProfile = false;
+      }
+
       this.setSections();
       this.setActiveSectionFromRoute();
     });
@@ -72,7 +85,7 @@ export class ProfileLayoutComponent implements OnInit, AfterViewInit {
   }
 
   setSections() {
-    if (this.isAdmin) {
+    if (this.isStaffProfile) {
       this.sections = [
         { key: '', label: 'Perfil', icon: 'pi pi-user' },
         { key: 'security', label: 'Seguridad', icon: 'pi pi-shield' },
@@ -109,13 +122,11 @@ export class ProfileLayoutComponent implements OnInit, AfterViewInit {
   setActiveSection(key: string) {
     this.activeSection = key;
 
-    // Definir la ruta base según rol
-    const baseRoute = this.isAdmin ? '/admin/profile' : '/profile';
+    const baseRoute = this.isStaffProfile ? '/admin/profile' : '/profile';
     const route = key ? `${baseRoute}/${key}` : baseRoute;
 
     this.router.navigate([route]);
 
-    // Animación de click
     const button = this.menuButtons.find(
       (_, i) => this.sections[i].key === key
     );
@@ -130,7 +141,7 @@ export class ProfileLayoutComponent implements OnInit, AfterViewInit {
 
   private setActiveSectionFromRoute() {
     const url = this.router.url;
-    const basePath = this.isAdmin ? '/admin/profile' : '/profile';
+    const basePath = this.isStaffProfile ? '/admin/profile' : '/profile';
     let key = url.replace(basePath, '').replace(/^\//, '');
     if (!key) key = '';
     this.activeSection = key;

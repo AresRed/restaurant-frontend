@@ -93,7 +93,9 @@ export interface OrderResponse {
   date: string;
 
   statusId: number;
+  statusCode: string;
   statusName: string;
+
   typeId: number;
   typeName: string;
   total: number;

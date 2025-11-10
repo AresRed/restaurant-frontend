@@ -26,7 +26,10 @@ import {
   UpdatePromotionRequest,
 } from '../../../../../core/models/products/promotions/promotion.model';
 import { CategoryService } from '../../../../../core/services/category.service';
-import { ConfirmService } from '../../../../../core/services/confirmation.service';
+import {
+  ConfirmOptions,
+  ConfirmService,
+} from '../../../../../core/services/confirmation.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { ProductService } from '../../../../../core/services/products/product/product.service';
 import { PromotionService } from '../../../../../core/services/products/promotions/promotion.service';
@@ -264,19 +267,18 @@ export class PromotionManagementComponent implements OnInit {
   }
 
   async onDelete(promotion: PromotionResponse, event: Event): Promise<void> {
-    // 1. Llama a tu servicio personalizado y espera (await)
-    const confirmed = await this.confirmationService.confirm(
-      {
-        message: `¿Está seguro de que desea eliminar la promoción "${promotion.name}"?`,
-        header: 'Confirmar Eliminación',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Sí, eliminar',
-        rejectLabel: 'Cancelar',
-        acceptClass: 'p-button-danger',
-        rejectClass: 'p-button-text',
-      },
-      event
-    );
+    const options: ConfirmOptions = {
+      message: `¿Está seguro de que desea eliminar la promoción "${promotion.name}"?`,
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptClass: 'p-button-danger',
+      rejectClass: 'p-button-text',
+      target: event.currentTarget as EventTarget,
+    };
+
+    const confirmed = await this.confirmationService.confirm(options);
 
     if (confirmed) {
       this.isLoading.set(true);
@@ -284,7 +286,6 @@ export class PromotionManagementComponent implements OnInit {
       this.promotionService.deletePromotion(promotion.id).subscribe({
         next: () => {
           this.notificationService.success('Éxito', 'Promoción eliminada.');
-
           this.loadPromotions().finally(() => {
             this.isLoading.set(false);
           });

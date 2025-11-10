@@ -1,4 +1,5 @@
 import { CommonModule, CurrencyPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, OnInit, signal } from '@angular/core';
 import {
   FormBuilder,
@@ -7,6 +8,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import {
   AutoCompleteCompleteEvent,
   AutoCompleteModule,
@@ -29,6 +31,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { environment } from '../../../../../environments/environment';
 import { CustomerResponse } from '../../../../core/models/customer/customer.model';
 import { OrderTypeResponse } from '../../../../core/models/order-type.model';
+import { OrderStatusResponse } from '../../../../core/models/order/order-statuses/order-statuses.model';
 import {
   DocumentInOrderRequest,
   OrderDetailRequest,
@@ -40,6 +43,7 @@ import { ProductResponse } from '../../../../core/models/products/product/produc
 import { TableResponse } from '../../../../core/models/table.model';
 import { CustomerService } from '../../../../core/services/customer/customerhttp/customer.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { OrderStatusService } from '../../../../core/services/orders/order-status.service';
 import { OrderTypeService } from '../../../../core/services/orders/order-type.service';
 import { OrderService } from '../../../../core/services/orders/order.service';
 import { PaymentMethodService } from '../../../../core/services/payment/payment-methods.service';
@@ -91,8 +95,9 @@ export class PosComponent implements OnInit {
   readonly TAX_RATE = environment.igv;
   readonly DEFAULT_CUSTOMER_ID = 1;
   readonly DEFAULT_ORDER_TYPE_CODE = 'TAKE_AWAY';
-  readonly PAID_STATUS_ID = 9;
   readonly CURRENT_STORE_ID = 1;
+
+  private initialStatusMap = new Map<string, number>();
 
   // --- Estado de Carga y UI ---
   isLoadingProducts = signal(false);
@@ -144,6 +149,8 @@ export class PosComponent implements OnInit {
   ]);
   amountRemaining = computed(() => this.total() - this.totalPaid());
 
+  orderStatusTypes = signal<OrderStatusResponse[]>([]);
+
   constructor(
     private fb: FormBuilder,
     private notificationService: NotificationService,
@@ -152,7 +159,9 @@ export class PosComponent implements OnInit {
     private customerService: CustomerService,
     private orderService: OrderService,
     private orderTypeService: OrderTypeService,
-    private tableService: TableService
+    private tableService: TableService,
+    private route: ActivatedRoute,
+    private orderStatusService: OrderStatusService
   ) {
     this.paymentForm = this.fb.group({
       paymentMethod: [null, [Validators.required]],
@@ -191,14 +200,21 @@ export class PosComponent implements OnInit {
       numberControl?.updateValueAndValidity();
     });
   }
+
   ngOnInit(): void {
     this.loadInitialData();
+
+    const tableIdFromRoute = this.route.snapshot.paramMap.get('tableId');
+    if (tableIdFromRoute) {
+      this.preloadTableData(+tableIdFromRoute);
+    }
   }
 
   loadInitialData(): void {
     this.loadProducts();
     this.loadPaymentMethods();
     this.loadOrderTypes();
+    this.loadOrderStatuses();
     this.setDefaultCustomer();
     this.loadTables();
   }
@@ -237,6 +253,39 @@ export class PosComponent implements OnInit {
           'No se pudieron cargar los productos.'
         );
         this.isLoadingProducts.set(false);
+      },
+    });
+  }
+
+  loadOrderStatuses(): void {
+    this.orderStatusService.getAllOrderStatuses().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.orderStatusTypes.set(res.data);
+          const pendingStatus = res.data.find(
+            (s) => s.code === 'PENDING_CONFIRMATION'
+          );
+          const paidStatus = res.data.find((s) => s.code === 'COMPLETED');
+
+          if (pendingStatus) {
+            this.initialStatusMap.set('DINE_IN', pendingStatus.id);
+            this.initialStatusMap.set('TAKE_AWAY', pendingStatus.id);
+            this.initialStatusMap.set('DELIVERY', pendingStatus.id);
+          }
+          if (paidStatus) {
+          }
+        } else {
+          this.notificationService.error(
+            'Error Crítico',
+            'No se pudieron cargar los estados de orden.'
+          );
+        }
+      },
+      error: (err) => {
+        this.notificationService.error(
+          'Error Crítico',
+          'No se pudieron cargar los estados de orden.'
+        );
       },
     });
   }
@@ -285,10 +334,63 @@ export class PosComponent implements OnInit {
     });
   }
 
+  /**
+   * Precarga una mesa y el tipo de orden "Dine-In"
+   * cuando se navega desde la vista de mesas.
+   */
+  preloadTableData(tableId: number): void {
+    this.tableService.getTableById(tableId).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.selectedTable.set(res.data);
+
+          const dineInType = this.orderTypes().find(
+            (t) => t.code === 'DINE_IN'
+          );
+          if (dineInType) {
+            this.selectedOrderType.set(dineInType);
+          } else {
+            setTimeout(() => {
+              const dineInTypeRetry = this.orderTypes().find(
+                (t) => t.code === 'DINE_IN'
+              );
+              if (dineInTypeRetry) {
+                this.selectedOrderType.set(dineInTypeRetry);
+              } else {
+                this.notificationService.warn(
+                  'Error de Carga',
+                  'No se encontró el tipo de orden "DINE_IN".'
+                );
+              }
+            }, 1000); // Espera 1s a que carguen los tipos de orden
+          }
+        } else {
+          this.notificationService.error(
+            'Error',
+            `No se pudo encontrar la mesa con ID ${tableId}.`
+          );
+        }
+      },
+      error: (err: HttpErrorResponse) => {
+        this.notificationService.error(
+          'Error de Red',
+          'No se pudo cargar la mesa seleccionada.'
+        );
+      },
+    });
+  }
+
   loadTables(): void {
     this.tableService.getAllTables().subscribe({
       next: (res) => {
-        this.tables.set(res.data.filter((t) => t.status === 'FREE'));
+        const freeTables = res.data.filter((t) => t.status === 'FREE');
+
+        const currentTable = this.selectedTable();
+        if (currentTable && !freeTables.some((t) => t.id === currentTable.id)) {
+          this.tables.set([currentTable, ...freeTables]);
+        } else {
+          this.tables.set(freeTables);
+        }
       },
       error: (err) => {
         this.notificationService.error(
@@ -520,6 +622,18 @@ export class PosComponent implements OnInit {
 
     this.isSubmittingOrder.set(true);
 
+    const orderTypeCode = this.selectedOrderType()!.code;
+    const initialStatusId = this.initialStatusMap.get(orderTypeCode);
+
+    if (!initialStatusId) {
+      this.notificationService.error(
+        'Error de Configuración',
+        `No se ha definido un estado inicial para el tipo de orden "${orderTypeCode}".`
+      );
+      this.isSubmittingOrder.set(false);
+      return;
+    }
+
     const orderDetails: OrderDetailRequest[] = this.cart().map((item) => ({
       productId: item.productId,
       quantity: item.quantity,
@@ -538,13 +652,11 @@ export class PosComponent implements OnInit {
     const orderRequest: OrderRequest = {
       customerId: this.selectedCustomer()!.id,
       typeId: this.selectedOrderType()!.id,
-      statusId: this.PAID_STATUS_ID,
+      statusId: initialStatusId,
       details: orderDetails,
       payments: orderPayments,
       documents: orderDocuments,
     };
-
-    const orderTypeCode = this.selectedOrderType()?.code;
 
     if (orderTypeCode === 'DINE_IN') {
       if (!this.selectedTable()) {
@@ -564,12 +676,12 @@ export class PosComponent implements OnInit {
       next: (res) => {
         this.notificationService.success(
           'Venta Registrada',
-          'La orden se ha creado exitosamente.'
+          `Orden #${res.data.id} creada como "${res.data.statusName}".`
         );
         this.isSubmittingOrder.set(false);
         this.displayPaymentModal.set(false);
         this.resetAll();
-        this.loadTables(); // <-- Recargamos las mesas libres
+        this.loadTables();
       },
       error: (err: any) => {
         console.error('Error al crear venta:', err);

@@ -20,7 +20,10 @@ import {
   AddressCustomerRequest,
   AddressResponse,
 } from '../../../../core/models/address.model';
-import { ConfirmService } from '../../../../core/services/confirmation.service';
+import {
+  ConfirmOptions,
+  ConfirmService,
+} from '../../../../core/services/confirmation.service';
 import { AddressService } from '../../../../core/services/customer/address/address.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 
@@ -175,16 +178,17 @@ export class AddressesComponent implements OnInit, AfterContentChecked {
   }
 
   async confirmDelete(event: Event, id: number) {
-    const confirmed = await this.confirmationService.confirm(
-      {
-        message: '¿Deseas eliminar esta dirección?',
-        acceptLabel: 'Eliminar',
-        rejectLabel: 'Cancelar',
-        icon: 'pi pi-exclamation-triangle',
-        acceptClass: 'p-button-danger',
-      },
-      event
-    );
+    const options: ConfirmOptions = {
+      message: '¿Deseas eliminar esta dirección?',
+      acceptLabel: 'Eliminar',
+      rejectLabel: 'Cancelar',
+      icon: 'pi pi-exclamation-triangle',
+      acceptClass: 'p-button-danger',
+      target: event.currentTarget as EventTarget,
+    };
+
+    const confirmed = await this.confirmationService.confirm(options);
+
     if (confirmed) {
       this.deleteAddress(id);
     }

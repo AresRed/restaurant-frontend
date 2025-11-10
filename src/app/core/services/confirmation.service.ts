@@ -9,6 +9,7 @@ export interface ConfirmOptions {
   icon?: string;
   acceptClass?: string;
   rejectClass?: string;
+  target?: EventTarget;
 }
 
 @Injectable({
@@ -17,11 +18,11 @@ export interface ConfirmOptions {
 export class ConfirmService {
   constructor(private confirmationService: ConfirmationService) {}
 
-  confirm(options: ConfirmOptions, event?: Event): Promise<boolean> {
+  confirm(options: ConfirmOptions): Promise<boolean> {
     return new Promise((resolve) => {
       this.confirmationService.confirm({
         header: options.header,
-        target: event?.currentTarget as EventTarget,
+        target: options.target,
         message: options.message,
         icon: options.icon || 'pi pi-exclamation-triangle',
         acceptLabel: options.acceptLabel || 'Aceptar',

@@ -1,1 +1,113 @@
-<p>kitchen-orders works!</p>
+<div class="flex flex-col h-screen bg-gray-100 overflow-hidden">
+  <!-- Header -->
+  <header class="bg-white shadow-md border-b p-4 sticky top-0 z-20">
+    <div class="flex justify-between items-center">
+      <h2 class="text-2xl font-bold flex items-center gap-2">
+        👨‍🍳 <span>Monitor de Cocina</span>
+      </h2>
+      <p-button
+        icon="pi pi-refresh"
+        label="Refrescar"
+        [loading]="loading"
+        (click)="loadOrders()"
+        styleClass="p-button-rounded p-button-secondary p-button-sm"
+      ></p-button>
+    </div>
+  </header>
+
+  <!-- Cargando -->
+  <div
+    *ngIf="loading && getTotalOrders() === 0"
+    class="flex-grow flex justify-center items-center"
+  >
+    <div class="flex flex-col items-center">
+      <p-progressSpinner styleClass="w-14 h-14" strokeWidth="6"></p-progressSpinner>
+      <p class="text-gray-600 mt-3">Cargando pedidos...</p>
+    </div>
+  </div>
+
+  <!-- Sin pedidos -->
+  <div
+    *ngIf="!loading && getTotalOrders() === 0"
+    class="flex-grow flex flex-col justify-center items-center text-gray-500"
+  >
+    <i class="pi pi-check-circle text-6xl mb-4 text-green-500"></i>
+    <p class="text-2xl font-semibold">¡Todo listo!</p>
+    <p class="text-lg">No hay pedidos pendientes en este momento 🍽️</p>
+  </div>
+
+  <!-- Listado de columnas -->
+  <main
+    *ngIf="!loading && getTotalOrders() > 0"
+    class="flex-grow flex gap-6 p-4 overflow-x-auto"
+  >
+    <!-- === Columna Genérica === -->
+    <ng-container *ngFor="let column of [
+      { title: 'PENDIENTE', color: 'yellow', orders: pendingOrders, btnLabel: 'Confirmar Pedido', btnIcon: 'pi pi-check', btnClass: 'p-button-info' },
+      { title: 'CONFIRMADO', color: 'blue', orders: confirmedOrders, btnLabel: 'Empezar Preparación', btnIcon: 'pi pi-play', btnClass: 'p-button-warning' },
+      { title: 'EN PROCESO', color: 'green', orders: inProgressOrders, btnLabel: 'Marcar como Listo', btnIcon: 'pi pi-check', btnClass: 'p-button-success' }
+    ]">
+      <section class="w-80 md:w-96 flex-shrink-0 flex flex-col bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <h3
+          class="font-semibold text-lg px-4 py-3 text-white"
+          [ngClass]="'bg-' + column.color + '-500'"
+        >
+          {{ column.title }} ({{ column.orders.length }})
+        </h3>
+
+        <div class="flex flex-col gap-4 p-3 bg-gray-50 flex-grow overflow-y-auto">
+          <div
+            *ngFor="let order of column.orders"
+            class="bg-white rounded-lg shadow-md border border-gray-200 flex flex-col hover:shadow-lg transition-shadow duration-200"
+            [ngClass]="{ 'opacity-50': isOrderUpdating(order.id) }"
+          >
+            <!-- Header del pedido -->
+            <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+              <div>
+                <h4 class="font-bold text-xl text-gray-800">#{{ order.id }}</h4>
+                <span
+                  class="font-mono text-lg"
+                  [ngClass]="{
+                    'text-red-600 font-bold animate-pulse': (orderTimers.get(order.id) || { isUrgent: false }).isUrgent,
+                    'text-gray-700': !(orderTimers.get(order.id) || { isUrgent: false }).isUrgent
+                  }"
+                >
+                  {{ (orderTimers.get(order.id) || { time: '00:00' }).time }}
+                </span>
+              </div>
+              <p-tag
+                [value]="order.typeName === 'Dine-In' ? order.tableCode : order.typeName"
+                [icon]="order.typeName === 'Dine-In' ? 'pi pi-users' : 'pi pi-shopping-bag'"
+                severity="info"
+                [rounded]="true"
+              ></p-tag>
+            </div>
+
+            <!-- Detalles -->
+            <div class="p-4 text-sm max-h-48 overflow-y-auto">
+              <ul class="flex flex-col gap-2">
+                <li *ngFor="let item of order.details" class="flex items-center gap-2">
+                  <span class="font-bold text-base bg-gray-100 rounded-md w-8 h-8 flex items-center justify-center">
+                    {{ item.quantity }}x
+                  </span>
+                  <span class="font-medium text-gray-800">{{ item.productName }}</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Botón -->
+            <div class="p-3 border-t bg-gray-50">
+              <p-button
+                [label]="column.btnLabel"
+                [icon]="column.btnIcon"
+                [styleClass]="column.btnClass + ' w-full'"
+                [loading]="isOrderUpdating(order.id)"
+                (click)="updateStatus(order)"
+              ></p-button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </ng-container>
+  </main>
+</div>

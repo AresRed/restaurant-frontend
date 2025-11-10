@@ -1,1 +1,78 @@
-<p>history-orders works!</p>
+<div class="p-4 md:p-6">
+  <h2 class="text-2xl font-semibold mb-6">Mi Historial de Pedidos</h2>
+
+  <div *ngIf="loading" class="flex justify-center items-center h-64">
+    <p-progressSpinner
+      styleClass="w-12 h-12"
+      strokeWidth="5"
+      animationDuration=".5s"
+    ></p-progressSpinner>
+  </div>
+
+  <div
+    *ngIf="!loading && orders.length === 0"
+    class="flex flex-col justify-center items-center h-64 text-gray-500 bg-gray-50 rounded-lg"
+  >
+    <i class="pi pi-inbox text-5xl mb-3"></i>
+    <p class="text-lg">Aún no tienes pedidos en tu historial.</p>
+  </div>
+
+  <div *ngIf="!loading && orders.length > 0" class="flex flex-col gap-4">
+    <p-card *ngFor="let order of orders">
+      <ng-template pTemplate="header">
+        <div
+          class="p-4 bg-gray-50 border-b flex flex-col md:flex-row justify-between md:items-center gap-2"
+        >
+          <div>
+            <h3 class="font-bold text-lg text-primary">
+              Pedido #{{ order.id }}
+            </h3>
+            <p class="text-sm text-gray-600">
+              {{ order.date | date : "dd/MM/yyyy h:mm a" }}
+            </p>
+          </div>
+          <div class="flex flex-col md:items-end">
+            <span class="font-bold text-xl">{{
+              order.total | currency : "PEN" : "S/ "
+            }}</span>
+            <p-tag
+              [value]="order.statusName"
+              [severity]="getStatusSeverity(order.statusName.toUpperCase())"
+            >
+            </p-tag>
+          </div>
+        </div>
+      </ng-template>
+
+      <div class="mb-4">
+        <h4 class="font-semibold mb-2">
+          Productos ({{ order.details.length }})
+        </h4>
+        <ul
+          class="list-disc list-inside text-sm text-gray-700 max-h-32 overflow-y-auto"
+        >
+          <li *ngFor="let item of order.details">
+            {{ item.quantity }}x {{ item.productName }}
+          </li>
+        </ul>
+      </div>
+
+      <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2 pt-4 border-t">
+          <p-button
+            label="Ver Detalles"
+            icon="pi pi-eye"
+            styleClass="p-button-text"
+            (click)="viewOrder(order)"
+          ></p-button>
+          <p-button
+            label="Descargar Recibo"
+            icon="pi pi-download"
+            styleClass="p-button-secondary"
+            (click)="downloadInvoice(order)"
+          ></p-button>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+</div>

@@ -6,14 +6,17 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
+import { TagModule } from 'primeng/tag';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { TooltipModule } from 'primeng/tooltip';
 import { ProductResponse } from '../../../../core/models/products/product/product.model';
 import { CategoryService } from '../../../../core/services/category.service';
-import { ConfirmService } from '../../../../core/services/confirmation.service';
+import {
+  ConfirmOptions,
+  ConfirmService,
+} from '../../../../core/services/confirmation.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ProductService } from '../../../../core/services/products/product/product.service';
-import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-menu',
@@ -97,16 +100,16 @@ export class MenuComponent implements OnInit {
   }
 
   async confirmDelete(event: Event, item: ProductResponse) {
-    const confirmed = await this.confirmService.confirm(
-      {
-        message: `¿Seguro que deseas eliminar "${item.name}" del menú?`,
-        acceptLabel: 'Eliminar',
-        rejectLabel: 'Cancelar',
-        icon: 'pi pi-exclamation-triangle',
-        acceptClass: 'p-button-danger',
-      },
-      event
-    );
+    const options: ConfirmOptions = {
+      message: `¿Seguro que deseas eliminar "${item.name}" del menú?`,
+      acceptLabel: 'Eliminar',
+      rejectLabel: 'Cancelar',
+      icon: 'pi pi-exclamation-triangle',
+      acceptClass: 'p-button-danger',
+      target: event.currentTarget as EventTarget,
+    };
+
+    const confirmed = await this.confirmService.confirm(options);
 
     if (confirmed) {
       this.productService.deleteProduct(item.id).subscribe({

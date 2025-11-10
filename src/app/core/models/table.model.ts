@@ -1,3 +1,4 @@
+// Este es el tipo de dato que viene del backend
 export type TableStatus = 'FREE' | 'OCCUPIED' | 'OUT_OF_SERVICE';
 
 export interface TableAvailabilityResponse {
@@ -9,7 +10,7 @@ export interface TableAvailabilityResponse {
 }
 
 export interface TableResponse {
-  imageUrl?: string; // La imagen es opcional
+  imageUrl?: string;
   id: number;
   code: string;
   alias: string;
@@ -18,12 +19,13 @@ export interface TableResponse {
   optimalCapacity: number;
   priority: number;
   description: string;
-  openTime: Date;
-  closeTime: Date;
-  reservationDurationMinutes: string;
+  openTime: string;
+  closeTime: string;
+  reservationDurationMinutes: number;
   bufferBeforeMinutes: number;
   bufferAfterMinutes: number;
   status: TableStatus;
+  activeOrderId: number | null;
 }
 
 export type TableRequest = Pick<
@@ -40,4 +42,5 @@ export type TableRequest = Pick<
   | 'reservationDurationMinutes'
   | 'bufferBeforeMinutes'
   | 'bufferAfterMinutes'
+  | 'status'
 >;

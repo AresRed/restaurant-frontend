@@ -20,7 +20,10 @@ import {
   RewardRequest,
   RewardResponse,
 } from '../../../../../core/models/reward/reward.model';
-import { ConfirmService } from '../../../../../core/services/confirmation.service';
+import {
+  ConfirmOptions,
+  ConfirmService,
+} from '../../../../../core/services/confirmation.service';
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { RewardService } from '../../../../../core/services/reward/reward.service';
 
@@ -159,18 +162,18 @@ export class LoyaltyManagementComponent implements OnInit {
   }
 
   async onDeleteReward(reward: RewardResponse, event: Event): Promise<void> {
-    const confirmed = await this.confirmService.confirm(
-      {
-        message: `¿Está seguro de que desea eliminar la recompensa "${reward.name}"? Esta acción no se puede deshacer.`,
-        header: 'Confirmar Eliminación',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Sí, eliminar',
-        rejectLabel: 'Cancelar',
-        acceptClass: 'p-button-danger',
-        rejectClass: 'p-button-text',
-      },
-      event
-    ); // 👈 2. Pasa el 'event' a tu servicio
+    const options: ConfirmOptions = {
+      message: `¿Está seguro de que desea eliminar la recompensa "${reward.name}"? Esta acción no se puede deshacer.`,
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptClass: 'p-button-danger',
+      rejectClass: 'p-button-text',
+      target: event.currentTarget as EventTarget,
+    };
+
+    const confirmed = await this.confirmService.confirm(options);
 
     if (confirmed) {
       this.isLoading.set(true);

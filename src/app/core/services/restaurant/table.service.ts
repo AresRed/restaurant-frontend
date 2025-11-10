@@ -13,6 +13,8 @@ import {
   providedIn: 'root',
 })
 export class TableService {
+  private apiUrl = `${environment.apiUrl}/api/v1/tables`;
+
   constructor(private http: HttpClient) {}
 
   getTablesAvailabilityTimes(
@@ -26,14 +28,17 @@ export class TableService {
       .set('filterByCapacity', filterByCapacity.toString());
 
     return this.http.get<ApiResponse<TableAvailabilityResponse[]>>(
-      `${environment.apiUrl}/api/v1/tables/available-times`,
+      `${this.apiUrl}/available-times`,
       { params }
     );
   }
-
   getAllTables(): Observable<ApiResponse<TableResponse[]>> {
-    return this.http.get<ApiResponse<TableResponse[]>>(
-      `${environment.apiUrl}/api/v1/tables`
+    return this.http.get<ApiResponse<TableResponse[]>>(this.apiUrl);
+  }
+
+  getTableById(tableId: number): Observable<ApiResponse<TableResponse>> {
+    return this.http.get<ApiResponse<TableResponse>>(
+      `${this.apiUrl}/${tableId}`
     );
   }
 
@@ -42,7 +47,7 @@ export class TableService {
     tableRequest: TableRequest
   ): Observable<ApiResponse<TableResponse>> {
     return this.http.put<ApiResponse<TableResponse>>(
-      `${environment.apiUrl}/api/v1/tables/${tableId}`,
+      `${this.apiUrl}/${tableId}`,
       tableRequest
     );
   }

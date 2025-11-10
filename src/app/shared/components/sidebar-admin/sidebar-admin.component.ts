@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import gsap from 'gsap';
 import { ButtonModule } from 'primeng/button';
+import { Roles } from '../../../core/models/base/roles.model';
 import { AuthService } from '../../../core/services/auth.service';
 
 interface SidebarItem {
@@ -11,6 +12,7 @@ interface SidebarItem {
   route?: string;
   children?: SidebarItem[];
   isOpen?: boolean;
+  adminOnly?: boolean;
 }
 
 @Component({
@@ -20,21 +22,16 @@ interface SidebarItem {
   templateUrl: './sidebar-admin.component.html',
   styleUrls: ['./sidebar-admin.component.scss'],
 })
-export class SidebarAdminComponent {
+export class SidebarAdminComponent implements OnInit {
   @Input() isOpen = false;
   @Input() isMobile = false;
   @Output() closeSidebar = new EventEmitter<void>();
 
   companyName = 'San Isidro';
-  companyLogo = 'favicon.ico';
+  companyLogo = 'logoB .jpg';
 
-  sidebarItems: SidebarItem[] = [
+  private allSidebarItems: SidebarItem[] = [
     { label: 'Dashboard', icon: 'pi pi-home', route: '/admin/dashboard' },
-    {
-      label: 'Punto de Venta',
-      icon: 'pi pi-th-large', // Un ícono que parece un "grid" de POS
-      route: '/admin/pos',
-    },
     {
       label: 'Gestión',
       icon: 'pi pi-cog',
@@ -52,6 +49,7 @@ export class SidebarAdminComponent {
           label: 'Proveedores',
           icon: 'pi pi-briefcase',
           route: '/admin/suppliers',
+          adminOnly: true,
         },
       ],
     },
@@ -67,6 +65,11 @@ export class SidebarAdminComponent {
         },
         { label: 'Menú', icon: 'pi pi-list', route: '/admin/menu' },
         {
+          label: 'Promociones',
+          icon: 'pi pi-percentage',
+          route: '/admin/promotions',
+        },
+        {
           label: 'Reservaciones',
           icon: 'pi pi-calendar',
           route: '/admin/reservations',
@@ -76,12 +79,53 @@ export class SidebarAdminComponent {
           label: 'Feedback & Lealtad',
           icon: 'pi pi-comments',
           route: '/admin/feedback-and-loyalty',
+          adminOnly: true,
+        },
+        {
+          label: 'Gestionar Lealtad',
+          icon: 'pi pi-cog',
+          route: '/admin/loyalty-management',
+          adminOnly: true,
         },
       ],
     },
   ];
 
+  sidebarItems: SidebarItem[] = [];
+
   constructor(public authService: AuthService) {}
+
+  ngOnInit(): void {
+    const isAdmin =
+      this.authService.currentUserValue?.roles.includes(Roles.ROLE_ADMIN) ??
+      false;
+
+    if (isAdmin) {
+      this.sidebarItems = this.allSidebarItems;
+    } else {
+      this.sidebarItems = this.allSidebarItems
+        .map((item) => this.filterAdminItems(item, isAdmin))
+        .filter((item) => item !== null) as SidebarItem[];
+    }
+  }
+
+  private filterAdminItems(
+    item: SidebarItem,
+    isAdmin: boolean
+  ): SidebarItem | null {
+    if (item.adminOnly && !isAdmin) {
+      return null;
+    }
+
+    if (item.children) {
+      const filteredChildren = item.children
+        .map((child) => this.filterAdminItems(child, isAdmin))
+        .filter((child) => child !== null) as SidebarItem[];
+      return { ...item, children: filteredChildren };
+    }
+
+    return item;
+  }
 
   toggleSubmenu(item: SidebarItem, submenuEl: HTMLElement) {
     const el = submenuEl;

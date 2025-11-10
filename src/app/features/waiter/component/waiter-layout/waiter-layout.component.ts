@@ -1,16 +1,18 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
-import { MenubarModule } from 'primeng/menubar';
-import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
-import { NotificationOrdersComponent } from '../notification-orders/notification-orders.component';
+import { DrawerModule } from 'primeng/drawer';
+import { MenubarModule } from 'primeng/menubar';
 import { AuthService } from '../../../../core/services/auth.service';
+import { NotificationOrdersComponent } from '../notification-orders/notification-orders.component';
 
 @Component({
   selector: 'app-waiter-layout',
   standalone: true,
   imports: [
+    CommonModule,
     MenubarModule,
     RouterModule,
     DrawerModule,
@@ -31,7 +33,12 @@ export class WaiterLayoutComponent implements OnInit {
       {
         label: 'Mesas',
         icon: 'pi pi-fw pi-table',
-        routerLink: ['/waiter'],
+        routerLink: ['/waiter/tables'],
+      },
+      {
+        label: 'Tomar Orden (POS)',
+        icon: 'pi pi-fw pi-pencil',
+        routerLink: ['/waiter/pos'],
       },
       {
         label: 'Historial de Órdenes',

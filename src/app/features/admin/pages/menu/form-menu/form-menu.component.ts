@@ -1,6 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { HttpEventType } from '@angular/common/http';
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -14,14 +21,17 @@ import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
+import { Subject, takeUntil } from 'rxjs';
 import { CategoryResponse } from '../../../../../core/models/category.model';
 import { FileResponse } from '../../../../../core/models/file/file.model';
 import { IngredientResponse } from '../../../../../core/models/products/product/ingredient/ingredient.model';
 import {
+  ComboItemResponseStub,
   ProductRequest,
   ProductResponse,
 } from '../../../../../core/models/products/product/product.model';
@@ -33,6 +43,7 @@ import { ProductService } from '../../../../../core/services/products/product/pr
 
 @Component({
   selector: 'app-form-menu',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -45,16 +56,20 @@ import { ProductService } from '../../../../../core/services/products/product/pr
     ToastModule,
     TextareaModule,
     FileUploadModule,
+    InputSwitchModule,
   ],
   templateUrl: './form-menu.component.html',
   styleUrl: './form-menu.component.scss',
 })
-export class FormMenuComponent {
+export class FormMenuComponent implements OnInit, OnDestroy {
   form!: FormGroup;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   product: ProductResponse | null = null;
   ingredientsList: IngredientResponse[] = [];
   categories: CategoryResponse[] = [];
+
+  selectableProducts = signal<ProductResponse[]>([]);
+
   selectedImageUrl: string | null = null;
   isEditMode = false;
   title = 'Registrar Producto';
@@ -63,6 +78,8 @@ export class FormMenuComponent {
   uploadProgress = 0;
   uploadedFile: FileResponse | null = null;
   tempUploadedFileId: number | null = null;
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -79,6 +96,8 @@ export class FormMenuComponent {
     this.buildForm();
     this.loadCategories();
     this.loadIngredients();
+    this.loadSelectableProducts();
+    this.listenToComboChanges(); // <-- LLAMAR AL NUEVO MÉTODO
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -86,6 +105,11 @@ export class FormMenuComponent {
       this.title = 'Editar Producto';
       this.loadProduct(Number(id));
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadIngredients() {
@@ -101,6 +125,22 @@ export class FormMenuComponent {
     });
   }
 
+  loadSelectableProducts() {
+    this.productService.getAllIncludingInactive().subscribe({
+      next: (res) => {
+        const currentProductId = this.product ? this.product.id : -1;
+        this.selectableProducts.set(
+          res.data.filter((p) => !p.isCombo && p.id !== currentProductId)
+        );
+      },
+      error: () =>
+        this.notificationService.error(
+          'Error',
+          'No se pudieron cargar los productos.'
+        ),
+    });
+  }
+
   buildForm() {
     this.form = this.fb.group({
       name: ['', Validators.required],
@@ -109,25 +149,68 @@ export class FormMenuComponent {
       price: [0, [Validators.required, Validators.min(0.1)]],
       preparationTimeMinutes: [5, [Validators.required, Validators.min(1)]],
       imageUrl: [''],
-      ingredients: this.fb.array([]),
       active: [true],
+      isCombo: [false],
+      ingredients: this.fb.array([]),
+      comboItems: this.fb.array([]),
     });
+  }
+
+  listenToComboChanges() {
+    this.form
+      .get('isCombo')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((isCombo) => {
+        if (isCombo) {
+          this.clearIngredients();
+        } else {
+          this.clearComboItems();
+        }
+      });
   }
 
   get ingredients(): FormArray {
     return this.form.get('ingredients') as FormArray;
   }
 
+  clearIngredients() {
+    this.ingredients.clear();
+  }
+
+  get comboItems(): FormArray {
+    return this.form.get('comboItems') as FormArray;
+  }
+
+  clearComboItems() {
+    this.comboItems.clear();
+  }
+
+  get isCombo(): boolean {
+    return this.form.get('isCombo')?.value;
+  }
+
   addIngredient(ing?: any) {
     this.ingredients.push(
       this.fb.group({
         ingredientId: [ing?.ingredientId || null, Validators.required],
-        ingredientName: [ing?.ingredientName || '', Validators.required],
+        ingredientName: [ing?.ingredientName || ''],
         quantity: [
           ing?.quantity || 1,
           [Validators.required, Validators.min(0.1)],
         ],
-        unitName: [ing?.unitName || '', Validators.required],
+        unitName: [ing?.unitName || ''],
+      })
+    );
+  }
+
+  addComboItem(item?: ComboItemResponseStub) {
+    this.comboItems.push(
+      this.fb.group({
+        simpleProductId: [item?.simpleProductId || null, Validators.required],
+        quantity: [
+          item?.quantity || 1,
+          [Validators.required, Validators.min(1)],
+        ],
       })
     );
   }
@@ -147,6 +230,10 @@ export class FormMenuComponent {
 
   removeIngredient(index: number) {
     this.ingredients.removeAt(index);
+  }
+
+  removeComboItem(index: number) {
+    this.comboItems.removeAt(index);
   }
 
   loadCategories() {
@@ -180,13 +267,21 @@ export class FormMenuComponent {
           categoryId: this.product.categoryId,
           preparationTimeMinutes: this.product.preparationTimeMinutes,
           active: this.product.active,
+          isCombo: this.product.isCombo,
         });
 
         this.selectedImageUrl = this.product.imageUrl || null;
 
         this.ingredients.clear();
-        if (this.product.ingredients) {
-          this.product.ingredients.forEach((ing) => this.addIngredient(ing));
+        this.comboItems.clear();
+        if (this.product.isCombo) {
+          if (this.product.comboItems) {
+            this.product.comboItems.forEach((item) => this.addComboItem(item));
+          }
+        } else {
+          if (this.product.ingredients) {
+            this.product.ingredients.forEach((ing) => this.addIngredient(ing));
+          }
         }
       },
       error: () => {
@@ -262,17 +357,20 @@ export class FormMenuComponent {
       this.form.patchValue({ imageUrl: '' });
     }
   }
+
   onSubmit() {
     if (this.form.invalid) {
+      this.form.markAllAsTouched();
       this.notificationService.warn(
         'Campos incompletos',
         'Por favor completa todos los campos obligatorios.'
       );
       return;
     }
-
+    
     const request = this.buildProductRequest();
     this.loading = true;
+    console.log('Enviando al backend:', request);
 
     const obs =
       this.isEditMode && this.product
@@ -319,7 +417,9 @@ export class FormMenuComponent {
   }
 
   private buildProductRequest(): ProductRequest {
-    const raw = this.form.value;
+    const raw = this.form.getRawValue();
+
+    const isCombo = raw.isCombo;
 
     return {
       name: raw.name,
@@ -329,10 +429,20 @@ export class FormMenuComponent {
       active: raw.active,
       categoryId: raw.categoryId,
       preparationTimeMinutes: raw.preparationTimeMinutes,
-      ingredients: raw.ingredients.map((ing: any) => ({
-        ingredientId: ing.ingredientId,
-        quantity: ing.quantity,
-      })),
+      isCombo: isCombo,
+      ingredients: !isCombo
+        ? raw.ingredients.map((ing: any) => ({
+            ingredientId: ing.ingredientId,
+            quantity: ing.quantity,
+          }))
+        : [],
+
+      comboItems: isCombo
+        ? raw.comboItems.map((item: any) => ({
+            simpleProductId: item.simpleProductId,
+            quantity: item.quantity,
+          }))
+        : [],
     };
   }
 

@@ -1,1 +1,21 @@
-<p>chef-layout works!</p>
+<header>
+  <div class="card">
+    <p-menubar [model]="menuItems" />
+  </div>
+</header>
+
+<main>
+  <router-outlet></router-outlet>
+</main>
+
+<!-- Drawer para Notificaciones de Cocina -->
+<p-drawer
+  [(visible)]="isNotificationsDrawerVisible"
+  header="Notificaciones de Cocina"
+  position="right"
+  styleClass="w-full md:w-1/2 lg:w-1/3"
+>
+  <ng-template pTemplate="content">
+    <app-notification-kitchen></app-notification-kitchen>
+  </ng-template>
+</p-drawer>

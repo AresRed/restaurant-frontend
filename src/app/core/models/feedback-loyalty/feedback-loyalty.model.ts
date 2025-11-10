@@ -1,17 +1,11 @@
 import { ReviewResponse } from '../review.model';
+import { RewardResponse } from '../reward/reward.model';
 
 export interface LoyalCustomerResponse {
   id: number;
   fullName: string;
   email: string;
   points: number;
-}
-
-export interface RewardResponse {
-  id: number;
-  name: string;
-  description: string;
-  requiredPoints: number;
 }
 
 export interface FeedbackLoyaltySummaryResponse {

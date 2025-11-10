@@ -1,0 +1,147 @@
+<div class="p-6">
+  <div class="mb-4">
+    <h2 class="text-2xl font-bold text-gray-800">Historial de Pagos</h2>
+    <p class="text-gray-500">
+      Consulta y filtra todos los pagos registrados en el sistema.
+    </p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+    <form [formGroup]="filterForm" (ngSubmit)="onSearch()">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <div class="flex flex-col">
+          <label class="font-semibold text-sm mb-1">Rango de Fechas</label>
+          <p-calendar
+            formControlName="dates"
+            selectionMode="range"
+            [showIcon]="true"
+            dateFormat="dd/mm/yy"
+            placeholder="dd/mm/yyyy - dd/mm/yyyy"
+            styleClass="w-full"
+          ></p-calendar>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="font-semibold text-sm mb-1">Cliente</label>
+          <p-autoComplete
+            formControlName="customer"
+            [suggestions]="customers()"
+            (completeMethod)="searchCustomer($event)"
+            field="fullName"
+            placeholder="Buscar cliente..."
+            [style]="{ width: '100%' }"
+            styleClass="w-full"
+            [dropdown]="true"
+          ></p-autoComplete>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="font-semibold text-sm mb-1">Método de Pago</label>
+          <p-dropdown
+            formControlName="paymentMethod"
+            [options]="paymentMethods()"
+            optionLabel="name"
+            placeholder="Todos los métodos"
+            [showClear]="true"
+            styleClass="w-full"
+          ></p-dropdown>
+        </div>
+
+        <div class="flex gap-2">
+          <p-button
+            label="Buscar"
+            icon="pi pi-search"
+            type="submit"
+            [styleClass]="'w-full'"
+          ></p-button>
+          <p-button
+            label="Limpiar"
+            icon="pi pi-times"
+            (onClick)="onReset()"
+            [outlined]="true"
+            [styleClass]="'w-full'"
+          ></p-button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div *ngIf="isLoading()" class="flex justify-center items-center h-64">
+      <p-progressSpinner></p-progressSpinner>
+    </div>
+
+    <p-table
+      *ngIf="!isLoading()"
+      [value]="payments()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      styleClass="p-datatable-striped"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="date">
+            Fecha <p-sortIcon field="date"></p-sortIcon>
+          </th>
+          <th>Orden ID</th>
+          <th pSortableColumn="customerName">
+            Cliente <p-sortIcon field="customerName"></p-sortIcon>
+          </th>
+          <th pSortableColumn="paymentMethodName">
+            Método <p-sortIcon field="paymentMethodName"></p-sortIcon>
+          </th>
+          <th pSortableColumn="status">
+            Estado <p-sortIcon field="status"></p-sortIcon>
+          </th>
+          <th pSortableColumn="amount" class="text-right">
+            Monto <p-sortIcon field="amount"></p-sortIcon>
+          </th>
+          <th>Cód. Transacción</th>
+          <th>Comprobante</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-payment>
+        <tr>
+          <td>{{ payment.date | date : "dd/MM/yy, h:mm a" }}</td>
+          <td>#{{ payment.orderId }}</td>
+          <td>{{ payment.customerName }}</td>
+          <td>{{ payment.paymentMethodName }}</td>
+          <td>
+            <p-tag
+              [severity]="getStatusSeverity(payment.status)"
+              [value]="payment.status"
+            ></p-tag>
+          </td>
+          <td class="text-right font-semibold">
+            {{ payment.amount | currency : "S/ " }}
+          </td>
+          <td
+            [pTooltip]="payment.transactionCode"
+            tooltipPosition="top"
+            class="truncate max-w-xs"
+          >
+            {{ payment.transactionCode }}
+          </td>
+          <td class="text-center">
+            <p-button
+              icon="pi pi-file-pdf"
+              styleClass="p-button-text p-button-danger"
+              pTooltip="Descargar Comprobante (PDF)"
+              tooltipPosition="top"
+              (onClick)="onDownloadInvoice(payment.orderId)"
+            ></p-button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center p-4">
+            No se encontraron pagos con los filtros aplicados.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

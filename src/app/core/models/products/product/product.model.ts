@@ -7,6 +7,13 @@ export interface ProductRequest {
   categoryId: number;
   preparationTimeMinutes: number;
   ingredients: ProductIngredientRequest[];
+  comboItems: ComboItemRequest[];
+  isCombo: boolean;
+}
+
+export interface ComboItemRequest {
+  simpleProductId: number;
+  quantity: number;
 }
 
 export interface ProductIngredientRequest {
@@ -23,8 +30,17 @@ export interface ProductResponse {
   categoryId: number;
   categoryName: string;
   preparationTimeMinutes: number;
-  ingredients: IngredientResponseForProduct[];
   active: boolean;
+  isCombo: boolean;
+  
+  comboItems: ComboItemResponseStub[];
+  ingredients: IngredientResponseForProduct[];
+}
+
+export interface ComboItemResponseStub {
+  simpleProductId: number;
+  simpleProductName: string;
+  quantity: number;
 }
 
 export interface IngredientResponseForProduct {

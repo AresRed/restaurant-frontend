@@ -1,1 +1,194 @@
-<p>pos-cash-closing works!</p>
+<div class="flex justify-center items-center min-h-[80vh] bg-gray-50 p-4">
+  <div
+    class="w-full max-w-4xl bg-white rounded-xl shadow-2xl overflow-hidden"
+  >
+    <div *ngIf="isLoading()" class="flex justify-center items-center h-80">
+      <p-progressSpinner
+        animationDuration=".5s"
+        strokeWidth="4"
+      ></p-progressSpinner>
+    </div>
+
+    <div *ngIf="report() && !isLoading()" class="flex flex-col">
+      <div class="border-b p-6">
+        <div class="flex items-center gap-3">
+          <i class="pi pi-calculator text-3xl"></i>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800">Cierre de Caja</h1>
+            <p class="text-gray-500">
+              Cajero:
+              <span class="font-medium text-gray-900">{{
+                report()?.cashierName
+              }}</span>
+              | Turno iniciado:
+              <span class="font-medium text-gray-900">{{
+                report()?.shiftStartTime | date : 'medium'
+              }}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2">
+        
+        <div class="bg-slate-50 p-6 border-r">
+          <h2 class="text-xl font-semibold text-gray-700 mb-4">
+            <i class="pi pi-desktop mr-2"></i>
+            Reporte del Sistema
+          </h2>
+          <ul class="space-y-3 text-sm">
+            <li class="flex justify-between items-center">
+              <span class="text-gray-600">Fondo de Caja (Apertura):</span>
+              <span class="font-semibold text-lg text-gray-900">{{
+                report()?.openingBalance | currency : 'S/ '
+              }}</span>
+            </li>
+
+            <li
+              *ngFor="let key of paymentMethodKeys()"
+              class="flex justify-between items-center border-t pt-3"
+            >
+              <span class="text-gray-600">Ventas ({{ key }}):</span>
+              <span class="font-semibold text-lg text-gray-900">{{
+                report()!.salesByPaymentMethod[key] | currency : 'S/ '
+              }}</span>
+            </li>
+
+            <li
+              class="flex justify-between items-center font-bold border-t-2 border-gray-200 pt-3 mt-3"
+            >
+              <span class="text-base">TOTAL VENTAS DEL TURNO:</span>
+              <span class="text-xl">{{
+                report()?.totalSales | currency : 'S/ '
+              }}</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-white p-6 flex flex-col gap-5">
+          <h2 class="text-xl font-semibold text-gray-700">
+            <i class="pi pi-hand-paper mr-2"></i>
+            Conteo Manual
+          </h2>
+
+          <div
+            class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center"
+          >
+            <label
+              for="expected"
+              class="block text-sm font-semibold text-blue-800"
+              >Total Efectivo Esperado en Gaveta</label
+            >
+            <div class="text-4xl font-bold text-blue-900 mt-1">
+              {{ report()?.expectedCashInDrawer | currency : 'S/ ' }}
+            </div>
+          </div>
+
+          <div>
+            <label
+              for="counted"
+              class="block text-lg font-semibold text-gray-900 mb-2"
+              >Total Efectivo Contado (Gaveta)</label
+            >
+            <p-inputNumber
+              [(ngModel)]="countedCash"
+              inputId="counted"
+              mode="currency"
+              currency="PEN"
+              locale="es-PE"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              class="w-full"
+              inputStyleClass="text-right text-3xl font-bold p-3"
+              placeholder="S/ 0.00"
+            >
+            </p-inputNumber>
+          </div>
+
+          <div
+            *ngIf="countedCash() !== null"
+            class="p-4 rounded-lg text-center animate-fade-in"
+            [ngClass]="{
+              'bg-green-100 text-green-800': cashDifference() === 0,
+              'bg-red-100 text-red-800': cashDifference() !== 0
+            }"
+          >
+            <h3 class="text-lg font-semibold">Diferencia de Caja</h3>
+            <span
+              class="text-4xl font-bold"
+              [ngClass]="{
+                'text-green-600': cashDifference() === 0,
+                'text-red-600': cashDifference() !== 0
+              }"
+            >
+              {{ cashDifference() | currency : 'S/ ' }}
+            </span>
+            <div class="mt-2">
+              <p-tag
+                *ngIf="cashDifference() > 0"
+                severity="success"
+                value="SOBRANTE"
+              ></p-tag>
+              <p-tag
+                *ngIf="cashDifference() < 0"
+                severity="danger"
+                value="FALTANTE"
+              ></p-tag>
+              <p-tag
+                *ngIf="cashDifference() === 0"
+                severity="info"
+                value="CUADRADO"
+              ></p-tag>
+            </div>
+          </div>
+
+          <div>
+            <label
+              for="notes"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Notas (Opcional)</label
+            >
+            <textarea
+              pTextarea
+              [(ngModel)]="notes"
+              id="notes"
+              rows="2"
+              class="w-full"
+              placeholder="Ej: Sobrante por propina, faltante por error..."
+            ></textarea>
+          </div>
+
+          <p-button
+            label="Confirmar y Cerrar Turno"
+            icon="pi pi-check-circle"
+            [loading]="isSubmitting()"
+            [disabled]="(countedCash() ?? -1) < 0"
+            (onClick)="submitClosing()"
+            styleClass="p-button-lg w-full mt-2"
+          ></p-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 
+      ESTADO DE ÉXITO (cuando ya se cerró) 
+    -->
+    <div
+      *ngIf="!report() && !isLoading()"
+      class="text-center h-80 flex flex-col justify-center items-center p-6"
+    >
+      <i class="pi pi-check-circle text-6xl text-green-500 mb-4"></i>
+      <h2 class="text-3xl font-bold text-gray-800">Turno Cerrado</h2>
+      <p class="text-gray-600 text-lg mt-2">
+        El reporte de caja se ha guardado exitosamente.
+      </p>
+      <p-button
+        label="Comenzar Nuevo Cierre"
+        icon="pi pi-refresh"
+        [outlined]="true"
+        (onClick)="loadCurrentShiftReport()"
+        styleClass="mt-6"
+      ></p-button>
+    </div>
+  </div>
+</div>

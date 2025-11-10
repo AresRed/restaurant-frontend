@@ -3,49 +3,104 @@
     {{ isEdit ? "Editar Proveedor" : "Registrar Proveedor" }}
   </h2>
 
-  <form (ngSubmit)="saveSupplier()" class="space-y-4">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+    <div>
+      <label class="block text-gray-700 mb-1">Nombre de Usuario</label>
+      <input
+        pInputText
+        formControlName="username"
+        class="w-full"
+        placeholder="Ej. proveedor_empresa"
+        [readonly]="isEdit"
+        [ngClass]="{ 'bg-gray-100 cursor-not-allowed': isEdit }"
+      />
+      <small
+        class="text-red-500"
+        *ngIf="form.get('username')?.invalid && form.get('username')?.touched"
+      >
+        Requerido (mín. 3 caracteres)
+      </small>
+    </div>
+
+    <div>
+      <label class="block text-gray-700 mb-1">Email</label>
+      <input
+        pInputText
+        formControlName="email"
+        type="email"
+        class="w-full"
+        placeholder="contacto@empresa.com"
+      />
+      <small
+        class="text-red-500"
+        *ngIf="form.get('email')?.invalid && form.get('email')?.touched"
+      >
+        Email inválido o requerido
+      </small>
+    </div>
+
+    <div *ngIf="!isEdit">
+      <label class="block text-gray-700 mb-1">Contraseña</label>
+      <p-password
+        formControlName="password"
+        placeholder="Contraseña inicial"
+        [toggleMask]="true"
+        styleClass="w-full"
+        inputStyleClass="w-full"
+      ></p-password>
+      <small
+        class="text-red-500"
+        *ngIf="form.get('password')?.invalid && form.get('password')?.touched"
+      >
+        Requerido (mín. 8 caracteres)
+      </small>
+    </div>
+
+    <!-- CAMPOS DE PROVEEDOR (ACTUALIZADOS) -->
     <div>
       <label class="block text-gray-700 mb-1">Empresa</label>
       <input
         pInputText
-        [(ngModel)]="supplier.companyName"
-        name="companyName"
-        required
+        formControlName="companyName"
         class="w-full"
+        placeholder="Nombre de la empresa"
       />
+      <small
+        class="text-red-500"
+        *ngIf="
+          form.get('companyName')?.invalid && form.get('companyName')?.touched
+        "
+      >
+        Nombre de empresa requerido
+      </small>
     </div>
 
     <div>
-      <label class="block text-gray-700 mb-1">Contacto</label>
+      <label class="block text-gray-700 mb-1">Nombre de Contacto</label>
       <input
         pInputText
-        [(ngModel)]="supplier.contactName"
-        name="contactName"
-        required
+        formControlName="contactName"
         class="w-full"
+        placeholder="Nombre de la persona de contacto"
       />
+      <small
+        class="text-red-500"
+        *ngIf="
+          form.get('contactName')?.invalid && form.get('contactName')?.touched
+        "
+      >
+        Nombre de contacto requerido
+      </small>
     </div>
 
     <div>
       <label class="block text-gray-700 mb-1">Teléfono</label>
-      <input
-        pInputText
-        [(ngModel)]="supplier.phone"
-        name="phone"
-        required
-        class="w-full"
-      />
+      <input pInputText formControlName="phone" class="w-full" />
     </div>
 
     <div>
       <label class="block text-gray-700 mb-1">Dirección</label>
-      <input
-        pInputText
-        [(ngModel)]="supplier.address"
-        name="address"
-        required
-        class="w-full"
-      />
+      <input pInputText formControlName="address" class="w-full" />
     </div>
 
     <div class="flex justify-end gap-3 mt-6">
@@ -62,6 +117,8 @@
         icon="pi pi-save"
         type="submit"
         class="p-button-success"
+        [disabled]="form.invalid || isSaving"
+        [loading]="isSaving"
       ></button>
     </div>
   </form>

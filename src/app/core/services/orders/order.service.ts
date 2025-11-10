@@ -12,7 +12,7 @@ import {
   providedIn: 'root',
 })
 export class OrderService {
-  private apiUrl = `${environment.apiUrl}/api/v1/orders`;
+  public readonly apiUrl = `${environment.apiUrl}/api/v1/orders`;
 
   constructor(private http: HttpClient) {}
 
@@ -52,6 +52,21 @@ export class OrderService {
       `${environment.apiUrl}/api/v1/orders/${orderId}`,
       { headers }
     );
+  }
+
+  /**
+   * Llama al endpoint del backend para descargar el PDF del comprobante.
+   * Devuelve un 'Blob' (el archivo PDF).
+   */
+  downloadInvoice(orderId: number): Observable<Blob> {
+    const headers = new HttpHeaders({
+      'Accept-Language': 'es',
+    });
+
+    return this.http.get(`${this.apiUrl}/${orderId}/download-invoice`, {
+      headers: headers,
+      responseType: 'blob',
+    });
   }
 
   createOrder(request: OrderRequest): Observable<ApiResponse<OrderResponse>> {

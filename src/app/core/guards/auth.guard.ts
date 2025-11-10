@@ -8,6 +8,8 @@ import {
 import { map, Observable, take } from 'rxjs';
 import { UserResponse } from '../models/user.model';
 import { AuthService } from '../services/auth.service';
+import { NotificationService } from '../services/notification.service';
+import { RoleRedirectService } from '../services/role-redirect/role-redirect.service';
 import { UiService } from '../services/ui.service';
 
 interface RouteData {
@@ -17,11 +19,13 @@ interface RouteData {
 @Injectable({
   providedIn: 'root',
 })
- export class AuthGuard implements CanActivate {
+export class AuthGuard implements CanActivate {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private uiService: UiService
+    private uiService: UiService,
+    private roleRedirectService: RoleRedirectService,
+    private notificationService: NotificationService
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
@@ -36,11 +40,23 @@ interface RouteData {
         }
 
         if (allowedRoles.length === 0) {
-         return true;
+          return true;
         }
 
         const hasRole = user.roles.some((role) => allowedRoles.includes(role));
-        return hasRole ? true : this.router.createUrlTree(['/home']);
+
+        if (hasRole) {
+          return true;
+        }
+
+        const userDashboardUrl = this.roleRedirectService.getRedirectUrlByRole(
+          user.roles
+        );
+        this.notificationService.warn(
+          'Acceso Denegado',
+          'No tienes permiso para ver esta página.'
+        );
+        return this.router.createUrlTree([userDashboardUrl]);
       })
     );
   }

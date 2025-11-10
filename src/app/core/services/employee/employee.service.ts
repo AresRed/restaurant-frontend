@@ -12,19 +12,29 @@ import {
   providedIn: 'root',
 })
 export class EmployeeService {
+  private apiUrl = `${environment.apiUrl}/api/v1/employees`;
+
   constructor(private http: HttpClient) {}
 
   getAllEmployees(): Observable<ApiResponse<EmployeeResponse[]>> {
-    return this.http.get<ApiResponse<EmployeeResponse[]>>(
-      `${environment.apiUrl}/api/v1/employees`
-    );
+    return this.http.get<ApiResponse<EmployeeResponse[]>>(this.apiUrl);
   }
 
   getEmployeeById(
     idEmployee: number
   ): Observable<ApiResponse<EmployeeResponse>> {
     return this.http.get<ApiResponse<EmployeeResponse>>(
-      `${environment.apiUrl}/api/v1/employees/${idEmployee}`
+      `${this.apiUrl}/${idEmployee}`
+    );
+  }
+
+  // --- NUEVO MÉTODO (Recomendado) ---
+  createEmployee(
+    employeeRequest: EmployeeRequest
+  ): Observable<ApiResponse<EmployeeResponse>> {
+    return this.http.post<ApiResponse<EmployeeResponse>>(
+      this.apiUrl,
+      employeeRequest
     );
   }
 
@@ -33,7 +43,7 @@ export class EmployeeService {
     employeeRequest: EmployeeRequest
   ): Observable<ApiResponse<EmployeeResponse>> {
     return this.http.put<ApiResponse<EmployeeResponse>>(
-      `${environment.apiUrl}/api/v1/employees/${idEmployee}`,
+      `${this.apiUrl}/${idEmployee}`,
       employeeRequest
     );
   }

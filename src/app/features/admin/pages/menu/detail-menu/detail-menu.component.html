@@ -1,20 +1,16 @@
 <div *ngIf="!loading && product; else loadingTpl" class="max-w-6xl mx-auto p-6">
-  <!-- Botón Volver -->
   <div class="mb-6">
     <p-button
       icon="pi pi-arrow-left"
       label="Volver al Menú"
       (click)="goToMenu()"
-      severity="secondary"
       styleClass="p-button-text"
     ></p-button>
   </div>
 
-  <!-- Contenedor principal -->
   <div
     class="bg-white rounded-2xl shadow-lg overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 border border-gray-100"
   >
-    <!-- Imagen -->
     <div class="flex justify-center items-center bg-gray-50 rounded-xl p-4">
       <img
         [src]="product.imageUrl || 'assets/images/no-image.jpg'"
@@ -23,7 +19,6 @@
       />
     </div>
 
-    <!-- Información -->
     <div class="flex flex-col justify-between">
       <div>
         <h1 class="text-3xl font-bold text-gray-900 mb-2">
@@ -43,13 +38,22 @@
             [severity]="product.active ? 'success' : 'danger'"
             icon="pi pi-check-circle"
           ></p-tag>
+
+          <p-tag
+            *ngIf="product.isCombo"
+            value="COMBO"
+            icon="pi pi-box"
+            severity="warn"
+          ></p-tag>
         </div>
 
         <div class="space-y-3">
           <p class="text-lg">
             💲
             <span class="font-semibold text-gray-700">Precio: </span>
-            <span class="font-bold">S/. {{ product.price }}</span>
+            <span class="font-bold">{{
+              product.price | currency : "S/ "
+            }}</span>
           </p>
 
           <p class="text-lg">
@@ -87,21 +91,17 @@
     </div>
   </div>
 
-  <!-- Ingredientes -->
-  <div class="mt-10 bg-white rounded-2xl shadow-md p-6 border border-gray-100">
+  <div
+    *ngIf="!product.isCombo"
+    class="mt-10 bg-white rounded-2xl shadow-md p-6 border border-gray-100"
+  >
     <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
       <i class="pi pi-list text-blue-500"></i> Ingredientes del producto
     </h2>
 
     <div *ngIf="product.ingredients.length > 0; else noIngredients">
       <table class="w-full border-collapse">
-        <thead>
-          <tr class="bg-gray-100 text-left">
-            <th class="py-3 px-4 font-semibold">Ingrediente</th>
-            <th class="py-3 px-4 font-semibold">Cantidad</th>
-            <th class="py-3 px-4 font-semibold">Unidad</th>
-          </tr>
-        </thead>
+        <thead></thead>
         <tbody>
           <tr
             *ngFor="let ing of product.ingredients"
@@ -124,9 +124,46 @@
       </div>
     </ng-template>
   </div>
+
+  <div
+    *ngIf="product.isCombo"
+    class="mt-10 bg-white rounded-2xl shadow-md p-6 border border-gray-100"
+  >
+    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+      <i class="pi pi-box text-purple-500"></i> Productos Incluidos en el Combo
+    </h2>
+
+    <div *ngIf="product.comboItems.length > 0; else noComboItems">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-100 text-left">
+            <th class="py-3 px-4 font-semibold">Producto</th>
+            <th class="py-3 px-4 font-semibold">Cantidad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let item of product.comboItems"
+            class="border-b hover:bg-gray-50 transition"
+          >
+            <td class="py-3 px-4">{{ item.simpleProductName }}</td>
+            <td class="py-3 px-4">{{ item.quantity }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #noComboItems>
+      <div
+        class="text-center text-gray-500 py-6 border border-dashed border-gray-300 rounded-lg"
+      >
+        <i class="pi pi-info-circle text-purple-500 text-xl mr-2"></i>
+        Este combo no tiene productos (items) registrados.
+      </div>
+    </ng-template>
+  </div>
 </div>
 
-<!-- Loading -->
 <ng-template #loadingTpl>
   <div class="flex justify-center items-center h-96">
     <p-progressSpinner

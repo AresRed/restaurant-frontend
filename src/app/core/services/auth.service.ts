@@ -10,8 +10,9 @@ import {
 } from '../models/auth/login/login.model';
 import { RegisterRequest } from '../models/auth/register/register.model';
 import { ApiResponse } from '../models/base/api-response.model';
-import { UserResponse } from '../models/user.model';
 import { Roles } from '../models/base/roles.model';
+import { UserResponse } from '../models/user.model';
+import { RoleRedirectService } from './role-redirect/role-redirect.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +21,11 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<UserResponse | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private roleRedirectService: RoleRedirectService
+  ) {
     const token = localStorage.getItem('accessToken');
     const user = localStorage.getItem('currentUser');
     if (token && user) {
@@ -38,11 +43,12 @@ export class AuthService {
         tap((res) => {
           if (res.success && res.data.accessToken) {
             this.storeSession(res.data);
-            this.redirectAfterLogin(res.data.user);
+            this.roleRedirectService.redirectUserBasedOnRole(res.data.user);
           }
         })
       );
   }
+
   register(data: RegisterRequest): Observable<ApiResponse<Object>> {
     return this.http.post<ApiResponse<Object>>(
       `${environment.apiUrl}/api/v1/auth/register`,
@@ -62,10 +68,12 @@ export class AuthService {
         tap((res) => {
           if (res.success && res.data.accessToken) {
             this.storeSession(res.data);
+            this.roleRedirectService.redirectUserBasedOnRole(res.data.user);
           } else {
             console.warn(
               'Refresh token inválido o sin accessToken en respuesta'
             );
+            this.forceLogout();
           }
         })
       );
@@ -125,15 +133,17 @@ export class AuthService {
         console.log('Mensaje recibido en frontend:', event);
 
         const data = event.data;
-        if (!data || !data.accessToken) return; 
+        if (!data || !data.accessToken) return;
 
         try {
           console.log('Datos reales del backend:', data);
 
           localStorage.setItem('accessToken', data.accessToken);
-          localStorage.setItem('sessionId', data.refreshToken);
+          localStorage.setItem('sessionId', data.refreshToken); // Asumo que se llama así
           localStorage.setItem('currentUser', JSON.stringify(data.user));
           this.currentUserSubject.next(data.user);
+
+          this.roleRedirectService.redirectUserBasedOnRole(data.user);
 
           observer.next(data.user);
           observer.complete();
@@ -152,7 +162,7 @@ export class AuthService {
 
   forceLogout() {
     this.clearSession();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/home']);
   }
 
   getCurrentUser(): Observable<ApiResponse<UserResponse>> {
@@ -197,21 +207,6 @@ export class AuthService {
     this.currentUserSubject.next(null);
   }
 
-  private redirectAfterLogin(user: UserResponse) {
-    const roles = user.roles || [];
-    if (roles.includes(Roles.ROLE_ADMIN)) {
-      this.router.navigate(['/admin/dashboard']);
-    } else if (roles.includes(Roles.ROLE_WAITER)) {
-      this.router.navigate(['/waiter']);
-    } else if (roles.includes(Roles.ROLE_CHEF)) {
-      this.router.navigate(['/chef']);
-    } else if (roles.includes(Roles.ROLE_CASHIER)) {
-      this.router.navigate(['/cashier']);
-    } else {
-      this.router.navigate(['/home']);
-    }
-  }
-
   private getTokenExpiration(token: string): number {
     const decoded = jwtDecode<JwtPayload>(token);
     if (!decoded.exp) {
@@ -234,8 +229,6 @@ export class AuthService {
   }
 
   public getAccessToken(): string | null {
-    return localStorage.getItem('accessToken'); 
+    return localStorage.getItem('accessToken');
   }
-
- 
 }

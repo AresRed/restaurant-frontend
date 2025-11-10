@@ -14,6 +14,7 @@ export interface PaymentResponse {
   orderId: number;
   paymentMethodId: number;
   paymentMethodName: string;
+  customerName: string;
   amount: number;
   date: string;
   isOnline: boolean;

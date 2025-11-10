@@ -1,60 +1,125 @@
 <div class="p-6 space-y-10">
   <h2 class="text-3xl font-bold mb-6">📊 Reportes del Restaurante</h2>
 
-  <!-- Resumen en cards -->
-  <div class="grid gap-6 md:grid-cols-3">
-    <div class="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
-      <i class="pi pi-dollar text-green-500 text-3xl mb-2"></i>
-      <h3 class="text-lg font-semibold">Ventas de Hoy</h3>
-      <p class="text-2xl font-bold text-gray-800">
-        S/. {{ salesToday | number: '1.2-2' }}
-      </p>
-    </div>
-    <div class="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
-      <i class="pi pi-shopping-cart text-blue-500 text-3xl mb-2"></i>
-      <h3 class="text-lg font-semibold">Órdenes Totales</h3>
-      <p class="text-2xl font-bold text-gray-800">
-        {{ totalOrders }}
-      </p>
-    </div>
-    <div class="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
-      <i class="pi pi-star text-yellow-500 text-3xl mb-2"></i>
-      <h3 class="text-lg font-semibold">Producto más vendido</h3>
-      <p class="text-xl font-medium text-gray-700">
-        {{ topProductName }}
-      </p>
-    </div>
+  <div *ngIf="isLoading()" class="flex justify-center items-center h-96">
+    <p-progressSpinner
+      styleClass="w-10 h-10"
+      strokeWidth="4"
+      animationDuration=".8s"
+    ></p-progressSpinner>
   </div>
 
-  <!-- Gráficas -->
-  <div class="grid gap-8 md:grid-cols-2" *ngIf="reportData">
-    <div class="bg-white rounded-2xl shadow-md p-6">
-      <h3 class="font-semibold text-lg mb-4">📈 Ventas Últimos 7 Días</h3>
-      <p-chart
-        type="line"
-        [data]="salesChartData"
-        [options]="salesChartOptions"
-      ></p-chart>
+  <div *ngIf="!isLoading()">
+    
+    <div class="grid gap-6 md:grid-cols-3">
+      <div class="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
+        <i class="pi pi-dollar text-green-500 text-3xl mb-2"></i>
+        <h3 class="text-lg font-semibold">Ventas de Hoy</h3>
+        <p class="text-2xl font-bold text-gray-800">
+          {{ salesToday() | currency : 'S/ ' : 'symbol' : '1.2-2' }}
+        </p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
+        <i class="pi pi-shopping-cart text-blue-500 text-3xl mb-2"></i>
+        <h3 class="text-lg font-semibold">Órdenes Totales</h3>
+        <p class="text-2xl font-bold text-gray-800">
+          {{ totalOrders() }}
+        </p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
+        <i class="pi pi-star text-yellow-500 text-3xl mb-2"></i>
+        <h3 class="text-lg font-semibold">Producto más vendido</h3>
+        <p class="text-xl font-medium text-gray-700">
+          {{ topProductName() }}
+        </p>
+      </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-md p-6">
-      <h3 class="font-semibold text-lg mb-4">🥘 Productos más Vendidos</h3>
-      <p-chart
-        type="bar"
-        [data]="productsChartData"
-        [options]="productsChartOptions"
-        [height]="'300px'"
-      ></p-chart>
-    </div>
-  </div>
+    <div class="grid gap-8 md:grid-cols-2 mt-8" *ngIf="reportData()">
+      <div class="bg-white rounded-2xl shadow-md p-6">
+        <h3 class="font-semibold text-lg mb-4">📈 Ventas Últimos 7 Días</h3>
+        <p-chart
+          type="line"
+          [data]="salesChartData"
+          [options]="salesChartOptions"
+          [height]="'300px'"
+        ></p-chart>
+      </div>
 
-  <div class="bg-white rounded-2xl shadow-md p-6" *ngIf="reportData">
-    <h3 class="font-semibold text-lg mb-4">📊 Tipos de Órdenes</h3>
-    <p-chart
-      type="doughnut"
-      [data]="orderTypeChartData"
-      [options]="orderTypeChartOptions"
-      height="320"
-    ></p-chart>
+      <div class="bg-white rounded-2xl shadow-md p-6">
+        <h3 class="font-semibold text-lg mb-4">💳 Total por Método de Pago</h3>
+        <p-chart
+          type="pie"
+          [data]="paymentChartData"
+          [options]="paymentChartOptions"
+          [height]="'300px'"
+        ></p-chart>
+      </div>
+    </div>
+
+    <div class="grid gap-8 md:grid-cols-2 mt-8" *ngIf="reportData()">
+      <div class="bg-white rounded-2xl shadow-md p-6">
+        <h3 class="font-semibold text-lg mb-4">🥘 Productos más Vendidos (Unidades)</h3>
+        <p-chart
+          type="bar"
+          [data]="productsChartData"
+          [options]="productsChartOptions"
+          [height]="'300px'"
+        ></p-chart>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-md p-6">
+        <h3 class="font-semibold text-lg mb-4">📊 Tipos de Órdenes (Cantidad)</h3>
+        <p-chart
+          type="doughnut"
+          [data]="orderTypeChartData"
+          [options]="orderTypeChartOptions"
+          [height]="'320px'"
+        ></p-chart>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-md p-6 mt-8">
+      <h3 class="font-semibold text-lg mb-4">📦 Reporte de Inventario y Alertas</h3>
+      <p-table
+        [value]="inventoryReport()"
+        [paginator]="true"
+        [rows]="10"
+        styleClass="p-datatable-striped"
+        [tableStyle]="{ 'min-width': '50rem' }"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="ingredientName">Insumo <p-sortIcon field="ingredientName"></p-sortIcon></th>
+            <th pSortableColumn="status" class="text-center">Estado <p-sortIcon field="status"></p-sortIcon></th>
+            <th pSortableColumn="currentStock" class="text-right">Stock Actual <p-sortIcon field="currentStock"></p-sortIcon></th>
+            <th pSortableColumn="minimumStock" class="text-right">Stock Mínimo <p-sortIcon field="minimumStock"></p-sortIcon></th>
+            <th class="text-left">Unidad</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td class="font-medium">{{ item.ingredientName }}</td>
+            <td class="text-center">
+              <p-tag
+                [severity]="getInventoryStatusSeverity(item.status)"
+                [value]="item.status"
+              ></p-tag>
+            </td>
+            <td class="text-right font-bold">{{ item.currentStock | number:'1.0-2' }}</td>
+            <td class="text-right">{{ item.minimumStock | number:'1.0-2' }}</td>
+            <td class="text-gray-500">{{ item.unitName }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5" class="text-center p-4">
+              No se encontraron datos de inventario.
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
   </div>
 </div>

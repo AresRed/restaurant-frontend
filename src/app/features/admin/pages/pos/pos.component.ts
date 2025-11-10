@@ -91,7 +91,7 @@ export class PosComponent implements OnInit {
   readonly TAX_RATE = environment.igv;
   readonly DEFAULT_CUSTOMER_ID = 1;
   readonly DEFAULT_ORDER_TYPE_CODE = 'TAKE_AWAY';
-  readonly PAID_STATUS_ID = 5;
+  readonly PAID_STATUS_ID = 9;
   readonly CURRENT_STORE_ID = 1;
 
   // --- Estado de Carga y UI ---

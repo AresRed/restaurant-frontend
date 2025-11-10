@@ -13,7 +13,7 @@ import { CategoryService } from '../../../../core/services/category.service';
 import { ConfirmService } from '../../../../core/services/confirmation.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ProductService } from '../../../../core/services/products/product/product.service';
-import { Tag } from "primeng/tag";
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-menu',
@@ -27,8 +27,8 @@ import { Tag } from "primeng/tag";
     ToggleButtonModule,
     TooltipModule,
     TabsModule,
-    Tag
-],
+    TagModule,
+  ],
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss'],
 })

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from '../../core/guards/auth.guard';
 import { ProfileLayoutComponent } from '../customer/components/profile-layout/profile-layout.component';
 import { ProfileComponent } from '../customer/pages/profile/profile.component';
 import { SecurityComponent } from '../customer/pages/security/security.component';
@@ -13,11 +14,16 @@ import { AddStockComponent } from './pages/inventory/add-stock/add-stock.compone
 import { DetailInventoryComponent } from './pages/inventory/detail-inventory/detail-inventory.component';
 import { FormInventoryComponent } from './pages/inventory/form-inventory/form-inventory.component';
 import { InventoryComponent } from './pages/inventory/inventory.component';
+import { LoyaltyManagementComponent } from './pages/loyalty/loyalty-management/loyalty-management.component';
 import { DetailMenuComponent } from './pages/menu/detail-menu/detail-menu.component';
 import { FormMenuComponent } from './pages/menu/form-menu/form-menu.component';
 import { MenuComponent } from './pages/menu/menu.component';
 import { DetailOrderComponent } from './pages/orders/detail-order/detail-order.component';
 import { OrdersComponent } from './pages/orders/orders.component';
+import { PaymentHistoryComponent } from './pages/payment-history/payment-history.component';
+import { CashClosingHistoryComponent } from './pages/pos/cash-closing-history/cash-closing-history.component';
+import { PosCashClosingComponent } from './pages/pos/pos-cash-closing/pos-cash-closing.component';
+import { PosComponent } from './pages/pos/pos.component';
 import { ReportsComponent } from './pages/reports/reports.component';
 import { DetailReservationComponent } from './pages/reservations/detail-reservation/detail-reservation.component';
 import { FormReservationComponent } from './pages/reservations/form-reservation/form-reservation.component';
@@ -28,15 +34,14 @@ import { StaffComponent } from './pages/staff/staff.component';
 import { DetailSupplierComponent } from './pages/suppliers/detail-supplier/detail-supplier.component';
 import { FormSupplierComponent } from './pages/suppliers/form-supplier/form-supplier.component';
 import { SuppliersComponent } from './pages/suppliers/suppliers.component';
-import { AuthGuard } from '../../core/guards/auth.guard';
-import { PosComponent } from './pages/pos/pos.component';
-import { PosCashClosingComponent } from './pages/pos/pos-cash-closing/pos-cash-closing.component';
+import { PromotionManagementComponent } from './pages/promotions/promotion-management/promotion-management.component';
 
 export const adminRoutes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent },
 
   { path: 'staff', component: StaffComponent },
+  { path: 'staff/create', component: EditStaffComponent },
   { path: 'staff/:id', component: DetailStaffComponent },
   { path: 'staff/:id/edit', component: EditStaffComponent },
 
@@ -45,20 +50,15 @@ export const adminRoutes: Routes = [
   { path: 'suppliers/:id', component: DetailSupplierComponent },
   { path: 'suppliers/:id/edit', component: FormSupplierComponent },
 
-  { path: 'reservations', component: ReservationsComponent },
-  { path: 'reservations/create', component: FormReservationComponent },
-  { path: 'reservations/:id', component: DetailReservationComponent },
-  { path: 'reservations/:id/edit', component: FormReservationComponent },
-
   { path: 'customers', component: CustomersComponent },
   { path: 'customers/create', component: FormCustomerComponent },
   { path: 'customers/:id', component: DetailCustomerComponent },
   { path: 'customers/:id/edit', component: FormCustomerComponent },
 
-  { path: 'orders', component: OrdersComponent },
-  { path: 'orders/:id', component: DetailOrderComponent },
-  { path: 'reports', component: ReportsComponent },
-  { path: 'delivery', component: DeliveryComponent },
+  { path: 'menu', component: MenuComponent },
+  { path: 'menu/create', component: FormMenuComponent },
+  { path: 'menu/:id', component: DetailMenuComponent },
+  { path: 'menu/:id/edit', component: FormMenuComponent },
 
   { path: 'inventory', component: InventoryComponent },
   { path: 'inventory/create', component: FormInventoryComponent },
@@ -66,12 +66,18 @@ export const adminRoutes: Routes = [
   { path: 'inventory/:id/edit', component: FormInventoryComponent },
   { path: 'inventory/:id/add-stock', component: AddStockComponent },
 
-  { path: 'menu', component: MenuComponent },
-  { path: 'menu/create', component: FormMenuComponent },
-  { path: 'menu/:id', component: DetailMenuComponent },
-  { path: 'menu/:id/edit', component: FormMenuComponent },
-
+  { path: 'promotions', component: PromotionManagementComponent },
   { path: 'feedback-and-loyalty', component: FeedbackAndLoyaltyComponent },
+  { path: 'loyalty-management', component: LoyaltyManagementComponent },
+
+  { path: 'reports', component: ReportsComponent },
+  { path: 'delivery', component: DeliveryComponent },
+  { path: 'orders', component: OrdersComponent },
+  { path: 'orders/:id', component: DetailOrderComponent },
+  { path: 'reservations', component: ReservationsComponent },
+  { path: 'reservations/create', component: FormReservationComponent },
+  { path: 'reservations/:id', component: DetailReservationComponent },
+  { path: 'reservations/:id/edit', component: FormReservationComponent },
 
   {
     path: 'profile',
@@ -81,18 +87,5 @@ export const adminRoutes: Routes = [
       { path: 'security', component: SecurityComponent },
       { path: 'settings', component: SettingsComponent },
     ],
-  },
-
-  {
-    path: 'pos',
-    component: PosComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['ROLE_ADMIN', 'ROLE_EMPLOYEE'] },
-  },
-  {
-    path: 'pos/cash-closing',
-    component: PosCashClosingComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['ROLE_ADMIN', 'ROLE_EMPLOYEE'] },
   },
 ];

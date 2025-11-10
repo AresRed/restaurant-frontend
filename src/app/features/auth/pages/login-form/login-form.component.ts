@@ -13,7 +13,6 @@ import { PasswordModule } from 'primeng/password';
 import { AuthService } from '../../../../core/services/auth.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { UiService } from '../../../../core/services/ui.service';
-import { LoginRequest } from '../../../../core/models/auth/login/login.model';
 
 @Component({
   selector: 'app-login-form',
@@ -68,10 +67,12 @@ export class LoginFormComponent {
       },
       error: (err) => {
         this.loading = false;
-        this.notifyService.error(
-          'Error al iniciar sesión',
-          'Credenciales inválidas'
-        );
+
+        const errorMessage = err.error?.message
+          ? err.error.message
+          : 'Credenciales inválidas o error inesperado';
+
+        this.notifyService.error('Error al iniciar sesión', errorMessage);
       },
     });
   }

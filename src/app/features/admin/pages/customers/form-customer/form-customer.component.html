@@ -2,18 +2,62 @@
   <div
     class="bg-white shadow-2xl rounded-2xl w-full max-w-2xl border border-gray-100 p-8 animate-fade-in"
   >
-    <!-- Título -->
     <div class="border-b pb-4 mb-6">
       <h2 class="text-2xl font-semibold text-gray-800">
         {{ editing ? "Editar Cliente" : "Registrar Cliente" }}
       </h2>
       <p class="text-gray-500 text-sm mt-1">
-        Completa los campos permitidos para actualizar los datos del cliente.
+        {{ editing 
+          ? 'Completa los campos para actualizar los datos del cliente.'
+          : 'Completa los campos para crear un nuevo cliente y usuario.'
+        }}
       </p>
     </div>
 
-    <!-- Formulario -->
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
+      
+      <div *ngIf="!editing" class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">Nombre de Usuario</label>
+          <input
+            pInputText
+            formControlName="username"
+            placeholder="Ej. juan.lopez"
+            class="w-full"
+          />
+          <small class="text-red-500" *ngIf="form.get('username')?.invalid && form.get('username')?.touched">
+            Requerido (mín. 3 caracteres)
+          </small>
+        </div>
+
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">Contraseña</label>
+          <p-password
+            formControlName="password"
+            placeholder="Contraseña inicial"
+            [toggleMask]="true"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          ></p-password>
+           <small class="text-red-500" *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+            Requerido (mín. 8 caracteres)
+          </small>
+        </div>
+      </div>
+      
+      <div *ngIf="editing">
+          <label class="block text-sm text-gray-600 mb-1">Nombre de Usuario</label>
+          <input
+            pInputText
+            formControlName="username"
+            class="w-full bg-gray-100 cursor-not-allowed"
+            [readonly]="true"
+          />
+          <small class="text-gray-400 text-xs">
+            El nombre de usuario no se puede modificar.
+          </small>
+        </div>
+
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
         <div>
           <label class="block text-sm text-gray-600 mb-1">Nombre</label>
@@ -23,6 +67,9 @@
             placeholder="Ej. Juan"
             class="w-full"
           />
+           <small class="text-red-500" *ngIf="form.get('firstName')?.invalid && form.get('firstName')?.touched">
+            Nombre requerido
+          </small>
         </div>
 
         <div>
@@ -33,26 +80,29 @@
             placeholder="Ej. López"
             class="w-full"
           />
+           <small class="text-red-500" *ngIf="form.get('lastName')?.invalid && form.get('lastName')?.touched">
+            Apellido requerido
+          </small>
         </div>
       </div>
 
-      <div>
-        <label class="block text-sm text-gray-600 mb-1"
-          >Correo electrónico</label
-        >
-        <input
-          pInputText
-          formControlName="email"
-          placeholder="cliente@correo.com"
-          class="w-full"
-          [readonly]="editing"
-        />
-        <small class="text-gray-400 text-xs"
-          >El correo no se puede modificar.</small
-        >
-      </div>
-
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+        <div>
+          <label class="block text-sm text-gray-600 mb-1"
+            >Correo electrónico</label
+          >
+          <input
+            pInputText
+            formControlName="email"
+            placeholder="cliente@correo.com"
+            class="w-full"
+            [readonly]="false" 
+          />
+          <small class="text-red-500" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+            Email inválido o requerido
+          </small>
+        </div>
+
         <div>
           <label class="block text-sm text-gray-600 mb-1">Teléfono</label>
           <input
@@ -62,24 +112,8 @@
             class="w-full"
           />
         </div>
-
-        <div>
-          <label class="block text-sm text-gray-600 mb-1">Puntos</label>
-          <input
-            pInputText
-            type="number"
-            formControlName="points"
-            class="w-full bg-gray-100 cursor-not-allowed"
-            [readonly]="true"
-            [disabled]="true"
-          />
-          <small class="text-gray-400 text-xs">
-            Los puntos se actualizan automáticamente por el sistema.
-          </small>
-        </div>
       </div>
-
-      <!-- Botones -->
+      
       <div class="flex justify-end gap-3 pt-4 border-t mt-6">
         <button
           pButton

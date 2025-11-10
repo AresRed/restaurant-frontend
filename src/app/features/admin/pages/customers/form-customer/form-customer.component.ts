@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
@@ -9,6 +10,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
 import { CustomerRequest } from '../../../../../core/models/customer/customer.model';
 import { CustomerService } from '../../../../../core/services/customer/customerhttp/customer.service';
@@ -23,6 +25,7 @@ import { NotificationService } from '../../../../../core/services/notification.s
     ButtonModule,
     InputTextModule,
     ToastModule,
+    PasswordModule,
   ],
   templateUrl: './form-customer.component.html',
   styleUrl: './form-customer.component.scss',
@@ -30,7 +33,7 @@ import { NotificationService } from '../../../../../core/services/notification.s
 export class FormCustomerComponent implements OnInit {
   form!: FormGroup;
   editing = false;
-  customerId?: number;
+  customerId: number | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -42,32 +45,62 @@ export class FormCustomerComponent implements OnInit {
 
   ngOnInit() {
     this.form = this.fb.group({
+      username: ['', [Validators.required, Validators.minLength(3)]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phone: [''],
-      points: [0],
     });
+    const idParam = this.route.snapshot.paramMap.get('id');
 
-    this.customerId = Number(this.route.snapshot.paramMap.get('id'));
-    this.editing = !!this.customerId;
+    if (idParam) {
+      this.editing = true;
+      this.customerId = Number(idParam);
 
-    if (this.editing) this.loadCustomer();
+      this.form.get('username')?.disable();
+      this.form.get('password')?.clearValidators();
+      this.form.get('password')?.disable();
+
+      this.loadCustomer();
+    } else {
+      this.editing = false;
+    }
   }
 
   loadCustomer() {
     this.customerService.getCustomerById(this.customerId!).subscribe({
-      next: (res) => this.form.patchValue(res.data),
+      next: (res) => {
+        this.form.patchValue({
+          username: res.data.username,
+          firstName: res.data.firstName,
+          lastName: res.data.lastName,
+          email: res.data.email,
+          phone: res.data.phone,
+        });
+      },
     });
   }
 
   onSubmit() {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const formValue = this.form.getRawValue();
 
     const request: CustomerRequest = {
-      userId: this.customerId ?? 0,
-      ...this.form.value,
+      firstName: formValue.firstName,
+      lastName: formValue.lastName,
+      email: formValue.email,
+      phone: formValue.phone,
     };
+
+    if (!this.editing) {
+      request.username = formValue.username;
+      request.password = formValue.password;
+    }
 
     const obs = this.editing
       ? this.customerService.updateCustomer(this.customerId!, request)
@@ -81,11 +114,18 @@ export class FormCustomerComponent implements OnInit {
         );
         this.router.navigate(['/admin/customers']);
       },
-      error: () => {
-        this.notificationService.error(
-          'Error',
-          'No se pudo guardar el cliente'
-        );
+      error: (err: HttpErrorResponse) => {
+        console.error('Error al guardar cliente', err);
+        let errorMsg = 'No se pudo guardar el cliente.';
+
+        if (err.error?.message) {
+          errorMsg = err.error.message;
+          if (err.error.data) {
+            errorMsg = Object.values(err.error.data).join(', ');
+          }
+        }
+
+        this.notificationService.error('Error', errorMsg);
       },
     });
   }

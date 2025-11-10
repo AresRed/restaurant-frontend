@@ -39,7 +39,7 @@ interface ScheduleByDay {
     ChartModule,
     TooltipModule,
     PositionLabelPipe,
-    DayOfWeekNamePipe
+    DayOfWeekNamePipe,
   ],
   templateUrl: './staff.component.html',
   styleUrls: ['./staff.component.scss'],
@@ -54,7 +54,6 @@ export class StaffComponent implements OnInit {
 
   chartData: any;
   chartOptions: any;
-
 
   constructor(
     private employeeService: EmployeeService,
@@ -163,6 +162,10 @@ export class StaffComponent implements OnInit {
   editStaff(employee: EmployeeResponse) {
     if (!employee.id) return;
     this.router.navigate(['/admin/staff', employee.id, 'edit']);
+  }
+
+  goToCreateStaff() {
+    this.router.navigate(['/admin/staff/create']);
   }
 
   formatHour(time: string): string {

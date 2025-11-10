@@ -39,6 +39,7 @@
 
       <p-tabpanels>
         <p-tabpanel *ngFor="let cat of categories" [value]="cat">
+          
           <div
             *ngIf="!showTable; else tableView"
             class="menu-grid grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
@@ -47,12 +48,20 @@
               *ngFor="let item of getProductsByCategory(cat)"
               class="menu-card bg-white shadow-md rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300"
             >
-              <div class="image-container w-full h-40 bg-gray-100">
+              <div class="image-container w-full h-40 bg-gray-100 relative">
                 <img
                   [src]="item.imageUrl || 'assets/images/no-image.jpg'"
                   alt="{{ item.name }}"
                   class="w-full h-full object-cover"
                 />
+                
+                <p-tag
+                  *ngIf="item.isCombo"
+                  value="COMBO"
+                  severity="warn"
+                  icon="pi pi-box"
+                  class="absolute top-2 right-2 shadow-md"
+                ></p-tag>
               </div>
 
               <div class="menu-info p-4 flex flex-col justify-between">
@@ -61,63 +70,16 @@
                     {{ item.name }}
                   </h3>
                   <span class="text-gray-600 block mb-1 text-xs">
-                    {{ item.description }}
+                    {{ item.description | slice : 0 : 100
+                    }}{{ item.description.length > 100 ? '...' : '' }}
                   </span>
                   <span class="price font-bold"> S/. {{ item.price }} </span>
                 </div>
 
                 <div class="flex justify-end gap-4">
-                  <p-button
-                    icon="pi pi-eye"
-                    [rounded]="true"
-                    severity="secondary"
-                    pTooltip="Ver detalle"
-                    size="small"
-                    (click)="viewDetails(item)"
-                  ></p-button>
-                  <p-button
-                    icon="pi pi-pencil"
-                    [rounded]="true"
-                    severity="info"
-                    pTooltip="Editar"
-                    size="small"
-                    (click)="editItem(item)"
-                  ></p-button>
-                  <p-button
-                    icon="pi pi-trash"
-                    [rounded]="true"
-                    severity="danger"
-                    pTooltip="Eliminar"
-                    size="small"
-                    (click)="confirmDelete($event, item)"
-                  ></p-button>
-                </div>
-
-                <div
-                  *ngIf="selectedProduct?.id === item.id"
-                  class="mt-4 p-3 border-t border-gray-200 bg-gray-50 rounded-lg transition-all"
-                >
-                  <p class="text-sm text-gray-700 mb-2">
-                    <strong>Categoría:</strong> {{ item.categoryName }}
-                  </p>
-                  <p class="text-sm text-gray-700 mb-2">
-                    <strong>Tiempo de preparación:</strong>
-                    {{ item.preparationTimeMinutes }} min
-                  </p>
-
-                  <div *ngIf="item.ingredients?.length">
-                    <p class="font-semibold text-gray-800 mb-1">
-                      🧂 Ingredientes:
-                    </p>
-                    <ul class="list-disc list-inside text-sm text-gray-700">
-                      <li *ngFor="let ing of item.ingredients">
-                        {{ ing.ingredientName }} - {{ ing.quantity }}
-                        {{ ing.unitSymbol || ing.unitName }}
-                      </li>
-                    </ul>
                   </div>
+                
                 </div>
-              </div>
             </div>
           </div>
 
@@ -135,7 +97,7 @@
                     <th class="py-3 px-4 text-left font-semibold">Producto</th>
                     <th class="py-3 px-4 text-left font-semibold">Categoría</th>
                     <th class="py-3 px-4 text-right font-semibold">Precio</th>
-                    <th class="py-3 px-4 text-right font-semibold">Estado</th>
+                    <th class="py-3 px-4 text-center font-semibold">Estado</th>
                     <th class="py-3 px-4 text-center font-semibold">
                       Acciones
                     </th>
@@ -145,13 +107,22 @@
                   <tr
                     class="border-b border-gray-200 hover:bg-gray-50 transition"
                   >
-                    <td class="py-3 px-4 text-gray-700 flex gap-2 items-center">
+                    <td class="py-3 px-4 text-gray-700 flex gap-3 items-center">
                       <img
-                        [src]="item.imageUrl"
+                        [src]="item.imageUrl || 'assets/images/no-image.jpg'"
                         [alt]="item.name"
-                        class="w-12 h-12 rounded-full"
+                        class="w-12 h-12 rounded-lg object-cover"
                       />
-                      {{ item.name }}
+                      <div>
+                        <span class="font-medium">{{ item.name }}</span>
+                        <p-tag
+                          *ngIf="item.isCombo"
+                          value="Combo"
+                          severity="warn"
+                          [rounded]="true"
+                          styleClass="ml-2 px-1 py-0 text-xs"
+                        ></p-tag>
+                      </div>
                     </td>
                     <td class="py-3 px-4 text-gray-700">
                       {{ item.categoryName }}
@@ -161,11 +132,8 @@
                     >
                       S/. {{ item.price }}
                     </td>
-                    <td
-                      class="py-3 px-4 text-right text-gray-500 font-semibold"
-                    >
-                      <p-tag
-                        value="{{ item.active ? 'Activo' : 'Inactivo' }}"
+                    <td class="py-3 px-4 text-center"> <p-tag
+                        [value]="item.active ? 'Activo' : 'Inactivo'"
                         [severity]="item.active ? 'success' : 'danger'"
                       />
                     </td>

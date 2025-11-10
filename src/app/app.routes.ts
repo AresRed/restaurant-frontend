@@ -15,33 +15,34 @@ export const routes: Routes = [
     path: 'admin',
     component: AdminLayoutComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['ROLE_ADMIN'] },
+    data: { roles: ['ROLE_ADMIN', 'ROLE_MANAGER'] },
     children: adminRoutes,
   },
   {
     path: 'chef',
-    loadChildren: () => import('./features/chef/chef-routing.module').then(m => m.chefPage),
+    loadChildren: () =>
+      import('./features/chef/chef-routing.module').then((m) => m.chefPage),
     canActivate: [AuthGuard],
-    data: { roles: ['ROLE_CHEF'] }
+    data: { roles: ['ROLE_CHEF'] },
   },
   {
     path: 'waiter',
-    loadChildren: () => import('./features/waiter/waiter-routing.module').then(m => m.waiterPage),
-    data: { roles: ['ROLE_WAITER'] }
+    loadChildren: () =>
+      import('./features/waiter/waiter-routing.module').then(
+        (m) => m.waiterPage
+      ),
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_WAITER', 'ROLE_ADMIN'] },
   },
-
   {
     path: 'cashier',
-    loadChildren: () => import('./features/cashier/cashier-routing.module').then(m => m.cashierPage),
-    data:{roles:['ROLE_CASHIER']}
+    loadChildren: () =>
+      import('./features/cashier/cashier-routing.module').then(
+        (m) => m.cashierPage
+      ),
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_CASHIER', 'ROLE_ADMIN'] },
   },
-
-
-
-
-
-
-
 
   { path: '**', redirectTo: '/home' },
 ];

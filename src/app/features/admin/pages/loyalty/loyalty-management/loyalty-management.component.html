@@ -1,0 +1,143 @@
+<div class="p-6">
+  <div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="p-6 border-b flex items-center justify-between">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800">Gestionar Recompensas</h2>
+        <p class="text-gray-500">
+          Crea, edita y desactiva las recompensas del programa de lealtad.
+        </p>
+      </div>
+      <p-button
+        label="Nueva Recompensa"
+        icon="pi pi-plus"
+        (onClick)="openNewRewardModal()"
+      ></p-button>
+    </div>
+
+    <p-table
+      [value]="rewards()"
+      [loading]="isLoading()"
+      [paginator]="true"
+      [rows]="10"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      styleClass="p-datatable-striped"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="name">
+            Nombre <p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th>Descripción</th>
+          <th pSortableColumn="requiredPoints">
+            Puntos <p-sortIcon field="requiredPoints"></p-sortIcon>
+          </th>
+          <th pSortableColumn="active">
+            Estado <p-sortIcon field="active"></p-sortIcon>
+          </th>
+          <th>Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-reward>
+        <tr>
+          <td class="font-semibold">{{ reward.name }}</td>
+          <td>
+            {{ reward.description | slice : 0 : 50
+            }}{{ reward.description.length > 50 ? "..." : "" }}
+          </td>
+          <td>
+            <span class="font-bold text-blue-600"
+              >{{ reward.requiredPoints }} pts</span
+            >
+          </td>
+          <td>
+            <p-tag
+              [severity]="reward.active ? 'success' : 'danger'"
+              [value]="reward.active ? 'Activo' : 'Inactivo'"
+            ></p-tag>
+          </td>
+          <td>
+            <div class="flex gap-2">
+              <p-button
+                icon="pi pi-pencil"
+                styleClass="p-button-text"
+                pTooltip="Editar"
+                (onClick)="openEditRewardModal(reward)"
+              ></p-button>
+
+              <p-button
+                icon="pi pi-trash"
+                styleClass="p-button-text p-button-danger"
+                pTooltip="Eliminar"
+                (onClick)="onDeleteReward(reward, $event)"
+              ></p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="text-center p-4">
+            No se encontraron recompensas.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<p-dialog
+  [header]="isEditMode() ? 'Editar Recompensa' : 'Nueva Recompensa'"
+  [(visible)]="displayModal"
+  [modal]="true"
+  [style]="{ width: '450px' }"
+  (onHide)="hideModal()"
+>
+  <form [formGroup]="rewardForm" (ngSubmit)="onSaveReward()">
+    <div class="flex flex-col gap-4 p-fluid pt-4">
+      <div class="flex flex-col">
+        <label for="name" class="font-semibold mb-1">Nombre</label>
+        <input pInputText id="name" formControlName="name" />
+      </div>
+
+      <div class="flex flex-col">
+        <label for="description" class="font-semibold mb-1">Descripción</label>
+        <textarea
+          pTextarea
+          id="description"
+          formControlName="description"
+          rows="3"
+        ></textarea>
+      </div>
+
+      <div class="flex flex-col">
+        <label for="points" class="font-semibold mb-1">Puntos Requeridos</label>
+        <p-inputNumber
+          id="points"
+          formControlName="requiredPoints"
+          [min]="1"
+        ></p-inputNumber>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <label for="active" class="font-semibold">Activo</label>
+        <p-inputSwitch id="active" formControlName="active"></p-inputSwitch>
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      (onClick)="hideModal()"
+      styleClass="p-button-text"
+    ></p-button>
+    <p-button
+      label="Guardar"
+      icon="pi pi-check"
+      (click)="onSaveReward()"
+      [loading]="isSubmitting()"
+      [disabled]="rewardForm.invalid"
+    ></p-button>
+  </ng-template>
+</p-dialog>

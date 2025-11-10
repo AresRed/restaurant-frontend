@@ -13,6 +13,8 @@ export interface EmployeeResponse {
   lastName: string;
   fullName: string;
   profileImageUrl: string;
+  phone: string;
+  
   positionId: number;
   positionName: string;
   positionDescription: string;
@@ -26,7 +28,13 @@ export interface EmployeeResponse {
 }
 
 export interface EmployeeRequest {
-  userId: number;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  password?: string;
+
   positionId: number;
   salary: number;
   hireDate: string;

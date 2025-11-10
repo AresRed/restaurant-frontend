@@ -7,6 +7,7 @@
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="p-6 grid gap-8">
     <div class="flex flex-col items-center gap-4">
+      <!-- ... (Tu código de carga de imagen es genial, no lo tocamos) ... -->
       <div
         class="relative group w-52 h-52 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shadow-sm flex items-center justify-center cursor-pointer hover:shadow-md transition-all"
       >
@@ -16,14 +17,12 @@
           alt="Vista previa"
           class="object-cover w-full h-full group-hover:opacity-80 transition-all"
         />
-
         <ng-template #uploadPlaceholder>
           <div class="flex flex-col items-center text-gray-400">
             <i class="pi pi-image text-3xl mb-1"></i>
             <span class="text-sm text-center">Sube una imagen</span>
           </div>
         </ng-template>
-
         <div
           *ngIf="selectedImageUrl"
           class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all"
@@ -55,7 +54,6 @@
           Subiendo... {{ uploadProgress }}%
         </p>
       </div>
-
       <input
         #fileInput
         type="file"
@@ -63,7 +61,6 @@
         (change)="onImageUpload($event)"
         hidden
       />
-
       <p-button
         *ngIf="!selectedImageUrl"
         icon="pi pi-upload"
@@ -74,154 +71,273 @@
       ></p-button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
+    <fieldset
+      class="flex items-center justify-center gap-4 p-4 bg-gray-50 rounded-lg border"
+    >
+      <legend class="text-sm font-semibold text-gray-600 px-2">
+        Tipo de Producto
+      </legend>
+      <label for="isCombo" class="font-semibold text-lg text-gray-700">
+        ¿Es un Combo?
+      </label>
+      <p-inputSwitch id="isCombo" formControlName="isCombo"></p-inputSwitch>
+      <span class="text-gray-500 text-sm">
+        (Marcar si es un paquete de otros productos)
+      </span>
+    </fieldset>
+
+    <!-- 3. DETALLES BÁSICOS DEL PRODUCTO (Sin cambios) -->
+    <fieldset class="border rounded-lg p-4">
+      <legend class="text-sm font-semibold text-gray-600 px-2">
+        Detalles Básicos
+      </legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1"
+            >Nombre *</label
+          >
+          <input
+            pInputText
+            formControlName="name"
+            placeholder="Ej. Lomo Saltado"
+            class="w-full"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1"
+            >Categoría *</label
+          >
+          <p-dropdown
+            [options]="categories"
+            optionLabel="name"
+            optionValue="id"
+            formControlName="categoryId"
+            placeholder="Seleccionar categoría"
+            [showClear]="true"
+            class="w-full"
+            styleClass="w-full"
+          ></p-dropdown>
+        </div>
+      </div>
+
+      <div class="mt-6">
         <label class="block text-sm font-semibold text-gray-700 mb-1"
-          >Nombre *</label
+          >Descripción</label
         >
-        <input
-          pInputText
-          formControlName="name"
-          placeholder="Ej. Lomo Saltado"
+        <textarea
+          pTextarea
+          formControlName="description"
+          rows="3"
+          placeholder="Breve descripción del producto"
           class="w-full"
-        />
+        ></textarea>
       </div>
 
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1"
-          >Categoría *</label
-        >
-        <p-dropdown
-          [options]="categories"
-          optionLabel="name"
-          optionValue="id"
-          formControlName="categoryId"
-          placeholder="Seleccionar categoría"
-          [showClear]="true"
-          class="w-full"
-        ></p-dropdown>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1"
+            >Precio (S/.) *</label
+          >
+          <p-inputNumber
+            formControlName="price"
+            mode="currency"
+            currency="PEN"
+            locale="es-PE"
+            class="w-full"
+            styleClass="w-full"
+          ></p-inputNumber>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1"
+            >Tiempo de preparación (min) *</label
+          >
+          <p-inputNumber
+            formControlName="preparationTimeMinutes"
+            [min]="1"
+            [showButtons]="true"
+            suffix=" min"
+            class="w-full"
+            styleClass="w-full"
+          ></p-inputNumber>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">
+            Estado
+          </label>
+          <p-dropdown
+            [options]="[
+              { label: 'Activo', value: true },
+              { label: 'Inactivo', value: false }
+            ]"
+            formControlName="active"
+            class="w-full"
+            styleClass="w-full"
+          ></p-dropdown>
+        </div>
       </div>
-    </div>
+    </fieldset>
 
-    <div>
-      <label class="block text-sm font-semibold text-gray-700 mb-1"
-        >Descripción</label
-      >
-      <textarea
-        pTextarea
-        formControlName="description"
-        rows="3"
-        placeholder="Breve descripción del producto"
-        class="w-full"
-      ></textarea>
-    </div>
+    <!-- 
+      4. SECCIONES DINÁMICAS (Ingredientes o Combos) 
+      Usamos [hidden] para mantener el FormArray en el DOM y evitar errores.
+    -->
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1"
-          >Precio (S/.) *</label
-        >
-        <p-inputNumber
-          formControlName="price"
-          mode="currency"
-          currency="PEN"
-          locale="es-PE"
-          class="w-full"
-        ></p-inputNumber>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1"
-          >Tiempo de preparación (min) *</label
-        >
-        <p-inputNumber
-          formControlName="preparationTimeMinutes"
-          [min]="1"
-          [showButtons]="true"
-          class="w-full"
-        ></p-inputNumber>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1">
-          Estado
-        </label>
-        <p-dropdown
-          [options]="[
-            { label: 'Activo', value: true },
-            { label: 'Inactivo', value: false }
-          ]"
-          formControlName="active"
-          class="w-full"
-        ></p-dropdown>
-      </div>
-    </div>
-
-    <div class="mt-2">
-      <h3
-        class="font-semibold text-gray-800 mb-3 flex items-center justify-between"
-      >
-        Ingredientes
+    <!-- SECCIÓN DE INGREDIENTES (Producto Simple) -->
+    <fieldset
+      class="border rounded-lg p-4 animate-fade-in"
+      [hidden]="isCombo"
+      formArrayName="ingredients"
+    >
+      <legend class="text-sm font-semibold text-gray-600 px-2">
+        Ingredientes (Producto Simple)
+      </legend>
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-gray-800">Lista de Ingredientes</h3>
         <p-button
           icon="pi pi-plus"
-          label="Agregar"
+          label="Agregar Ingrediente"
           size="small"
           class="!bg-green-600 hover:!bg-green-700 !text-white"
           (click)="addIngredient()"
           type="button"
         ></p-button>
-      </h3>
-
-      <div formArrayName="ingredients">
-        <div
-          class="grid grid-cols-3 gap-3 text-sm font-semibold text-gray-600 mb-2"
-        >
-          <div>Ingrediente</div>
-          <div>Cantidad</div>
-          <div>Unidad</div>
-        </div>
-
-        <div
-          *ngFor="let ing of ingredients.controls; let i = index"
-          [formGroupName]="i"
-          class="border border-gray-200 p-3 rounded-lg mb-3 grid grid-cols-1 md:grid-cols-3 gap-3 items-center"
-        >
-          <p-select
-            [options]="ingredientsList"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Seleccionar ingrediente"
-            formControlName="ingredientId"
-            (onChange)="onIngredientSelect($event, i)"
-            class="w-full"
-          ></p-select>
-
-          <p-inputNumber
-            formControlName="quantity"
-            [min]="0.1"
-            [showButtons]="true"
-            class="w-full"
-          ></p-inputNumber>
-
-          <div class="flex items-center gap-2">
-            <input
-              pInputText
-              formControlName="unitName"
-              placeholder="Unidad"
-              readonly
-              class="flex-1 bg-gray-100 text-gray-600"
-            />
-            <p-button
-              type="button"
-              icon="pi pi-trash"
-              severity="danger"
-              (click)="removeIngredient(i)"
-            ></p-button>
-          </div>
-        </div>
       </div>
-    </div>
 
+      <div
+        class="grid grid-cols-[1fr,auto,auto,auto] gap-3 text-sm font-semibold text-gray-600 mb-2 px-2"
+      >
+        <div>Ingrediente</div>
+        <div>Cantidad</div>
+        <div>Unidad</div>
+        <div></div>
+      </div>
+
+      <div
+        *ngFor="let ing of ingredients.controls; let i = index"
+        [formGroupName]="i"
+        class="border border-gray-200 p-3 rounded-lg mb-3 grid grid-cols-1 md:grid-cols-[1fr,auto,auto,auto] gap-3 items-center"
+      >
+        <!-- CAMBIADO A p-dropdown para consistencia y filtro -->
+        <p-dropdown
+          [options]="ingredientsList"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Seleccionar ingrediente"
+          formControlName="ingredientId"
+          (onChange)="onIngredientSelect($event, i)"
+          class="w-full"
+          styleClass="w-full"
+          [filter]="true"
+          filterBy="name"
+        ></p-dropdown>
+
+        <p-inputNumber
+          formControlName="quantity"
+          [min]="0.1"
+          [showButtons]="true"
+          class="w-full"
+          styleClass="w-full"
+        ></p-inputNumber>
+
+        <input
+          pInputText
+          formControlName="unitName"
+          placeholder="Unidad"
+          readonly
+          class="flex-1 bg-gray-100 text-gray-600"
+        />
+
+        <p-button
+          type="button"
+          icon="pi pi-trash"
+          severity="danger"
+          [text]="true"
+          (click)="removeIngredient(i)"
+        ></p-button>
+      </div>
+      <div
+        *ngIf="ingredients.controls.length === 0"
+        class="text-center text-gray-400 italic p-4"
+      >
+        Agrega ingredientes para este producto.
+      </div>
+    </fieldset>
+
+    <!-- SECCIÓN DE ITEMS DEL COMBO (Combo) -->
+    <fieldset
+      class="border rounded-lg p-4 animate-fade-in"
+      [hidden]="!isCombo"
+      formArrayName="comboItems"
+    >
+      <legend class="text-sm font-semibold text-gray-600 px-2">
+        Items del Combo (Paquete)
+      </legend>
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-gray-800">Productos Incluidos</h3>
+        <p-button
+          icon="pi pi-plus"
+          label="Agregar Producto"
+          size="small"
+          class="!bg-purple-600 hover:!bg-purple-700 !text-white"
+          (click)="addComboItem()"
+          type="button"
+        ></p-button>
+      </div>
+
+      <div
+        class="grid grid-cols-[1fr,auto,auto] gap-3 text-sm font-semibold text-gray-600 mb-2 px-2"
+      >
+        <div>Producto</div>
+        <div>Cantidad</div>
+        <div>Acción</div>
+      </div>
+
+      <div
+        *ngFor="let item of comboItems.controls; let i = index"
+        [formGroupName]="i"
+        class="border border-gray-200 p-3 rounded-lg mb-3 grid grid-cols-1 md:grid-cols-[1fr,auto,auto] gap-3 items-center"
+      >
+        <p-dropdown
+          [options]="selectableProducts()"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Seleccionar producto"
+          formControlName="simpleProductId"
+          [filter]="true"
+          filterBy="name"
+          class="w-full"
+          styleClass="w-full"
+        ></p-dropdown>
+
+        <p-inputNumber
+          formControlName="quantity"
+          [min]="1"
+          [step]="1"
+          [showButtons]="true"
+          class="w-full"
+          styleClass="w-full"
+        ></p-inputNumber>
+
+        <p-button
+          type="button"
+          icon="pi pi-trash"
+          severity="danger"
+          [text]="true"
+          (click)="removeComboItem(i)"
+        ></p-button>
+      </div>
+      <div
+        *ngIf="comboItems.controls.length === 0"
+        class="text-center text-gray-400 italic p-4"
+      >
+        Agrega productos para armar este combo.
+      </div>
+    </fieldset>
+
+    <!-- 5. BOTONES DE ACCIÓN (Sin cambios) -->
     <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
       <p-button
         type="button"
@@ -231,9 +347,11 @@
       ></p-button>
       <p-button
         type="submit"
-        label="Guardar"
+        [label]="isEditMode ? 'Guardar Cambios' : 'Crear Producto'"
         icon="pi pi-save"
         class="p-button-primary"
+        [loading]="loading"
+        [disabled]="form.invalid"
       ></p-button>
     </div>
   </form>

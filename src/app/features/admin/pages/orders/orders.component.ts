@@ -31,6 +31,8 @@ import { PanelModule } from 'primeng/panel';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { environment } from '../../../../../environments/environment';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 interface TableMap {
   label: string;
@@ -49,6 +51,8 @@ interface TableMap {
     DropdownModule,
     InputTextModule,
     InputNumberModule,
+    IconFieldModule,
+    InputIconModule,
     AutoCompleteModule,
     InputGroupModule,
     InputGroupAddonModule,

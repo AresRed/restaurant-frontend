@@ -8,6 +8,7 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { CartItem } from '../../../../core/models/cart.model';
 import { OrderTypeResponse } from '../../../../core/models/order-type.model';
+import { OrderStatusResponse } from '../../../../core/models/order/order-statuses/order-statuses.model';
 import {
   DeliveryAddressRequest,
   OrderRequest,
@@ -15,6 +16,7 @@ import {
 } from '../../../../core/models/order/orderhttp/order.model';
 import { CartService } from '../../../../core/services/cart.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { OrderStatusService } from '../../../../core/services/orders/order-status.service';
 import { OrderTypeService } from '../../../../core/services/orders/order-type.service';
 import { OrderService } from '../../../../core/services/orders/order.service';
 import { PaymentService } from '../../../../core/services/payment/payment.service';
@@ -50,8 +52,9 @@ export class CheckoutComponent implements OnInit {
   orderTypes: OrderTypeResponse[] = [];
   selectedOrderType: OrderTypeResponse | null = null;
 
-  readonly STATUS_PENDING = 1;
-  readonly STATUS_PENDING_CONFIRMATION = 10;
+  private allOrderStatuses: OrderStatusResponse[] = [];
+  private onlinePaymentStatusId?: number; // Para pagos con tarjeta (PENDING)
+  private localPaymentStatusId?: number;
 
   selectedDeliveryAddress: DeliveryAddressRequest | null = null;
   selectedTableId: number | null = null;
@@ -62,6 +65,7 @@ export class CheckoutComponent implements OnInit {
     private cartService: CartService,
     private paymentService: PaymentService,
     private orderService: OrderService,
+    private orderStatusService: OrderStatusService,
     private orderTypeService: OrderTypeService,
     private notificationService: NotificationService,
     private router: Router
@@ -74,6 +78,7 @@ export class CheckoutComponent implements OnInit {
     });
 
     this.loadOrderTypes();
+    this.loadOrderStatuses();
   }
 
   goToStep(step: number) {
@@ -96,6 +101,49 @@ export class CheckoutComponent implements OnInit {
           'No se pudieron cargar los tipos de orden'
         );
       },
+    });
+  }
+
+  loadOrderStatuses(): void {
+    this.orderStatusService.getAllOrderStatuses().subscribe({
+      next: (res) => {
+        if (!res.success || !res.data) {
+          this.notificationService.error(
+            'Error Crítico',
+            'No se pudieron cargar los estados de orden.'
+          );
+          return;
+        }
+        this.allOrderStatuses = res.data;
+
+        const pendingStatus = res.data.find((s) => s.code === 'PENDING');
+        const pendingConfirmationStatus = res.data.find(
+          (s) => s.code === 'PENDING_CONFIRMATION'
+        );
+
+        if (pendingStatus) {
+          this.onlinePaymentStatusId = pendingStatus.id;
+        } else {
+          this.notificationService.error(
+            'Error de Config.',
+            'No se encontró el estado "PENDING".'
+          );
+        }
+
+        if (pendingConfirmationStatus) {
+          this.localPaymentStatusId = pendingConfirmationStatus.id;
+        } else {
+          this.notificationService.error(
+            'Error de Config.',
+            'No se encontró el estado "PENDING_CONFIRMATION".'
+          );
+        }
+      },
+      error: (err) =>
+        this.notificationService.error(
+          'Error de Red',
+          'No se pudieron cargar los estados de orden.'
+        ),
     });
   }
 
@@ -125,8 +173,15 @@ export class CheckoutComponent implements OnInit {
         return;
       }
 
+      if (!this.onlinePaymentStatusId) {
+        this.notificationService.error(
+          'Error de Configuración',
+          'El estado "PENDING" no está cargado.'
+        );
+        return;
+      }
       const orderPayload: OrderRequest = this.buildOrderPayload(
-        this.STATUS_PENDING
+        this.onlinePaymentStatusId
       );
 
       const orderResponse = await firstValueFrom(
@@ -171,8 +226,15 @@ export class CheckoutComponent implements OnInit {
         return;
       }
 
+      if (!this.localPaymentStatusId) {
+        this.notificationService.error(
+          'Error de Configuración',
+          'El estado "PENDING_CONFIRMATION" no está cargado.'
+        );
+        return;
+      }
       const orderPayload: OrderRequest = this.buildOrderPayload(
-        this.STATUS_PENDING_CONFIRMATION
+        this.localPaymentStatusId
       );
 
       orderPayload.payments = [localPayment];
